@@ -11,9 +11,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Yurn/YurnSatoriFramework/releases">下载</a>
+  <a href="https://github.com/Nyayurn/YurnSatoriFramework/releases">下载</a>
   ·
-  <a href="https://github.com/Yurn/YurnSatoriFramework/#quickstart">快速开始</a>
+  <a href="https://github.com/Nyayurn/YurnSatoriFramework/#quickstart">快速开始</a>
 </p>
 
 # QuickStart
