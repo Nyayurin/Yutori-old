@@ -49,7 +49,7 @@
     <artifactId>YurnSatoriFramework</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <scope>system</scope>
-    <systemPath>${project.basedir}/lib/</systemPath>
+    <systemPath>${project.basedir}/lib/YurnSatoriFramework-0.0.1-SNAPSHOT.jar</systemPath>
 </dependency>
 ```
 
