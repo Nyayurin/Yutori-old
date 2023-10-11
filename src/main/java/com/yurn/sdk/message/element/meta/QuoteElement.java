@@ -32,7 +32,7 @@ public class QuoteElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         String str = "<quote";
         if (id != null) {
             str += " id=&quot;" + id + "&quot;";
@@ -40,7 +40,7 @@ public class QuoteElement extends TextElement {
         if (forward != null) {
             str += " forward=&quot;" + forward + "&quot;";
         }
-        str += ">" + super.toXmlString() + "</quote>";
+        str += ">" + super.toString() + "</quote>";
         return str;
     }
 }

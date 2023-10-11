@@ -21,7 +21,7 @@ public class AudioElement extends BaseResourceElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<audio" + super.toXmlString() + "/>";
+    public String toString() {
+        return "<audio" + super.toString() + "/>";
     }
 }

@@ -32,7 +32,7 @@ public class MessageElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         String str = "<message";
         if (id != null) {
             str += " id=&quot;" + id + "&quot;";
@@ -40,7 +40,7 @@ public class MessageElement extends TextElement {
         if (forward != null) {
             str += " forward=&quot;" + forward + "&quot;";
         }
-        str += ">" + super.toXmlString() + "</message>";
+        str += ">" + super.toString() + "</message>";
         return str;
     }
 }

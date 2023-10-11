@@ -21,7 +21,7 @@ public class FileElement extends BaseResourceElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<file" + super.toXmlString() + "/>";
+    public String toString() {
+        return "<file" + super.toString() + "/>";
     }
 }

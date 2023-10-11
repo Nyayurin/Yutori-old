@@ -13,7 +13,7 @@ public class StrongElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<strong>" + super.toXmlString() + "</strong>";
+    public String toString() {
+        return "<strong>" + super.toString() + "</strong>";
     }
 }

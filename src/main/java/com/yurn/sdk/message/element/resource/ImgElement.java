@@ -41,8 +41,8 @@ public class ImgElement extends BaseResourceElement {
     }
 
     @Override
-    public String toXmlString() {
-        String str = "<img" + super.toXmlString();
+    public String toString() {
+        String str = "<img" + super.toString();
         if (width != null) {
             str += " width=&quot;" + width + "&quot;";
         }

@@ -13,7 +13,7 @@ public class ItalicElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<i>" + super.toXmlString() + "</i>";
+    public String toString() {
+        return "<i>" + super.toString() + "</i>";
     }
 }

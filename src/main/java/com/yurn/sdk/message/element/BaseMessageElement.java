@@ -8,5 +8,6 @@ public abstract class BaseMessageElement {
      * 转为XML字符串
      * @return 输出
      */
-    public abstract String toXmlString();
+    @Override
+    public abstract String toString();
 }

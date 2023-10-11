@@ -13,7 +13,7 @@ public class SupElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<sup>" + super.toXmlString() + "</sup>";
+    public String toString() {
+        return "<sup>" + super.toString() + "</sup>";
     }
 }

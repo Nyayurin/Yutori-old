@@ -13,7 +13,7 @@ public class CodeElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<code>" + super.toXmlString() + "</code>";
+    public String toString() {
+        return "<code>" + super.toString() + "</code>";
     }
 }

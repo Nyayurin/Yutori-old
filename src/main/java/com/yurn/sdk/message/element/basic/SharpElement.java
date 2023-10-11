@@ -26,7 +26,7 @@ public class SharpElement extends BaseMessageElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         String str = "<sharp id=&quot;" + id + "&quot;";
         if (name != null) {
             str += " name=&quot;" + name + "&quot;";

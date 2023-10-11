@@ -13,7 +13,7 @@ public class BoldElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<b>" + super.toXmlString() + "</b>";
+    public String toString() {
+        return "<b>" + super.toString() + "</b>";
     }
 }

@@ -84,6 +84,7 @@ public class FriendRequestListener {
 ## 进阶
 
 - 框架整体与 Satori 架构基本一致, 请参考 [Satori 文档](https://satori.js.org/zh-CN/protocol)
+- 源码含有 javadoc 方便阅读, 请自行阅读源码
 
 ### 打包
 

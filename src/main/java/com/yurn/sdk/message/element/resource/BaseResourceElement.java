@@ -36,7 +36,7 @@ public abstract class BaseResourceElement extends BaseMessageElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         String str = " src=&quot;" + src + "&quot;";
         if (cache != null) {
             str += " cache=&quot;" + cache + "&quot;";

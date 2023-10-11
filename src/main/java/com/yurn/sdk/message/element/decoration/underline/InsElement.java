@@ -13,7 +13,7 @@ public class InsElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<ins>" + super.toXmlString() + "</ins>";
+    public String toString() {
+        return "<ins>" + super.toString() + "</ins>";
     }
 }

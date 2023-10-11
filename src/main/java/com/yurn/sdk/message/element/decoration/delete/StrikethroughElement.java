@@ -13,7 +13,7 @@ public class StrikethroughElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<s>" + super.toXmlString() + "</s>";
+    public String toString() {
+        return "<s>" + super.toString() + "</s>";
     }
 }

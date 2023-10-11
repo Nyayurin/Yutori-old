@@ -15,7 +15,7 @@ public class TextElement extends BaseMessageElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         return text;
     }
 }

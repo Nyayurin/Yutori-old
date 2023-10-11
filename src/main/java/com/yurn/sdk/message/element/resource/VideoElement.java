@@ -21,7 +21,7 @@ public class VideoElement extends BaseResourceElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<video" + super.toXmlString() + "/>";
+    public String toString() {
+        return "<video" + super.toString() + "/>";
     }
 }

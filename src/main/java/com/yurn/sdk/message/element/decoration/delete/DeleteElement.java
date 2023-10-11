@@ -13,7 +13,7 @@ public class DeleteElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<del>" + super.toXmlString() + "</del>";
+    public String toString() {
+        return "<del>" + super.toString() + "</del>";
     }
 }

@@ -9,7 +9,7 @@ import com.yurn.sdk.message.element.BaseMessageElement;
  */
 public class ParagraphElement extends BaseMessageElement {
     @Override
-    public String toXmlString() {
+    public String toString() {
         return "<p/>";
     }
 }

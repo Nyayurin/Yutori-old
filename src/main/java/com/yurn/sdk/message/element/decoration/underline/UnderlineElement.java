@@ -13,7 +13,7 @@ public class UnderlineElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<u>" + super.toXmlString() + "</u>";
+    public String toString() {
+        return "<u>" + super.toString() + "</u>";
     }
 }

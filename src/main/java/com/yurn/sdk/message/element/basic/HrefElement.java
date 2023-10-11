@@ -19,7 +19,7 @@ public class HrefElement extends BaseMessageElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         return "<sharp href=&quot;" + href + "&quot;/>";
     }
 }

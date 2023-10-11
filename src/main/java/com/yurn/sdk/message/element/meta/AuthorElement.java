@@ -31,7 +31,7 @@ public class AuthorElement extends BaseMessageElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         String str = "<author";
         if (userId != null) {
             str += " user-id=&quot;" + userId + "&quot;";

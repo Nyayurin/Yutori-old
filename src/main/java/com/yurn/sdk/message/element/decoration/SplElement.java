@@ -13,7 +13,7 @@ public class SplElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<spl>" + super.toXmlString() + "</spl>";
+    public String toString() {
+        return "<spl>" + super.toString() + "</spl>";
     }
 }

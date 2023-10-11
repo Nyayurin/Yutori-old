@@ -13,7 +13,7 @@ public class EmElement extends TextElement {
     }
 
     @Override
-    public String toXmlString() {
-        return "<em>" + super.toXmlString() + "</em>";
+    public String toString() {
+        return "<em>" + super.toString() + "</em>";
     }
 }

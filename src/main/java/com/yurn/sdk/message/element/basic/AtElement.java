@@ -54,7 +54,7 @@ public class AtElement extends BaseMessageElement {
     }
 
     @Override
-    public String toXmlString() {
+    public String toString() {
         String str = "<at";
         if (id != null) {
             str += " id=&quot;" + id + "&quot;";
