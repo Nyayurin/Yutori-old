@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.yurn</groupId>
 	<artifactId>YurnSatoriFramework</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>YurnSatoriFramework</name>
 	<description>YurnSatoriFramework</description>
 	<properties>

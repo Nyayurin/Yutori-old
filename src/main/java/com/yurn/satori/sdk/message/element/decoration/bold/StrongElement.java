@@ -1,0 +1,20 @@
+package com.yurn.satori.sdk.message.element.decoration.bold;
+
+import com.yurn.satori.sdk.message.element.basic.TextElement;
+
+/**
+ * 粗体
+ *
+ * @author Yurn
+ */
+@SuppressWarnings("unused")
+public class StrongElement extends TextElement {
+    public StrongElement(String text) {
+        super(text);
+    }
+
+    @Override
+    public String toString() {
+        return "<strong>" + super.toString() + "</strong>";
+    }
+}

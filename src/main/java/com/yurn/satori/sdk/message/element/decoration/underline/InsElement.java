@@ -1,0 +1,20 @@
+package com.yurn.satori.sdk.message.element.decoration.underline;
+
+import com.yurn.satori.sdk.message.element.basic.TextElement;
+
+/**
+ * 下划线
+ *
+ * @author Yurn
+ */
+@SuppressWarnings("unused")
+public class InsElement extends TextElement {
+    public InsElement(String text) {
+        super(text);
+    }
+
+    @Override
+    public String toString() {
+        return "<ins>" + super.toString() + "</ins>";
+    }
+}
