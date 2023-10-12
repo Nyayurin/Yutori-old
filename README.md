@@ -49,7 +49,6 @@
 
 ```java
 @Component
-@Slf4j
 public class FriendRequestListener {
     public FriendRequestListener() {
         GlobalEventChannel.INSTANCE.add(event -> {
