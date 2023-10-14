@@ -1,6 +1,11 @@
 package com.yurn.satori.sdk.message.element.typesetting;
 
 import com.yurn.satori.sdk.message.element.basic.TextElement;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -9,24 +14,25 @@ import org.springframework.lang.Nullable;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class MessageElement extends TextElement {
     /**
      * 消息的 ID
      */
-    private final String id;
+    protected String id;
+
     /**
      * 是否为转发消息
      */
-    private final Boolean forward;
+    protected Boolean forward;
 
     public MessageElement(@NonNull String text) {
         this(text, null, null);
     }
 
-    public MessageElement(@NonNull String text,
-                          @Nullable String id,
-                          @Nullable Boolean forward) {
+    public MessageElement(@NonNull String text, @Nullable String id, @Nullable Boolean forward) {
         super(text);
         this.id = id;
         this.forward = forward;
@@ -34,14 +40,16 @@ public class MessageElement extends TextElement {
 
     @Override
     public String toString() {
-        String str = "<message";
+        Element element = DocumentHelper.createElement("message");
         if (id != null) {
-            str += " id=&quot;" + id + "&quot;";
+            element.addAttribute("id", id);
         }
         if (forward != null) {
-            str += " forward=&quot;" + forward + "&quot;";
+            element.addAttribute("forward", String.valueOf(forward));
         }
-        str += ">" + super.toString() + "</message>";
-        return str;
+        if (text != null) {
+            element.setText(text);
+        }
+        return element.asXML();
     }
 }

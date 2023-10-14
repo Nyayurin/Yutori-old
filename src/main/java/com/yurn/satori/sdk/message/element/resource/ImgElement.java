@@ -1,5 +1,10 @@
 package com.yurn.satori.sdk.message.element.resource;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -8,34 +13,31 @@ import org.springframework.lang.Nullable;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class ImgElement extends BaseResourceElement {
     /**
      * 图片的宽度
      */
-    private final Long width;
+    protected Long width;
+
     /**
      * 图片的高度
      */
-    private final Long height;
+    protected Long height;
 
     public ImgElement(@NonNull String src) {
         this(src, null, null);
     }
 
-    public ImgElement(@NonNull String src,
-                      @Nullable Long width,
-                      @Nullable Long height) {
+    public ImgElement(@NonNull String src, @Nullable Long width, @Nullable Long height) {
         super(src);
         this.width = width;
         this.height = height;
     }
 
-    public ImgElement(@NonNull String src,
-                      @Nullable Boolean cache,
-                      @Nullable String timeout,
-                      @Nullable Long width,
-                      @Nullable Long height) {
+    public ImgElement(@NonNull String src, @Nullable Boolean cache, @Nullable String timeout, @Nullable Long width, @Nullable Long height) {
         super(src, cache, timeout);
         this.width = width;
         this.height = height;
@@ -43,14 +45,22 @@ public class ImgElement extends BaseResourceElement {
 
     @Override
     public String toString() {
-        String str = "<img" + super.toString();
+        Element element = DocumentHelper.createElement("img");
+        if (src != null) {
+            element.addAttribute("src", src);
+        }
+        if (cache != null) {
+            element.addAttribute("cache", String.valueOf(cache));
+        }
+        if (timeout != null) {
+            element.addAttribute("timeout", timeout);
+        }
         if (width != null) {
-            str += " width=&quot;" + width + "&quot;";
+            element.addAttribute("width", String.valueOf(width));
         }
         if (height != null) {
-            str += " height=&quot;" + height + "&quot;";
+            element.addAttribute("height", String.valueOf(height));
         }
-        str += "/>";
-        return str;
+        return element.asXML();
     }
 }

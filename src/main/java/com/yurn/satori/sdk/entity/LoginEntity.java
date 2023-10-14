@@ -35,25 +35,24 @@ public class LoginEntity {
      */
     private Integer status;
 
-
     /**
      * 离线
      */
-    public static final Integer OFFLINE = 0;
+    public static final int OFFLINE = 0;
     /**
      * 在线
      */
-    public static final Integer ONLINE = 1;
+    public static final int ONLINE = 1;
     /**
      * 连接中
      */
-    public static final Integer CONNECT = 2;
+    public static final int CONNECT = 2;
     /**
      * 断开连接
      */
-    public static final Integer DISCONNECT = 3;
+    public static final int DISCONNECT = 3;
     /**
      * 重新连接
      */
-    public static final Integer RECONNECT = 4;
+    public static final int RECONNECT = 4;
 }

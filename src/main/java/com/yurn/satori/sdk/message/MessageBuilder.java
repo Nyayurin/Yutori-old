@@ -1,5 +1,6 @@
 package com.yurn.satori.sdk.message;
 
+import com.yurn.satori.sdk.message.element.BaseMessageElement;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 
@@ -23,6 +24,11 @@ public class MessageBuilder {
 
     public String build(String delimiter) {
         return list.stream().map(Object::toString).collect(Collectors.joining(delimiter));
+    }
+
+    public MessageBuilder append(@NonNull BaseMessageElement messageElement) {
+        list.add(messageElement);
+        return this;
     }
 
     public MessageBuilder append(@NonNull String string) {

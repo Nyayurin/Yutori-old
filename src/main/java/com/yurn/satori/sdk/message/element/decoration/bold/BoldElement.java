@@ -1,20 +1,32 @@
 package com.yurn.satori.sdk.message.element.decoration.bold;
 
 import com.yurn.satori.sdk.message.element.basic.TextElement;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.springframework.lang.NonNull;
 
 /**
  * 粗体
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class BoldElement extends TextElement {
-    public BoldElement(String text) {
+    public BoldElement(@NonNull String text) {
         super(text);
     }
 
     @Override
     public String toString() {
-        return "<b>" + super.toString() + "</b>";
+        Element element = DocumentHelper.createElement("b");
+        if (text != null) {
+            element.setText(text);
+        }
+        return element.asXML();
     }
 }

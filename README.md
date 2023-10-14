@@ -37,9 +37,9 @@
 <dependency>
     <groupId>com.yurn</groupId>
     <artifactId>YurnSatoriFramework</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <scope>system</scope>
-    <systemPath>${project.basedir}/lib/YurnSatoriFramework-0.0.1.jar</systemPath>
+    <systemPath>${project.basedir}/lib/YurnSatoriFramework-0.0.2.jar</systemPath>
 </dependency>
 ```
 

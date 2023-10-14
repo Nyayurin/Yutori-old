@@ -1,6 +1,11 @@
 package com.yurn.satori.sdk.message.element.basic;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -9,30 +14,34 @@ import org.springframework.lang.Nullable;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class SharpElement extends BaseMessageElement {
     /**
      * 目标频道的 ID
      */
-    private final String id;
+    protected String id;
+
     /**
      * 目标频道的名称
      */
-    private final String name;
+    protected String name;
 
-    public SharpElement(@NonNull String id,
-                        @Nullable String name) {
+    public SharpElement(@NonNull String id, @Nullable String name) {
         this.id = id;
         this.name = name;
     }
 
     @Override
     public String toString() {
-        String str = "<sharp id=&quot;" + id + "&quot;";
-        if (name != null) {
-            str += " name=&quot;" + name + "&quot;";
+        Element element = DocumentHelper.createElement("sharp");
+        if (id != null) {
+            element.addAttribute("id", id);
         }
-        str += "/>";
-        return str;
+        if (name != null) {
+            element.addAttribute("name", name);
+        }
+        return element.asXML();
     }
 }

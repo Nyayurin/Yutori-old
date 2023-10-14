@@ -27,14 +27,7 @@ public final class SendMessage {
     }
 
     public static String sendGenericMessage(String platform, String selfId, String resource, String method, String body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        if (platform != null) {
-            headers.set("X-Platform", platform);
-        }
-        if (selfId != null) {
-            headers.set("X-Self-ID", selfId);
-        }
+        HttpHeaders headers = makeHttpHeaders(platform, selfId);
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.postForObject(
@@ -43,14 +36,26 @@ public final class SendMessage {
     }
 
     public static InternalEventEntity sendInternalMessage(String platform, String selfId, String method, String body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-Platform", platform);
-        headers.set("X-Self-ID", selfId);
+        HttpHeaders headers = makeHttpHeaders(platform, selfId);
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.postForObject(
                 String.format("http://%s/%s/internal/%s", yurnSdkProperties.getAddress(), VERSION, method), httpEntity,
                 InternalEventEntity.class);
+    }
+
+    private static HttpHeaders makeHttpHeaders(String platform, String selfId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        if (yurnSdkProperties.getToken() != null) {
+            headers.set("Authorization", "Bearer " + yurnSdkProperties.getToken());
+        }
+        if (platform != null) {
+            headers.set("X-Platform", platform);
+        }
+        if (selfId != null) {
+            headers.set("X-Self-ID", selfId);
+        }
+        return headers;
     }
 }

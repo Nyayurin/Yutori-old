@@ -1,6 +1,11 @@
 package com.yurn.satori.sdk.message.element.basic;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.lang.NonNull;
 
 /**
@@ -8,12 +13,14 @@ import org.springframework.lang.NonNull;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class HrefElement extends BaseMessageElement {
     /**
      * 链接的 URL
      */
-    private final String href;
+    protected String href;
 
     public HrefElement(@NonNull String href) {
         this.href = href;
@@ -21,6 +28,10 @@ public class HrefElement extends BaseMessageElement {
 
     @Override
     public String toString() {
-        return "<sharp href=&quot;" + href + "&quot;/>";
+        Element element = DocumentHelper.createElement("a");
+        if (href != null) {
+            element.addAttribute("href", href);
+        }
+        return element.asXML();
     }
 }

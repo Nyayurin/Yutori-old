@@ -27,11 +27,11 @@ public class ConnectionEntity {
         ConnectionEntity connection = new ConnectionEntity();
         connection.setOp(jsonObject.getIntValue("op"));
         switch (jsonObject.getIntValue("op")) {
-            case 0 -> {
+            case ConnectionEntity.EVENT -> {
                 EventEntity event = jsonObject.getObject("body", EventEntity.class);
                 connection.setBody(event);
             }
-            case 4 -> {
+            case ConnectionEntity.READY -> {
                 Ready body = new Ready();
                 body.setLogins(jsonObject.getJSONObject("body").getJSONArray("logins").toArray(LoginEntity.class));
                 connection.setBody(body);
@@ -44,23 +44,23 @@ public class ConnectionEntity {
     /**
      * 接受 事件
      */
-    public static final Integer EVENT = 0;
+    public static final int EVENT = 0;
     /**
      * 发送 心跳
      */
-    public static final Integer PING = 1;
+    public static final int PING = 1;
     /**
      * 接收	心跳回复
      */
-    public static final Integer PONG = 2;
+    public static final int PONG = 2;
     /**
      * 发送	鉴权
      */
-    public static final Integer IDENTIFY = 3;
+    public static final int IDENTIFY = 3;
     /**
      * 接收	鉴权回复
      */
-    public static final Integer READY = 4;
+    public static final int READY = 4;
 
     public interface Body {}
 

@@ -1,6 +1,11 @@
 package com.yurn.satori.sdk.message.element.meta;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.lang.Nullable;
 
 /**
@@ -8,24 +13,26 @@ import org.springframework.lang.Nullable;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class AuthorElement extends BaseMessageElement {
     /**
      * 用户 ID
      */
-    private final String userId;
+    protected String userId;
+
     /**
      * 昵称
      */
-    private final String nickname;
+    protected String nickname;
+
     /**
      * 头像 URL
      */
-    private final String avatar;
+    protected String avatar;
 
-    public AuthorElement(@Nullable String userId,
-                         @Nullable String nickname,
-                         @Nullable String avatar) {
+    public AuthorElement(@Nullable String userId, @Nullable String nickname, @Nullable String avatar) {
         this.userId = userId;
         this.nickname = nickname;
         this.avatar = avatar;
@@ -33,17 +40,16 @@ public class AuthorElement extends BaseMessageElement {
 
     @Override
     public String toString() {
-        String str = "<author";
+        Element element = DocumentHelper.createElement("author");
         if (userId != null) {
-            str += " user-id=&quot;" + userId + "&quot;";
+            element.addAttribute("user-id", userId);
         }
         if (nickname != null) {
-            str += " nickname=&quot;" + nickname + "&quot;";
+            element.addAttribute("nickname", nickname);
         }
         if (avatar != null) {
-            str += " avatar=&quot;" + avatar + "&quot;";
+            element.addAttribute("avatar", avatar);
         }
-        str += "/>";
-        return str;
+        return element.asXML();
     }
 }

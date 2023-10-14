@@ -24,12 +24,12 @@ public final class MessageApi {
      * @param selfId    机器人 ID
      * @return 输出
      */
-    public static MessageEntity[] createMessage(String channelId, String content, String platform, String selfId) {
+    public static List<MessageEntity> createMessage(String channelId, String content, String platform, String selfId) {
         JSONObject map = new JSONObject();
         map.put("channel_id", channelId);
         map.put("content", content);
         String response = SendMessage.sendGenericMessage(platform, selfId, "message", "create", map.toString());
-        return JSONArray.parse(response).toArray(MessageEntity.class);
+        return JSONArray.parse(response).toList(MessageEntity.class);
     }
 
     /**

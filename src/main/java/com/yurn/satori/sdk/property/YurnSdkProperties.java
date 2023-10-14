@@ -13,8 +13,14 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("yurn-sdk")
 public class YurnSdkProperties {
     /**
-     * SDK的地址
+     * SDK 的地址
      */
     @Value("${yurn-sdk.address:127.0.0.1:5500}")
     private String address;
+
+    /**
+     * Token
+     */
+    @Value("${yurn-sdk.token:}")
+    private String token;
 }

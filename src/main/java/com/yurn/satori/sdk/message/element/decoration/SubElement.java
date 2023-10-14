@@ -1,20 +1,32 @@
 package com.yurn.satori.sdk.message.element.decoration;
 
 import com.yurn.satori.sdk.message.element.basic.TextElement;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.springframework.lang.NonNull;
 
 /**
  * 下标
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
 public class SubElement extends TextElement {
-    public SubElement(String text) {
+    public SubElement(@NonNull String text) {
         super(text);
     }
 
     @Override
     public String toString() {
-        return "<sub>" + super.toString() + "</sub>";
+        Element element = DocumentHelper.createElement("sub");
+        if (text != null) {
+            element.setText(text);
+        }
+        return element.asXML();
     }
 }
