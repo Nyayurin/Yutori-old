@@ -78,7 +78,7 @@ public class Main {
     
     public static void main(String[] args) {
         // 初始化核心启动类并传递一个 Properties 参数实体类, 并运行
-        new Boot(new Properties("127.0.0.1:5500", "token")).run();
+        new Boot(new PropertiesEntity("127.0.0.1:5500", "token")).run();
     }
 }
 ```
