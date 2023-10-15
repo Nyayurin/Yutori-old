@@ -13,6 +13,9 @@ public class BasicTest {
         Assertions.assertEquals("""
                         <at id="114514" name="田所浩二" role="admin" type="all"/>""",
                 new AtElement("114514", "田所浩二", "admin", "all").toString());
+        Assertions.assertEquals("""
+                        <at id="114514" name="&quot;&amp;&lt;&gt;" role="admin" type="all"/>""",
+                new AtElement("114514", "\"&<>", "admin", "all").toString());
     }
 
     @Test
@@ -20,6 +23,9 @@ public class BasicTest {
         Assertions.assertEquals("""
                         <a href="https://www.baidu.com"/>""",
                 new HrefElement("https://www.baidu.com").toString());
+        Assertions.assertEquals("""
+                        <a href="https://www.baidu.com/&quot;&amp;&lt;&gt;"/>""",
+                new HrefElement("https://www.baidu.com/\"&<>").toString());
     }
 
     @Test
@@ -27,6 +33,9 @@ public class BasicTest {
         Assertions.assertEquals("""
                         <sharp id="1919810" name="大粪交流群"/>""",
                 new SharpElement("1919810", "大粪交流群").toString());
+        Assertions.assertEquals("""
+                        <sharp id="1919810" name="&quot;&amp;&lt;&gt;"/>""",
+                new SharpElement("1919810", "\"&<>").toString());
     }
 
     @Test

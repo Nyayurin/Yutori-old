@@ -1,11 +1,10 @@
 package com.yurn.satori.sdk.message.element.typesetting;
 
 import com.yurn.satori.sdk.message.element.basic.TextElement;
+import com.yurn.satori.sdk.util.XmlUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 消息
@@ -26,11 +25,11 @@ public class MessageElement extends TextElement {
      */
     protected Boolean forward;
 
-    public MessageElement( String text) {
+    public MessageElement(String text) {
         this(text, null, null);
     }
 
-    public MessageElement( String text,  String id,  Boolean forward) {
+    public MessageElement(String text, String id, Boolean forward) {
         super(text);
         this.id = id;
         this.forward = forward;
@@ -38,16 +37,18 @@ public class MessageElement extends TextElement {
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("message");
+        String result = "<message";
         if (id != null) {
-            element.addAttribute("id", id);
+            result += " id=\"" + id + "\"";
         }
         if (forward != null) {
-            element.addAttribute("forward", String.valueOf(forward));
+            result += " forward";
         }
+        result += ">";
         if (text != null) {
-            element.setText(text);
+            result += super.toString();
         }
-        return element.asXML();
+        result += "</message>";
+        return result;
     }
 }

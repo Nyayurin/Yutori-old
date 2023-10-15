@@ -4,8 +4,6 @@ import com.yurn.satori.sdk.message.element.basic.TextElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 删除线
@@ -16,16 +14,17 @@ import org.dom4j.Element;
 @Data
 @NoArgsConstructor
 public class StrikethroughElement extends TextElement {
-    public StrikethroughElement( String text) {
+    public StrikethroughElement(String text) {
         super(text);
     }
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("s");
+        String result = "<s>";
         if (text != null) {
-            element.setText(text);
+            result += super.toString();
         }
-        return element.asXML();
+        result += "</s>";
+        return result;
     }
 }

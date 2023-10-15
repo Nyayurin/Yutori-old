@@ -4,8 +4,6 @@ import com.yurn.satori.sdk.message.element.basic.TextElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 斜体
@@ -16,16 +14,17 @@ import org.dom4j.Element;
 @Data
 @NoArgsConstructor
 public class ItalicElement extends TextElement {
-    public ItalicElement( String text) {
+    public ItalicElement(String text) {
         super(text);
     }
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("i");
+        String result = "<i>";
         if (text != null) {
-            element.setText(text);
+            result += super.toString();
         }
-        return element.asXML();
+        result += "</i>";
+        return result;
     }
 }

@@ -4,8 +4,6 @@ import com.yurn.satori.sdk.message.element.basic.TextElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 剧透
@@ -16,16 +14,17 @@ import org.dom4j.Element;
 @Data
 @NoArgsConstructor
 public class SplElement extends TextElement {
-    public SplElement( String text) {
+    public SplElement(String text) {
         super(text);
     }
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("spl");
+        String result = "<spl>";
         if (text != null) {
-            element.setText(text);
+            result += super.toString();
         }
-        return element.asXML();
+        result += "</spl>";
+        return result;
     }
 }

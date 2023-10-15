@@ -1,6 +1,7 @@
 package com.yurn.satori.sdk.message.element.basic;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import com.yurn.satori.sdk.util.XmlUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -23,10 +24,7 @@ public class TextElement extends BaseMessageElement {
     @Override
     public String toString() {
         if (text != null) {
-            return text.replace("&", "&amp;")
-                    .replace("\"", "&quot;")
-                    .replace("<", "&lt;")
-                    .replace(">", "&gt;");
+            return XmlUtil.encode(text);
         }
         return null;
     }

@@ -1,10 +1,9 @@
 package com.yurn.satori.sdk.message.element.resource;
 
+import com.yurn.satori.sdk.util.XmlUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 图片
@@ -25,17 +24,17 @@ public class ImgElement extends BaseResourceElement {
      */
     protected Long height;
 
-    public ImgElement( String src) {
+    public ImgElement(String src) {
         this(src, null, null);
     }
 
-    public ImgElement( String src,  Long width,  Long height) {
+    public ImgElement(String src, Long width, Long height) {
         super(src);
         this.width = width;
         this.height = height;
     }
 
-    public ImgElement( String src,  Boolean cache,  String timeout,  Long width,  Long height) {
+    public ImgElement(String src, Boolean cache, String timeout, Long width, Long height) {
         super(src, cache, timeout);
         this.width = width;
         this.height = height;
@@ -43,22 +42,23 @@ public class ImgElement extends BaseResourceElement {
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("img");
+        String result = "<img";
         if (src != null) {
-            element.addAttribute("src", src);
+            result += " src=\"" + XmlUtil.encode(src) + "\"";
         }
         if (cache != null) {
-            element.addAttribute("cache", String.valueOf(cache));
+            result += " cache";
         }
         if (timeout != null) {
-            element.addAttribute("timeout", timeout);
+            result += " timeout=\"" + timeout + "\"";
         }
         if (width != null) {
-            element.addAttribute("width", String.valueOf(width));
+            result += " width=" + width;
         }
         if (height != null) {
-            element.addAttribute("height", String.valueOf(height));
+            result += " height=" + height;
         }
-        return element.asXML();
+        result += "/>";
+        return result;
     }
 }

@@ -17,7 +17,7 @@ public class TypeTest {
     @Test
     public void message() {
         Assertions.assertEquals("""
-                        <message id="123456" forward="true">message</message>""",
+                        <message id="123456" forward>message</message>""",
                 new MessageElement("message", "123456", true).toString());
     }
 

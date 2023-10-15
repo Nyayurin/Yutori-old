@@ -1,11 +1,10 @@
 package com.yurn.satori.sdk.message.element.basic;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import com.yurn.satori.sdk.util.XmlUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 提及频道
@@ -33,13 +32,14 @@ public class SharpElement extends BaseMessageElement {
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("sharp");
+        String result = "<sharp";
         if (id != null) {
-            element.addAttribute("id", id);
+            result += " id=\"" + id + "\"";
         }
         if (name != null) {
-            element.addAttribute("name", name);
+            result += " name=\"" + XmlUtil.encode(name) + "\"";
         }
-        return element.asXML();
+        result += "/>";
+        return result;
     }
 }

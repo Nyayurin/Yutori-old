@@ -1,11 +1,10 @@
 package com.yurn.satori.sdk.message.element.meta;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import com.yurn.satori.sdk.util.XmlUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 作者
@@ -31,7 +30,7 @@ public class AuthorElement extends BaseMessageElement {
      */
     protected String avatar;
 
-    public AuthorElement( String userId,  String nickname,  String avatar) {
+    public AuthorElement(String userId, String nickname, String avatar) {
         this.userId = userId;
         this.nickname = nickname;
         this.avatar = avatar;
@@ -39,16 +38,17 @@ public class AuthorElement extends BaseMessageElement {
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("author");
+        String result = "<author";
         if (userId != null) {
-            element.addAttribute("user-id", userId);
+            result += " user-id=\"" + userId + "\"";
         }
         if (nickname != null) {
-            element.addAttribute("nickname", nickname);
+            result += " nickname=\"" + XmlUtil.encode(nickname) + "\"";
         }
         if (avatar != null) {
-            element.addAttribute("avatar", avatar);
+            result += " avatar=\"" + XmlUtil.encode(avatar) + "\"";
         }
-        return element.asXML();
+        result += "/>";
+        return result;
     }
 }

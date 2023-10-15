@@ -1,11 +1,10 @@
 package com.yurn.satori.sdk.message.element.basic;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import com.yurn.satori.sdk.util.XmlUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 链接
@@ -27,10 +26,11 @@ public class HrefElement extends BaseMessageElement {
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("a");
+        String result = "<a";
         if (href != null) {
-            element.addAttribute("href", href);
+            result += " href=\"" + XmlUtil.encode(href) + "\"";
         }
-        return element.asXML();
+        result += "/>";
+        return result;
     }
 }

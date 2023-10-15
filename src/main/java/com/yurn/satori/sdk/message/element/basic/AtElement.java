@@ -1,11 +1,10 @@
 package com.yurn.satori.sdk.message.element.basic;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
+import com.yurn.satori.sdk.util.XmlUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 提及用户
@@ -45,19 +44,20 @@ public class AtElement extends BaseMessageElement {
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("at");
+        String result = "<at";
         if (id != null) {
-            element.addAttribute("id", id);
+            result += " id=\"" + id + "\"";
         }
         if (name != null) {
-            element.addAttribute("name", name);
+            result += " name=\"" + XmlUtil.encode(name) + "\"";
         }
         if (role != null) {
-            element.addAttribute("role", role);
+            result += " role=\"" + XmlUtil.encode(role) + "\"";
         }
         if (type != null) {
-            element.addAttribute("type", type);
+            result += " type=\"" + type + "\"";
         }
-        return element.asXML();
+        result += "/>";
+        return result;
     }
 }

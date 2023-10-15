@@ -4,8 +4,6 @@ import com.yurn.satori.sdk.message.element.basic.TextElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 
 /**
  * 引用
@@ -17,16 +15,17 @@ import org.dom4j.Element;
 @NoArgsConstructor
 public class QuoteElement extends TextElement {
 
-    public QuoteElement( String text) {
+    public QuoteElement(String text) {
         super(text);
     }
 
     @Override
     public String toString() {
-        Element element = DocumentHelper.createElement("quote");
+        String result = "<quote>";
         if (text != null) {
-            element.setText(text);
+            result += super.toString();
         }
-        return element.asXML();
+        result += "</quote>";
+        return result;
     }
 }

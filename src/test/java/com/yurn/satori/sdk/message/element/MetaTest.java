@@ -11,6 +11,9 @@ public class MetaTest {
         Assertions.assertEquals("""
                         <author user-id="2.5" nickname="鸡王" avatar="https://th.bing.com/th/id/OIP.0Ld_Qg_bBOkzJzphqBHWBAHaEK"/>""",
                 new AuthorElement("2.5", "鸡王", "https://th.bing.com/th/id/OIP.0Ld_Qg_bBOkzJzphqBHWBAHaEK").toString());
+        Assertions.assertEquals("""
+                        <author user-id="2.5" nickname="&quot;&amp;&lt;&gt;" avatar="&quot;&amp;&lt;&gt;"/>""",
+                new AuthorElement("2.5", "\"&<>", "\"&<>").toString());
     }
 
     @Test
