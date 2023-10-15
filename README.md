@@ -86,8 +86,6 @@ public class Main {
 ### 第一个监听器
 
 ```java
-import com.yurn.satori.sdk.BotContainer;
-
 public class TestListener {
     public TestListener() {
         // 通过在构造器内对 GlobalEventChannel 的实例添加一个事件实现注册
