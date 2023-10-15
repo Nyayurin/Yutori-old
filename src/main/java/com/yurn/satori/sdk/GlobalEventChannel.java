@@ -2,6 +2,7 @@ package com.yurn.satori.sdk;
 
 import com.yurn.satori.sdk.entity.ConnectionEntity;
 import com.yurn.satori.sdk.entity.EventEntity;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,8 @@ import java.util.function.Consumer;
  * @author Yurn
  */
 public class GlobalEventChannel {
-    public static final GlobalEventChannel INSTANCE = new GlobalEventChannel();
+    @Getter
+    private static final GlobalEventChannel INSTANCE = new GlobalEventChannel();
 
     private final List<Consumer<EventEntity>> onEventDelegate = new ArrayList<>();
     private final List<Consumer<ConnectionEntity.Ready>> onConnectDelegate = new ArrayList<>();

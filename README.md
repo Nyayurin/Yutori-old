@@ -40,9 +40,9 @@
     <dependency>
         <groupId>com.yurn</groupId>
         <artifactId>YurnSatoriFramework</artifactId>
-        <version>0.0.3</version>
+        <version>0.0.4-SNAPSHOT</version>
         <scope>system</scope>
-        <systemPath>${project.basedir}/lib/YurnSatoriFramework-0.0.3.jar</systemPath>
+        <systemPath>${project.basedir}/lib/YurnSatoriFramework-0.0.4-SNAPSHOT.jar</systemPath>
     </dependency>
     <!-- Http 和 WebSocket 所需依赖 -->
     <dependency>
@@ -86,6 +86,8 @@ public class Main {
 ### 第一个监听器
 
 ```java
+import com.yurn.satori.sdk.BotContainer;
+
 public class TestListener {
     public TestListener() {
         // 通过在构造器内对 GlobalEventChannel 的实例添加一个事件实现注册
@@ -100,7 +102,7 @@ public class TestListener {
     public void onMessage(EventEntity event) {
         if ("test".equals(event.getMessage().getContent())) {
             // 此为单 Bot 写法, 多 Bot 请自行过滤出对应的 LoginEntity 实例
-            LoginEntity login = BotContainer.getLogins()[0];
+            LoginEntity login = BotContainer.getINSTANCE().getLogins()[0];
             ChannelEntity channel = event.getChannel();
             // 通过对应 API 类的静态方法发送消息
             MessageApi.createMessage((channel.getType().equals(ChannelEntity.DIRECT) ? "private:" : "") + channel.getId(),

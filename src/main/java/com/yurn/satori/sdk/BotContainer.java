@@ -1,14 +1,18 @@
 package com.yurn.satori.sdk;
 
 import com.yurn.satori.sdk.entity.LoginEntity;
+import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author Yurn
  */
-public class BotContainer {
+@Data
+public final class BotContainer {
     @Getter
-    @Setter
-    private static LoginEntity[] logins;
+    private static BotContainer INSTANCE = new BotContainer();
+
+    private LoginEntity[] logins;
+
+    private BotContainer() {}
 }

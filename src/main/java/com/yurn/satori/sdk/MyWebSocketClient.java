@@ -44,15 +44,15 @@ class MyWebSocketClient extends WebSocketListener {
                 log.info("收到事件: {}", connection.getBody());
                 EventEntity body = (EventEntity) connection.getBody();
                 sequence = body.getId();
-                GlobalEventChannel.INSTANCE.runEvent(body);
+                GlobalEventChannel.getINSTANCE().runEvent(body);
             }
             case ConnectionEntity.PONG -> {}
             case ConnectionEntity.READY -> {
                 ConnectionEntity.Ready ready = (ConnectionEntity.Ready) connection.getBody();
                 log.info("成功建立连接: {}", Arrays.toString(ready.getLogins()));
-                BotContainer.setLogins(ready.getLogins());
+                BotContainer.getINSTANCE().setLogins(ready.getLogins());
 
-                GlobalEventChannel.INSTANCE.runConnect(ready);
+                GlobalEventChannel.getINSTANCE().runConnect(ready);
 
                 // 心跳
                 ConnectionEntity sendConnection = new ConnectionEntity();
@@ -67,12 +67,12 @@ class MyWebSocketClient extends WebSocketListener {
     @Override
     public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
         log.info("断开连接, code: {}, reason: {}", code, reason);
-        BotContainer.setLogins(null);
+        BotContainer.getINSTANCE().setLogins(null);
         if (heart != null && !heart.isCancelled() && !heart.isDone()) {
             heart.cancel(true);
         }
 
-        GlobalEventChannel.INSTANCE.runDisconnect(reason);
+        GlobalEventChannel.getINSTANCE().runDisconnect(reason);
 
         // TODO: 断线重练
         /*reconnect = new ScheduledThreadPoolExecutor(1, r -> new Thread(r))
@@ -85,7 +85,7 @@ class MyWebSocketClient extends WebSocketListener {
     @Override
     public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
         log.error("出现错误: {}, response: {}", t, response);
-        GlobalEventChannel.INSTANCE.runError(t);
+        GlobalEventChannel.getINSTANCE().runError(t);
     }
 
     private void sendIdentify(WebSocket webSocket) {
