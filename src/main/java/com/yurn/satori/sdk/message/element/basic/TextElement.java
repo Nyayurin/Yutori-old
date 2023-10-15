@@ -4,7 +4,6 @@ import com.yurn.satori.sdk.message.element.BaseMessageElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
 
 /**
  * 纯文本
@@ -17,7 +16,7 @@ import org.springframework.lang.NonNull;
 public class TextElement extends BaseMessageElement {
     protected String text;
 
-    public TextElement(@NonNull String text) {
+    public TextElement(String text) {
         this.text = text;
     }
 

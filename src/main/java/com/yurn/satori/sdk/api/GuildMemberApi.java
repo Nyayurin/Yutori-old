@@ -12,7 +12,6 @@ import java.util.List;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
 public final class GuildMemberApi {
     /**
      * 获取群组成员

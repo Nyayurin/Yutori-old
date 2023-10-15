@@ -10,5 +10,5 @@ import lombok.Setter;
 public class BotContainer {
     @Getter
     @Setter
-    public static LoginEntity[] logins;
+    private static LoginEntity[] logins;
 }

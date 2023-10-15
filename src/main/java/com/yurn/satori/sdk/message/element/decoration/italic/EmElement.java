@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
 
 /**
  * 斜体
@@ -17,7 +16,7 @@ import org.springframework.lang.NonNull;
 @Data
 @NoArgsConstructor
 public class EmElement extends TextElement {
-    public EmElement(@NonNull String text) {
+    public EmElement( String text) {
         super(text);
     }
 

@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
 
 /**
  * 下划线
@@ -17,7 +16,7 @@ import org.springframework.lang.NonNull;
 @Data
 @NoArgsConstructor
 public class UnderlineElement extends TextElement {
-    public UnderlineElement(@NonNull String text) {
+    public UnderlineElement( String text) {
         super(text);
     }
 

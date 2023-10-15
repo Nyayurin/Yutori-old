@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
 
 /**
  * 上标
@@ -17,7 +16,7 @@ import org.springframework.lang.NonNull;
 @Data
 @NoArgsConstructor
 public class SupElement extends TextElement {
-    public SupElement(@NonNull String text) {
+    public SupElement( String text) {
         super(text);
     }
 

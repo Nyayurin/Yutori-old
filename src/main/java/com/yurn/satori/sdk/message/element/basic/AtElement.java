@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.Nullable;
 
 /**
  * 提及用户
@@ -37,7 +36,7 @@ public class AtElement extends BaseMessageElement {
      */
     protected String type;
 
-    public AtElement(@Nullable String id, @Nullable String name, @Nullable String role, @Nullable String type) {
+    public AtElement(String id, String name, String role, String type) {
         this.id = id;
         this.name = name;
         this.role = role;

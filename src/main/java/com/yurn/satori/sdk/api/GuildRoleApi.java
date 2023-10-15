@@ -12,7 +12,6 @@ import java.util.List;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
 public final class GuildRoleApi {
     /**
      * 设置群组成员角色

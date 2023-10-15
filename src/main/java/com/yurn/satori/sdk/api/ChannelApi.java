@@ -12,7 +12,6 @@ import java.util.List;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
 public final class ChannelApi {
     /**
      * 获取群组频道

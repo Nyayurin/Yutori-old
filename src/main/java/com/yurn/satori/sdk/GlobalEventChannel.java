@@ -10,14 +10,13 @@ import java.util.function.Consumer;
 /**
  * @author Yurn
  */
-@SuppressWarnings("unused")
 public class GlobalEventChannel {
     public static final GlobalEventChannel INSTANCE = new GlobalEventChannel();
 
     private final List<Consumer<EventEntity>> onEventDelegate = new ArrayList<>();
     private final List<Consumer<ConnectionEntity.Ready>> onConnectDelegate = new ArrayList<>();
     private final List<Consumer<String>> onDisconnectDelegate = new ArrayList<>();
-    private final List<Consumer<Exception>> onErrorDelegate = new ArrayList<>();
+    private final List<Consumer<Throwable>> onErrorDelegate = new ArrayList<>();
 
     private GlobalEventChannel() {}
 
@@ -45,11 +44,11 @@ public class GlobalEventChannel {
         onDisconnectDelegate.remove(consumer);
     }
 
-    public void addError(Consumer<Exception> consumer) {
+    public void addError(Consumer<Throwable> consumer) {
         onErrorDelegate.add(consumer);
     }
 
-    public void removeError(Consumer<Exception> consumer) {
+    public void removeError(Consumer<Throwable> consumer) {
         onErrorDelegate.remove(consumer);
     }
 
@@ -71,7 +70,7 @@ public class GlobalEventChannel {
         }
     }
 
-    public void runError(Exception e) {
+    public void runError(Throwable e) {
         for (var consumer : onErrorDelegate) {
             consumer.accept(e);
         }

@@ -2,7 +2,6 @@ package com.yurn.satori.sdk.message;
 
 import com.yurn.satori.sdk.message.element.BaseMessageElement;
 import lombok.Getter;
-import org.springframework.lang.NonNull;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
 @Getter
 public class MessageBuilder {
     private final List<Object> list = new LinkedList<>();
@@ -26,17 +24,17 @@ public class MessageBuilder {
         return list.stream().map(Object::toString).collect(Collectors.joining(delimiter));
     }
 
-    public MessageBuilder append(@NonNull BaseMessageElement messageElement) {
+    public MessageBuilder append(BaseMessageElement messageElement) {
         list.add(messageElement);
         return this;
     }
 
-    public MessageBuilder append(@NonNull String string) {
+    public MessageBuilder append(String string) {
         list.add(string);
         return this;
     }
 
-    public MessageBuilder append(@NonNull Object object) {
+    public MessageBuilder append(Object object) {
         list.add(object);
         return this;
     }

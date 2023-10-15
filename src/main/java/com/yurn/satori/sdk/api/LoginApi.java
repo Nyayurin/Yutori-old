@@ -8,7 +8,6 @@ import com.yurn.satori.sdk.entity.LoginEntity;
  *
  * @author Yurn
  */
-@SuppressWarnings("unused")
 public final class LoginApi {
     /**
      * 获取登录信息

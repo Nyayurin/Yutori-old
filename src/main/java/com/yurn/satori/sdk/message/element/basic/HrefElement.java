@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
 
 /**
  * 链接
@@ -22,7 +21,7 @@ public class HrefElement extends BaseMessageElement {
      */
     protected String href;
 
-    public HrefElement(@NonNull String href) {
+    public HrefElement(String href) {
         this.href = href;
     }
 

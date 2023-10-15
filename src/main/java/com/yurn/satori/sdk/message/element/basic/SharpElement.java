@@ -6,8 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 /**
  * 提及频道
@@ -28,7 +26,7 @@ public class SharpElement extends BaseMessageElement {
      */
     protected String name;
 
-    public SharpElement(@NonNull String id, @Nullable String name) {
+    public SharpElement(String id, String name) {
         this.id = id;
         this.name = name;
     }

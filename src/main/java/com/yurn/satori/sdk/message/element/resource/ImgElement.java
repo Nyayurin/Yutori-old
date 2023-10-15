@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 /**
  * 图片
@@ -27,17 +25,17 @@ public class ImgElement extends BaseResourceElement {
      */
     protected Long height;
 
-    public ImgElement(@NonNull String src) {
+    public ImgElement( String src) {
         this(src, null, null);
     }
 
-    public ImgElement(@NonNull String src, @Nullable Long width, @Nullable Long height) {
+    public ImgElement( String src,  Long width,  Long height) {
         super(src);
         this.width = width;
         this.height = height;
     }
 
-    public ImgElement(@NonNull String src, @Nullable Boolean cache, @Nullable String timeout, @Nullable Long width, @Nullable Long height) {
+    public ImgElement( String src,  Boolean cache,  String timeout,  Long width,  Long height) {
         super(src, cache, timeout);
         this.width = width;
         this.height = height;

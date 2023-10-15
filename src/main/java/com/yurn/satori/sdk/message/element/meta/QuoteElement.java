@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
 
 /**
  * 引用
@@ -18,7 +17,7 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 public class QuoteElement extends TextElement {
 
-    public QuoteElement(@NonNull String text) {
+    public QuoteElement( String text) {
         super(text);
     }
 

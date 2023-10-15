@@ -3,44 +3,42 @@ package com.yurn.satori.sdk;
 import com.alibaba.fastjson2.JSONObject;
 import com.yurn.satori.sdk.entity.ConnectionEntity;
 import com.yurn.satori.sdk.entity.EventEntity;
-import com.yurn.satori.sdk.property.YurnSdkProperties;
+import com.yurn.satori.sdk.entity.PropertiesEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.handshake.ServerHandshake;
-import org.java_websocket.util.NamedThreadFactory;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-class MyWebSocketClient extends WebSocketClient {
-    private final YurnSdkProperties yurnSdkProperties;
+class MyWebSocketClient extends WebSocketListener {
+    private final PropertiesEntity properties;
     private ScheduledFuture<?> heart;
     private ScheduledFuture<?> reconnect;
     private Integer sequence;
 
-    public MyWebSocketClient(YurnSdkProperties yurnSdkProperties) throws URISyntaxException {
-        super(new URI("ws://" + yurnSdkProperties.getAddress() + "/v1/events"), new Draft_6455());
-        this.yurnSdkProperties = yurnSdkProperties;
+    public MyWebSocketClient(PropertiesEntity properties) {
+        this.properties = properties;
     }
 
     @Override
-    public void onOpen(ServerHandshake serverHandshake) {
-        log.info("建立WS连接: {}", serverHandshake);
-        sendIdentify();
+    public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+        log.info("建立WS连接: {}", response);
+        sendIdentify(webSocket);
         if (reconnect != null && !reconnect.isCancelled() && !reconnect.isDone()) {
             reconnect.cancel(true);
         }
     }
 
     @Override
-    public void onMessage(String msg) {
-        ConnectionEntity connection = ConnectionEntity.parse(msg);
+    public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+        ConnectionEntity connection = ConnectionEntity.parse(text);
         switch (connection.getOp()) {
             case ConnectionEntity.EVENT -> {
                 log.info("收到事件: {}", connection.getBody());
@@ -59,50 +57,50 @@ class MyWebSocketClient extends WebSocketClient {
                 // 心跳
                 ConnectionEntity sendConnection = new ConnectionEntity();
                 sendConnection.setOp(ConnectionEntity.PING);
-                heart = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("Heart")).scheduleAtFixedRate(
-                        () -> send(JSONObject.toJSONString(sendConnection)), 10, 10, TimeUnit.SECONDS);
+                heart = new ScheduledThreadPoolExecutor(1, r -> new Thread(r)).scheduleAtFixedRate(
+                        () -> webSocket.send(JSONObject.toJSONString(sendConnection)), 10, 10, TimeUnit.SECONDS);
             }
             default -> log.error("Unsupported {}", connection);
         }
     }
 
     @Override
-    public void onClose(int i, String s, boolean b) {
-        log.info("断开连接, i: {}, s: {}, b: {}", i, s, b);
+    public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+        log.info("断开连接, code: {}, reason: {}", code, reason);
         BotContainer.setLogins(null);
         if (heart != null && !heart.isCancelled() && !heart.isDone()) {
             heart.cancel(true);
         }
 
-        GlobalEventChannel.INSTANCE.runDisconnect(s);
+        GlobalEventChannel.INSTANCE.runDisconnect(reason);
 
-        // 断线重练
-        reconnect = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("Reconnect"))
+        // TODO: 断线重练
+        /*reconnect = new ScheduledThreadPoolExecutor(1, r -> new Thread(r))
                 .scheduleAtFixedRate(() -> {
                     log.info("尝试重新连接");
-                    this.connect();
-                }, 3, 3, TimeUnit.SECONDS);
+                    webSocket.();
+                }, 3, 3, TimeUnit.SECONDS);*/
     }
 
     @Override
-    public void onError(Exception e) {
-        log.error("出现错误: {}", e.toString());
-        GlobalEventChannel.INSTANCE.runError(e);
+    public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
+        log.error("出现错误: {}, response: {}", t, response);
+        GlobalEventChannel.INSTANCE.runError(t);
     }
 
-    private void sendIdentify() {
+    private void sendIdentify(WebSocket webSocket) {
         ConnectionEntity connection = new ConnectionEntity();
         connection.setOp(ConnectionEntity.IDENTIFY);
-        if (yurnSdkProperties.getToken() != null || sequence != null) {
+        if (properties.getToken() != null || sequence != null) {
             ConnectionEntity.Identify body = new ConnectionEntity.Identify();
             connection.setBody(body);
-            if (yurnSdkProperties.getToken() != null) {
-                body.setToken(yurnSdkProperties.getToken());
+            if (properties.getToken() != null) {
+                body.setToken(properties.getToken());
             }
             if (sequence != null) {
                 body.setSequence(sequence);
             }
         }
-        this.send(JSONObject.toJSONString(connection));
+        webSocket.send(JSONObject.toJSONString(connection));
     }
 }

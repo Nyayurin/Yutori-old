@@ -12,55 +12,100 @@
 
 ## 基础信息
 
-> 提示: 本文档默认您了解并熟悉 Java 基本语法以及 SpringBoot 开发体系
-
-> 注意: 仅支持 JDK 17+ 与 SpringBoot 3.0.0+
+> 提示: 本文档默认您了解并熟悉 Java 基本语法
+> 
+> 注意: 仅支持 JDK 17+
 
 - 推荐使用 [YurnQbotFramework](https://github.com/Nyayurn/YurnQbotFramework) 框架进行 QQ 机器人的开发
 
-## 项目创建
+## 使用流程
 
-1. 首先创建一个空的 SpringBoot 项目(什么?不会?可以右上角关闭本页面了)
+1. 首先创建一个空的 Maven 项目(什么?不会?可以右上角关闭本页面了)
 2. 依赖引入
-3. 第一个监听器
+3. 基本配置
 4. 进阶
 
 ## 依赖引入
 
 ### Maven
 
-- 在项目目录下新建 lib 文件夹
-- 下载 jar 包并将其丢进 lib 文件夹内
-- 配置 pom.xml
+1. 在项目目录下新建 lib 文件夹
+2. 下载 jar 包并将其丢进 lib 文件夹内
+3. 配置 pom.xml
 
 ```xml
-<dependency>
-    <groupId>com.yurn</groupId>
-    <artifactId>YurnSatoriFramework</artifactId>
-    <version>0.0.2</version>
-    <scope>system</scope>
-    <systemPath>${project.basedir}/lib/YurnSatoriFramework-0.0.2.jar</systemPath>
-</dependency>
+
+<dependencies>
+    <!-- 核心框架 -->
+    <dependency>
+        <groupId>com.yurn</groupId>
+        <artifactId>YurnSatoriFramework</artifactId>
+        <version>0.0.2</version>
+        <scope>system</scope>
+        <systemPath>${project.basedir}/lib/YurnSatoriFramework-0.0.2.jar</systemPath>
+    </dependency>
+    <!-- Http 和 WebSocket 所需依赖 -->
+    <dependency>
+        <artifactId>okhttp</artifactId>
+        <groupId>com.squareup.okhttp3</groupId>
+        <version>4.10.0</version>
+    </dependency>
+    <!-- 日志系统(可替换为其他slf4j实现) -->
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.4.11</version>
+    </dependency>
+    <!-- JSON 序列化/反序列化 -->
+    <dependency>
+        <groupId>com.alibaba.fastjson2</groupId>
+        <artifactId>fastjson2</artifactId>
+        <version>2.0.40</version>
+    </dependency>
+</dependencies>
 ```
 
-## 第一个监听器
+## 基本配置
 
-> 注意: Chronocat 暂不支持接收好友请求, 所以该监听器应当失效
+### 启动类
 
 ```java
-@Component
-public class FriendRequestListener {
-    public FriendRequestListener() {
-        GlobalEventChannel.INSTANCE.add(event -> {
-            if (event.getType().equals(UserEvents.FRIEND_REQUEST)) {
+public class Main {
+    static {
+        // new 一个对象以触发监听器的注册
+        new TestListener();
+    }
+    
+    public static void main(String[] args) {
+        // 初始化核心启动类并传递一个 Properties 参数实体类, 并运行
+        new Boot(new Properties("127.0.0.1:5500", "token")).run();
+    }
+}
+```
+
+### 第一个监听器
+
+```java
+public class TestListener {
+    public TestListener() {
+        // 通过在构造器内对 GlobalEventChannel 的实例添加一个事件实现注册
+        GlobalEventChannel.INSTANCE.addEvent(event -> {
+            // 判断事件的类型是否为 message-created(新消息创建, 即接收到消息)
+            if (event.getType().equals(MessageEvents.MESSAGE_CREATED)) {
                 this.onMessage(event);
             }
         });
     }
 
-    public void onMessage(Event event) {
-        LoginEntity login = BotContainer.getLogins()[0];
-        MessageApi.createMessage("private:114514", "有新的好友请求哦: " + event.toString(), login.getPlatform(), login.getSelfId());
+    public void onMessage(EventEntity event) {
+        if ("test".equals(event.getMessage().getContent())) {
+            // 此为单 Bot 写法, 多 Bot 请自行过滤出对应的 LoginEntity 实例
+            LoginEntity login = BotContainer.getLogins()[0];
+            ChannelEntity channel = event.getChannel();
+            // 通过对应 API 类的静态方法发送消息
+            MessageApi.createMessage((channel.getType().equals(ChannelEntity.DIRECT) ? "private:" : "") + channel.getId(),
+                    "test done!", login.getPlatform(), login.getSelfId());
+        }
     }
 }
 ```
@@ -69,17 +114,3 @@ public class FriendRequestListener {
 
 - 框架整体与 Satori 架构基本一致, 请参考 [Satori 文档](https://satori.js.org/zh-CN/protocol)
 - 源码含有大量 javadoc 方便阅读, 请自行阅读源码
-
-## 打包
-
-- 修改 pom.xml
-
-```xml
-<plugin>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-maven-plugin</artifactId>
-    <configuration>
-        <includeSystemScope>true</includeSystemScope>
-    </configuration>
-</plugin>
-```

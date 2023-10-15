@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.Nullable;
 
 /**
  * 作者
@@ -32,7 +31,7 @@ public class AuthorElement extends BaseMessageElement {
      */
     protected String avatar;
 
-    public AuthorElement(@Nullable String userId, @Nullable String nickname, @Nullable String avatar) {
+    public AuthorElement( String userId,  String nickname,  String avatar) {
         this.userId = userId;
         this.nickname = nickname;
         this.avatar = avatar;

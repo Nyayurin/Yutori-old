@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 /**
  * 视频
@@ -18,11 +16,11 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 public class VideoElement extends BaseResourceElement {
 
-    public VideoElement(@NonNull String src) {
+    public VideoElement( String src) {
         super(src);
     }
 
-    public VideoElement(@NonNull String src, @Nullable Boolean cache, @Nullable String timeout) {
+    public VideoElement( String src,  Boolean cache,  String timeout) {
         super(src, cache, timeout);
     }
 

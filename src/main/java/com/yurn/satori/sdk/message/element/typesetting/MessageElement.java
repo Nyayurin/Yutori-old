@@ -6,8 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 /**
  * 消息
@@ -28,11 +26,11 @@ public class MessageElement extends TextElement {
      */
     protected Boolean forward;
 
-    public MessageElement(@NonNull String text) {
+    public MessageElement( String text) {
         this(text, null, null);
     }
 
-    public MessageElement(@NonNull String text, @Nullable String id, @Nullable Boolean forward) {
+    public MessageElement( String text,  String id,  Boolean forward) {
         super(text);
         this.id = id;
         this.forward = forward;
