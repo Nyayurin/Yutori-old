@@ -38,9 +38,9 @@
     <dependency>
         <groupId>com.yurn</groupId>
         <artifactId>YurnSatoriSdk</artifactId>
-        <version>0.0.4</version>
+        <version>0.0.4-Fix</version>
         <scope>system</scope>
-        <systemPath>${project.basedir}/lib/YurnSatoriSdk-0.0.4.jar</systemPath>
+        <systemPath>${project.basedir}/lib/YurnSatoriSdk-0.0.4-Fix.jar</systemPath>
     </dependency>
     <!-- Http 和 WebSocket 所需依赖 -->
     <dependency>
