@@ -1,10 +1,12 @@
 package com.yurn.satori.sdk.api;
 
+import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 import com.yurn.satori.sdk.entity.LoginEntity;
 import com.yurn.satori.sdk.entity.PropertiesEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 登录信息 API
@@ -12,6 +14,7 @@ import lombok.Data;
  * @author Yurn
  */
 @Data
+@Slf4j
 @AllArgsConstructor
 public class LoginApi {
     /**
@@ -31,6 +34,11 @@ public class LoginApi {
      */
     public LoginEntity getLogin() {
         String response = sendMessage.sendGenericMessage("login", "get", null);
-        return JSONObject.parseObject(response, LoginEntity.class);
+        try {
+            return JSONObject.parseObject(response, LoginEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 }

@@ -1,12 +1,14 @@
 package com.yurn.satori.sdk.api;
 
 import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 import com.yurn.satori.sdk.entity.GuildEntity;
 import com.yurn.satori.sdk.entity.PageResponseEntity;
 import com.yurn.satori.sdk.entity.PropertiesEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
  * @author Yurn
  */
 @Data
+@Slf4j
 @AllArgsConstructor
 public class GuildApi {
     /**
@@ -50,7 +53,12 @@ public class GuildApi {
         JSONObject map = new JSONObject();
         map.put("guild_id", guildId);
         String response = sendMessage.sendGenericMessage("guild", "get", map.toString());
-        return JSONObject.parseObject(response, GuildEntity.class);
+        try {
+            return JSONObject.parseObject(response, GuildEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 
     /**
@@ -64,8 +72,13 @@ public class GuildApi {
         JSONObject map = new JSONObject();
         map.put("next", next);
         String response = sendMessage.sendGenericMessage("guild", "list", map.toString());
-        //noinspection unchecked
-        return JSONArray.parse(response).stream().map(o -> (PageResponseEntity<GuildEntity>) o).toList();
+        try {
+            //noinspection unchecked
+            return JSONArray.parse(response).stream().map(o -> (PageResponseEntity<GuildEntity>) o).toList();
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 
     /**

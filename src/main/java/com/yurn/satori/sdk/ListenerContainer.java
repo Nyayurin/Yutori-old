@@ -7,6 +7,7 @@ import okhttp3.Response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 /**
@@ -69,38 +70,50 @@ public class ListenerContainer {
     }
 
     public void runOnOpenListeners(Response response) {
-        for (var listener : onOpenDelegate) {
-            listener.accept(response);
-        }
+        Executors.defaultThreadFactory().newThread(() -> {
+            for (var listener : onOpenDelegate) {
+                listener.accept(response);
+            }
+        }).start();
     }
 
     public void runOnMessageListeners(ConnectionEntity entity) {
-        for (var listener : onMessageDelegate) {
-            listener.accept(entity);
-        }
+        Executors.defaultThreadFactory().newThread(() -> {
+            for (var listener : onMessageDelegate) {
+                listener.accept(entity);
+            }
+        }).start();
     }
 
     public void runOnConnectListeners(ConnectionEntity.Ready ready) {
-        for (var listener : onConnectDelegate) {
-            listener.accept(ready);
-        }
+        Executors.defaultThreadFactory().newThread(() -> {
+            for (var listener : onConnectDelegate) {
+                listener.accept(ready);
+            }
+        }).start();
     }
 
     public void runOnEventListeners(EventEntity event) {
-        for (var listener : onEventDelegate) {
-            listener.accept(event);
-        }
+        Executors.defaultThreadFactory().newThread(() -> {
+            for (var listener : onEventDelegate) {
+                listener.accept(event);
+            }
+        }).start();
     }
 
     public void runOnDisconnectListeners(String s) {
-        for (var listener : onDisconnectDelegate) {
-            listener.accept(s);
-        }
+        Executors.defaultThreadFactory().newThread(() -> {
+            for (var listener : onDisconnectDelegate) {
+                listener.accept(s);
+            }
+        }).start();
     }
 
     public void runOnErrorListeners(Throwable e) {
-        for (var listener : onErrorDelegate) {
-            listener.accept(e);
-        }
+        Executors.defaultThreadFactory().newThread(() -> {
+            for (var listener : onErrorDelegate) {
+                listener.accept(e);
+            }
+        }).start();
     }
 }

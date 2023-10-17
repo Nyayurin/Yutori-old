@@ -1,12 +1,14 @@
 package com.yurn.satori.sdk.api;
 
 import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 import com.yurn.satori.sdk.entity.ChannelEntity;
 import com.yurn.satori.sdk.entity.PageResponseEntity;
 import com.yurn.satori.sdk.entity.PropertiesEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
  * @author Yurn
  */
 @Data
+@Slf4j
 @AllArgsConstructor
 public class ChannelApi {
     /**
@@ -50,7 +53,12 @@ public class ChannelApi {
         JSONObject map = new JSONObject();
         map.put("channel_id", channelId);
         String response = sendMessage.sendGenericMessage("channel", "get", map.toString());
-        return JSONObject.parseObject(response, ChannelEntity.class);
+        try {
+            return JSONObject.parseObject(response, ChannelEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 
     /**
@@ -66,8 +74,13 @@ public class ChannelApi {
         map.put("guild_id", guildId);
         map.put("next", next);
         String response = sendMessage.sendGenericMessage("channel", "list", map.toString());
-        //noinspection unchecked
-        return JSONArray.parse(response).stream().map(o -> (PageResponseEntity<ChannelEntity>) o).toList();
+        try {
+            //noinspection unchecked
+            return JSONArray.parse(response).stream().map(o -> (PageResponseEntity<ChannelEntity>) o).toList();
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 
     /**
@@ -82,7 +95,12 @@ public class ChannelApi {
         map.put("guild_id", guildId);
         map.put("data", data);
         String response = sendMessage.sendGenericMessage("channel", "create", map.toString());
-        return JSONObject.parseObject(response, ChannelEntity.class);
+        try {
+            return JSONObject.parseObject(response, ChannelEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 
     /**
@@ -97,7 +115,12 @@ public class ChannelApi {
         map.put("channel_id", channelId);
         map.put("data", data);
         String response = sendMessage.sendGenericMessage("channel", "update", map.toString());
-        return JSONObject.parseObject(response, ChannelEntity.class);
+        try {
+            return JSONObject.parseObject(response, ChannelEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 
     /**
@@ -121,6 +144,11 @@ public class ChannelApi {
         JSONObject map = new JSONObject();
         map.put("user_id", userId);
         String response = sendMessage.sendGenericMessage("user.channel", "create", map.toString());
-        return JSONObject.parseObject(response, ChannelEntity.class);
+        try {
+            return JSONObject.parseObject(response, ChannelEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 }

@@ -1,12 +1,14 @@
 package com.yurn.satori.sdk.api;
 
 import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 import com.yurn.satori.sdk.entity.MessageEntity;
 import com.yurn.satori.sdk.entity.PageResponseEntity;
 import com.yurn.satori.sdk.entity.PropertiesEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
  * @author Yurn
  */
 @Data
+@Slf4j
 @AllArgsConstructor
 public class MessageApi {
     /**
@@ -53,7 +56,12 @@ public class MessageApi {
         map.put("channel_id", channelId);
         map.put("content", content);
         String response = sendMessage.sendGenericMessage("message", "create", map.toString());
-        return JSONArray.parse(response).toList(MessageEntity.class);
+        try {
+            return JSONArray.parse(response).toList(MessageEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 
     /**
@@ -69,7 +77,12 @@ public class MessageApi {
         map.put("channel_id", channelId);
         map.put("message_id", messageId);
         String response = sendMessage.sendGenericMessage("message", "get", map.toString());
-        return JSONObject.parseObject(response, MessageEntity.class);
+        try {
+            return JSONObject.parseObject(response, MessageEntity.class);
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.toString());
+        }
+        return null;
     }
 
     /**
@@ -115,7 +128,12 @@ public class MessageApi {
         map.put("channel_id", channelId);
         map.put("next", next);
         String response = sendMessage.sendGenericMessage("message", "list", map.toString());
-        //noinspection unchecked
-        return JSONArray.parse(response).stream().map(o -> ((PageResponseEntity<MessageEntity>) o)).toList();
+        try {
+            //noinspection unchecked
+            return JSONArray.parse(response).stream().map(o -> ((PageResponseEntity<MessageEntity>) o)).toList();
+        } catch (JSONException e) {
+            log.error("{}: {}", response, e.getLocalizedMessage());
+        }
+        return null;
     }
 }
