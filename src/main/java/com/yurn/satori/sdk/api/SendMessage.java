@@ -15,10 +15,12 @@ package com.yurn.satori.sdk.api;
 import com.yurn.satori.sdk.entity.PropertiesEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import okhttp3.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.fluent.Request;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 一个比较底层的 API
@@ -26,13 +28,9 @@ import java.util.Optional;
  * @author Yurn
  */
 @Data
+@Slf4j
 @AllArgsConstructor
 public class SendMessage {
-    /**
-     * HTTP Client
-     */
-    private OkHttpClient client = new OkHttpClient();
-
     /**
      * 平台名称
      */
@@ -60,51 +58,37 @@ public class SendMessage {
     }
 
     public String sendGenericMessage(String resource, String method, String body) {
-        RequestBody requestBody = RequestBody.create(Optional.ofNullable(body).orElse(""),
-                MediaType.parse("application/json;charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(String.format("http://%s/%s/%s.%s", properties.getAddress(), version, resource, method))
-                .headers(makeHttpHeaders())
-                .post(requestBody)
-                .build();
+        Request request = Request.post(String.format("http://%s/%s/%s.%s", properties.getAddress(), version, resource, method));
+        initHttpPost(request, body);
         return send(request);
     }
 
     public String sendInternalMessage(String method, String body) {
-        RequestBody requestBody = RequestBody.create(Optional.ofNullable(body).orElse(""),
-                MediaType.parse("application/json;charset=utf-8"));
-        Request request = new Request.Builder()
-                .url(String.format("http://%s/%s/internal/%s", properties.getAddress(), version, method))
-                .headers(makeHttpHeaders())
-                .post(requestBody)
-                .build();
+        Request request = Request.post(String.format("http://%s/%s/internal/%s", properties.getAddress(), version, method));
+        initHttpPost(request, body);
         return send(request);
     }
 
-    private Headers makeHttpHeaders() {
-        Headers.Builder builder = new Headers.Builder();
-        builder.add("Content-Type", "application/json");
+    private void initHttpPost(Request request, String body) {
+        request.body(new StringEntity(body, StandardCharsets.UTF_8));
+        request.setHeader("Content-Type", "application/json");
         if (properties.getToken() != null) {
-            builder.add("Authorization", "Bearer " + properties.getToken());
+            request.setHeader("Authorization", "Bearer " + properties.getToken());
         }
         if (platform != null) {
-            builder.add("X-Platform", platform);
+            request.setHeader("X-Platform", platform);
         }
         if (selfId != null) {
-            builder.add("X-Self-ID", selfId);
+            request.setHeader("X-Self-ID", selfId);
         }
-        return builder.build();
     }
 
     private String send(Request request) {
-        Call call = client.newCall(request);
-        try (Response response = call.execute()) {
-            if (response.body() != null) {
-                return response.body().string();
-            }
-            return response.message();
+        try {
+            return request.execute().returnContent().asString();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error(e.getLocalizedMessage());
         }
+        return null;
     }
 }

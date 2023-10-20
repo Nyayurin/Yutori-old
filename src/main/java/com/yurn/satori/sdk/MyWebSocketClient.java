@@ -16,12 +16,13 @@ import com.alibaba.fastjson2.JSONObject;
 import com.yurn.satori.sdk.entity.ConnectionEntity;
 import com.yurn.satori.sdk.entity.EventEntity;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.handshake.ServerHandshake;
+import org.java_websocket.util.NamedThreadFactory;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -31,32 +32,36 @@ import java.util.concurrent.TimeUnit;
  * @author Yurn
  */
 @Slf4j
-public class MyWebSocketClient extends WebSocketListener {
+public class MyWebSocketClient extends WebSocketClient {
     private final String token;
     private final ListenerContainer listenerContainer;
     private ScheduledFuture<?> heart;
+    private ScheduledFuture<?> reconnect;
     private Integer sequence;
 
-    public MyWebSocketClient(ListenerContainer listenerContainer) {
-        this.token = null;
-        this.listenerContainer = listenerContainer;
+    public MyWebSocketClient(String address, ListenerContainer listenerContainer) throws URISyntaxException {
+        this(address, null, listenerContainer);
     }
 
-    public MyWebSocketClient(String token, ListenerContainer listenerContainer) {
+    public MyWebSocketClient(String address, String token, ListenerContainer listenerContainer) throws URISyntaxException {
+        super(new URI("ws://" + address + "/v1/events"), new Draft_6455());
         this.token = token;
         this.listenerContainer = listenerContainer;
     }
 
     @Override
-    public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
-        log.info("成功建立 WebSocket 连接: {}", response);
-        listenerContainer.runOnOpenListeners(response);
-        sendIdentify(webSocket);
+    public void onOpen(ServerHandshake serverHandshake) {
+        log.info("成功建立 WebSocket 连接: {}", serverHandshake);
+        if (reconnect != null && !reconnect.isCancelled() && !reconnect.isDone()) {
+            reconnect.cancel(true);
+        }
+        listenerContainer.runOnOpenListeners(serverHandshake);
+        sendIdentify();
     }
 
     @Override
-    public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
-        ConnectionEntity connection = ConnectionEntity.parse(text);
+    public void onMessage(String message) {
+        ConnectionEntity connection = ConnectionEntity.parse(message);
         listenerContainer.runOnMessageListeners(connection);
         switch (connection.getOp()) {
             case ConnectionEntity.EVENT -> {
@@ -71,8 +76,8 @@ public class MyWebSocketClient extends WebSocketListener {
                 // 心跳
                 ConnectionEntity sendConnection = new ConnectionEntity();
                 sendConnection.setOp(ConnectionEntity.PING);
-                heart = new ScheduledThreadPoolExecutor(1, r -> new Thread(r)).scheduleAtFixedRate(
-                        () -> webSocket.send(JSONObject.toJSONString(sendConnection)), 10, 10, TimeUnit.SECONDS);
+                heart = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("Heart")).scheduleAtFixedRate(
+                        () -> send(JSONObject.toJSONString(sendConnection)), 10, 10, TimeUnit.SECONDS);
 
                 listenerContainer.runOnConnectListeners(ready);
             }
@@ -81,22 +86,29 @@ public class MyWebSocketClient extends WebSocketListener {
     }
 
     @Override
-    public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-        log.info("断开连接, code: {}, reason: {}", code, reason);
+    public void onClose(int i, String s, boolean b) {
+        log.info("断开连接, i: {}, s: {}, b: {}", i, s, b);
         if (heart != null && !heart.isCancelled() && !heart.isDone()) {
             heart.cancel(true);
         }
 
-        listenerContainer.runOnDisconnectListeners(reason);
+        listenerContainer.runOnDisconnectListeners(s);
+
+        // 断线重练
+        reconnect = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("Reconnect"))
+                .scheduleAtFixedRate(() -> {
+                    log.info("尝试重新连接");
+                    this.connect();
+                }, 3, 3, TimeUnit.SECONDS);
     }
 
     @Override
-    public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
-        log.error("出现错误: {}, response: {}", t, response);
-        listenerContainer.runOnErrorListeners(t);
+    public void onError(Exception e) {
+        log.error("出现错误: {}", e.toString());
+        listenerContainer.runOnErrorListeners(e);
     }
 
-    private void sendIdentify(WebSocket webSocket) {
+    private void sendIdentify() {
         ConnectionEntity connection = new ConnectionEntity();
         connection.setOp(ConnectionEntity.IDENTIFY);
         if (token != null || sequence != null) {
@@ -109,6 +121,6 @@ public class MyWebSocketClient extends WebSocketListener {
                 body.setSequence(sequence);
             }
         }
-        webSocket.send(JSONObject.toJSONString(connection));
+        this.send(JSONObject.toJSONString(connection));
     }
 }

@@ -15,7 +15,7 @@ package com.yurn.satori.sdk;
 import com.yurn.satori.sdk.entity.ConnectionEntity;
 import com.yurn.satori.sdk.entity.EventEntity;
 import lombok.Data;
-import okhttp3.Response;
+import org.java_websocket.handshake.ServerHandshake;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ListenerContainer {
     /**
      * 当成功连接上 WebSocket 时的委托
      */
-    private final List<Consumer<Response>> onOpenDelegate = new ArrayList<>();
+    private final List<Consumer<ServerHandshake>> onOpenDelegate = new ArrayList<>();
 
     /**
      * 当接受到任意消息时的委托
@@ -55,9 +55,9 @@ public class ListenerContainer {
     /**
      * 出现错误时的委托
      */
-    private final List<Consumer<Throwable>> onErrorDelegate = new ArrayList<>();
+    private final List<Consumer<Exception>> onErrorDelegate = new ArrayList<>();
 
-    public void addOnOpenListener(Consumer<Response> listener) {
+    public void addOnOpenListener(Consumer<ServerHandshake> listener) {
         onOpenDelegate.add(listener);
     }
 
@@ -77,11 +77,11 @@ public class ListenerContainer {
         onDisconnectDelegate.add(listener);
     }
 
-    public void addOnErrorListener(Consumer<Throwable> listener) {
+    public void addOnErrorListener(Consumer<Exception> listener) {
         onErrorDelegate.add(listener);
     }
 
-    public void runOnOpenListeners(Response response) {
+    public void runOnOpenListeners(ServerHandshake response) {
         Executors.defaultThreadFactory().newThread(() -> {
             for (var listener : onOpenDelegate) {
                 listener.accept(response);
@@ -121,7 +121,7 @@ public class ListenerContainer {
         }).start();
     }
 
-    public void runOnErrorListeners(Throwable e) {
+    public void runOnErrorListeners(Exception e) {
         Executors.defaultThreadFactory().newThread(() -> {
             for (var listener : onErrorDelegate) {
                 listener.accept(e);

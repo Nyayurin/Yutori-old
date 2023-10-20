@@ -29,17 +29,10 @@
 
 ```xml
 <dependencies>
-    <!-- 核心框架 -->
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>YurnSatoriSdk</artifactId>
-        <version>0.0.6</version>
-    </dependency>
-    <!-- 日志系统(可替换为其他 Slf4j 实现) -->
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.4.11</version>
+        <version>0.0.7</version>
     </dependency>
 </dependencies>
 ```
@@ -59,14 +52,12 @@ public class Main {
     }
 
     private void run() {
-        // 构造一个 HTTP 客户端用于进行 WebSocket 连接
-        OkHttpClient client = new OkHttpClient.Builder().readTimeout(3, TimeUnit.SECONDS).writeTimeout(3, TimeUnit.SECONDS)
-                .connectTimeout(3, TimeUnit.SECONDS).build();
-        // 构造一个 Request 请求
-        Request request = new Request.Builder().get().url("ws://" + properties.getAddress() + "/v1/events").build();
-        // 新建一个 WebSocket 连接
-        //client.newWebSocket(request, new MyWebSocketClient());
-        client.newWebSocket(request, new MyWebSocketClient(properties.getToken(), listenerContainer));
+        try {
+            // 新建一个 WebSocket 连接
+            new MyWebSocketClient(properties.getAddress(), properties.getToken(), listenerContainer).connect();
+        } catch (URISyntaxException e) {
+            log.error(e.getLocalizedMessage());
+        }
     }
 
     public static void main(String[] args) {
