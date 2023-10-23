@@ -32,7 +32,7 @@
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>YurnSatoriSdk</artifactId>
-        <version>0.0.7</version>
+        <version>0.0.8</version>
     </dependency>
 </dependencies>
 ```

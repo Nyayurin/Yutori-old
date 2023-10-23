@@ -5,7 +5,7 @@
 
     <groupId>io.github.nyayurn</groupId>
     <artifactId>YurnSatoriSdk</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
     <name>Yurn's Java Satori Sdk</name>
     <description>基于 Satori 协议的 Java 机器人开发工具包</description>
     <url>https://github.com/Nyayurn/YurnSatoriSdk</url>
