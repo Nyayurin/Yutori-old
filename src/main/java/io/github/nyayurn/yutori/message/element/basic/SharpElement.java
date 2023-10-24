@@ -1,0 +1,57 @@
+/*
+Copyright (c) 2023 Yurn
+yutori is licensed under Mulan PSL v2.
+You can use this software according to the terms and conditions of the Mulan PSL v2.
+You may obtain a copy of Mulan PSL v2 at:
+         http://license.coscl.org.cn/MulanPSL2
+THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+See the Mulan PSL v2 for more details.
+ */
+
+package io.github.nyayurn.yutori.message.element.basic;
+
+import io.github.nyayurn.yutori.message.element.BaseMessageElement;
+import io.github.nyayurn.yutori.util.XmlUtil;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+/**
+ * 提及频道
+ *
+ * @author Yurn
+ */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+public class SharpElement extends BaseMessageElement {
+    /**
+     * 目标频道的 ID
+     */
+    protected String id;
+
+    /**
+     * 目标频道的名称
+     */
+    protected String name;
+
+    public SharpElement(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        String result = "<sharp";
+        if (id != null) {
+            result += " id=\"" + id + "\"";
+        }
+        if (name != null) {
+            result += " name=\"" + XmlUtil.encode(name) + "\"";
+        }
+        result += "/>";
+        return result;
+    }
+}

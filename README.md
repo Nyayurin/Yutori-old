@@ -1,6 +1,6 @@
 <div align="center">
 
-# YurnSatoriSdk
+# Yutori
 
 基于 [Satori](https://satori.js.org/zh-CN/) 协议的 Java 机器人开发工具包
 
@@ -10,15 +10,7 @@
 
 # 快速开始
 
-## 基础信息
-
-> 提示: 本文档默认您了解并熟悉 Java 基本语法
-
-- 推荐使用 [YurnQbotFramework](https://github.com/Nyayurn/YurnQbotFramework) 框架进行 QQ 机器人的开发
-
-## 使用流程
-
-1. 首先创建一个空的 Maven 项目(什么?不会?可以右上角关闭本页面了)
+1. 创建一个 Maven 项目
 2. 依赖引入
 3. 基本配置
 4. 进阶
@@ -28,11 +20,12 @@
 ### Maven
 
 ```xml
+
 <dependencies>
     <dependency>
         <groupId>io.github.nyayurn</groupId>
-        <artifactId>YurnSatoriSdk</artifactId>
-        <version>0.0.8</version>
+        <artifactId>yutori</artifactId>
+        <version>0.0.9</version>
     </dependency>
 </dependencies>
 ```
@@ -99,3 +92,38 @@ public class TestListener {
 
 - 框架整体与 Satori 架构基本一致, 请参考 [Satori 文档](https://satori.js.org/zh-CN/protocol)
 - 源码内有 javadoc 方便阅读, 请自行阅读源码
+
+|      API       |     描述      |
+|:--------------:|:-----------:|
+|   ChannelApi   |  频道相关的 API  |
+|    GuildApi    |  群组相关的 API  |
+| GuildMemberApi | 群组成员相关的 API |
+|  GuildRoleApi  | 群组角色相关的 API |
+|    LoginApi    | 登录信息相关的 API |
+|   MessageApi   |  消息相关的 API  |
+|  ReactionApi   |  表态相关的 API  |
+|    UserApi     |  用户相关的 API  |
+
+|            MessageElement             |  描述  |
+|:-------------------------------------:|:----:|
+|               AtElement               |  AT  |
+|              HrefElement              | 超链接  |
+|             SharpElement              | 提及频道 |
+|              TextElement              | 纯文本  |
+|     BoldElement<br>StrongElement      |  粗体  |
+| DeleteElement<br>StrikethroughElement | 删除线  |
+|      EmElement<br>ItalicElement       |  斜线  |
+|    InsElement<br>UnderlineElement     | 下划线  |
+|              CodeElement              | 代码片段 |
+|              SplElement               |  剧透  |
+|              SubElement               |  下标  |
+|              SupElement               |  上标  |
+|             AuthorElement             |  作者  |
+|             QuoteElement              |  引用  |
+|             AudioElement              |  语音  |
+|              FileElement              |  文件  |
+|              ImgElement               |  图片  |
+|             VideoElement              |  视频  |
+|               BrElement               |  换行  |
+|            MessageElement             |  消息  |
+|           ParagraphElement            |  段落  |

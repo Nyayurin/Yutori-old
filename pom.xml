@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.nyayurn</groupId>
-    <artifactId>YurnSatoriSdk</artifactId>
-    <version>0.0.8</version>
-    <name>Yurn's Java Satori Sdk</name>
+    <artifactId>yutori</artifactId>
+    <version>0.0.9</version>
+    <name>Yutori</name>
     <description>基于 Satori 协议的 Java 机器人开发工具包</description>
-    <url>https://github.com/Nyayurn/YurnSatoriSdk</url>
+    <url>https://github.com/Nyayurn/Yutori</url>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -36,8 +36,8 @@
     </developers>
 
     <scm>
-        <url>https://github.com/Nyayurn/YurnSatoriSdk</url>
-        <connection>https://github.com/Nyayurn/YurnSatoriSdk.git</connection>
+        <url>https://github.com/Nyayurn/Yutori</url>
+        <connection>https://github.com/Nyayurn/Yutori.git</connection>
     </scm>
 
     <dependencies>
