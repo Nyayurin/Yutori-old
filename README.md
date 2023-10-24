@@ -127,3 +127,7 @@ public class TestListener {
 |               BrElement               |  换行  |
 |            MessageElement             |  消息  |
 |           ParagraphElement            |  段落  |
+
+# 迁移
+
+如果你想从 0.0.9 之前的版本迁移到 0.0.9, 请删除所有的 import, 并重新导入
