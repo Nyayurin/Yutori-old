@@ -10,7 +10,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package io.github.nyayurn.yutori.events;
+package io.github.nyayurn.yutori.event;
 
 /**
  * 登录的事件列表

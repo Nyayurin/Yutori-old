@@ -25,7 +25,7 @@
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>yutori</artifactId>
-        <version>0.0.9</version>
+        <version>0.0.9-Fix</version>
     </dependency>
 </dependencies>
 ```

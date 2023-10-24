@@ -135,7 +135,7 @@ public class GuildMemberApi {
      * @param messageId 请求 ID
      * @param approve   是否通过请求
      */
-    public void getGuildMember(String messageId, boolean approve) {
+    public void approveGuildMember(String messageId, boolean approve) {
         JSONObject map = new JSONObject();
         map.put("message_id", messageId);
         map.put("approve", approve);
@@ -150,7 +150,7 @@ public class GuildMemberApi {
      * @param approve   是否通过请求
      * @param comment   备注信息
      */
-    public void getGuildMember(String messageId, boolean approve, String comment) {
+    public void approveGuildMember(String messageId, boolean approve, String comment) {
         JSONObject map = new JSONObject();
         map.put("message_id", messageId);
         map.put("approve", approve);

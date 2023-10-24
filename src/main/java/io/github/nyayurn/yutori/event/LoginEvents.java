@@ -10,32 +10,32 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package io.github.nyayurn.yutori.events;
+package io.github.nyayurn.yutori.event;
 
 /**
- * 群组角色的事件列表
+ * 登录的事件列表
  *
  * @author Yurn
  */
 @SuppressWarnings("unused")
-public final class GuildRoleEvents {
+public final class LoginEvents {
     /**
-     * 群组角色被创建时触发
-     * 必需资源: guild, role
+     * 登录被创建时触发
+     * 必需资源: login
      */
-    public static final String GUILD_ROLE_CREATED = "guild-role-created";
+    public static final String LOGIN_ADDED = "login-added";
 
     /**
-     * 群组角色被修改时触发
-     * 必需资源: guild, role
+     * 登录被删除时触发
+     * 必需资源: login
      */
-    public static final String GUILD_ROLE_UPDATED = "guild-role-updated";
+    public static final String LOGIN_REMOVED = "login-removed";
 
     /**
-     * 群组角色被删除时触发
-     * 必需资源: guild, role
+     * 登录信息更新时触发
+     * 必需资源: login
      */
-    public static final String GUILD_ROLE_DELETED = "guild-role-deleted";
+    public static final String LOGIN_UPDATED = "login-updated";
 
-    private GuildRoleEvents() {}
+    private LoginEvents() {}
 }
