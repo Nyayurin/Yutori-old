@@ -131,3 +131,7 @@ public class TestListener {
 # 迁移
 
 如果你想从 0.0.9 之前的版本迁移到 0.0.9, 请删除所有的 import, 并重新导入
+
+# 其他
+
+Yutori: 作者名称 Yurn 与 Satori 协议名称的结合而来

@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 群组角色 API
@@ -102,7 +103,9 @@ public class GuildRoleApi {
         String response = sendMessage.sendGenericMessage("guild.role", "list", map.toString());
         try {
             //noinspection unchecked
-            return JSONArray.parse(response).stream().map(o -> ((PageResponseEntity<GuildRoleEntity>) o)).toList();
+            return Optional.ofNullable(JSONArray.parse(response))
+                    .map(objects -> objects.stream().map(o -> ((PageResponseEntity<GuildRoleEntity>) o)).toList())
+                    .orElse(null);
         } catch (JSONException e) {
             log.error("{}: {}", response, e.getLocalizedMessage());
         }

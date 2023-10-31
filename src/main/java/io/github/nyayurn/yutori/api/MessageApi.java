@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 消息 API
@@ -69,7 +70,9 @@ public class MessageApi {
         map.put("content", content);
         String response = sendMessage.sendGenericMessage("message", "create", map.toString());
         try {
-            return JSONArray.parse(response).toList(MessageEntity.class);
+            return Optional.ofNullable(JSONArray.parse(response))
+                    .map(objects -> objects.toList(MessageEntity.class))
+                    .orElse(null);
         } catch (JSONException e) {
             log.error("{}: {}", response, e.getLocalizedMessage());
         }
@@ -142,7 +145,9 @@ public class MessageApi {
         String response = sendMessage.sendGenericMessage("message", "list", map.toString());
         try {
             //noinspection unchecked
-            return JSONArray.parse(response).stream().map(o -> ((PageResponseEntity<MessageEntity>) o)).toList();
+            return Optional.ofNullable(JSONArray.parse(response))
+                    .map(objects -> objects.stream().map(o -> ((PageResponseEntity<MessageEntity>) o)).toList())
+                    .orElse(null);
         } catch (JSONException e) {
             log.error("{}: {}", response, e.getLocalizedMessage());
         }

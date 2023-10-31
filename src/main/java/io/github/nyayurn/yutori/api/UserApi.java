@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 用户 API
@@ -83,7 +84,9 @@ public class UserApi {
         String response = sendMessage.sendGenericMessage("friend", "list", null);
         try {
             //noinspection unchecked
-            return JSONArray.parse(response).stream().map(o -> (PageResponseEntity<UserEntity>) o).toList();
+            return Optional.ofNullable(JSONArray.parse(response))
+                    .map(objects -> objects.stream().map(o -> (PageResponseEntity<UserEntity>) o).toList())
+                    .orElse(null);
         } catch (JSONException e) {
             log.error("{}: {}", response, e.getLocalizedMessage());
         }
@@ -103,7 +106,9 @@ public class UserApi {
         String response = sendMessage.sendGenericMessage("friend", "list", map.toString());
         try {
             //noinspection unchecked
-            return JSONArray.parse(response).stream().map(o -> (PageResponseEntity<UserEntity>) o).toList();
+            return Optional.ofNullable(JSONArray.parse(response))
+                    .map(objects -> objects.stream().map(o -> (PageResponseEntity<UserEntity>) o).toList())
+                    .orElse(null);
         } catch (JSONException e) {
             log.error("{}: {}", response, e.getLocalizedMessage());
         }

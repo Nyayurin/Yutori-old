@@ -23,6 +23,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 表态 API (实验性)
@@ -153,7 +154,9 @@ public class ReactionApi {
         String response = sendMessage.sendGenericMessage("reaction", "list", map.toString());
         try {
             //noinspection unchecked
-            return JSONArray.parse(response).stream().map(o -> ((PageResponseEntity<UserEntity>) o)).toList();
+            return Optional.ofNullable(JSONArray.parse(response))
+                    .map(objects -> objects.stream().map(o -> ((PageResponseEntity<UserEntity>) o)).toList())
+                    .orElse(null);
         } catch (JSONException e) {
             log.error("{}: {}", response, e.getLocalizedMessage());
         }
