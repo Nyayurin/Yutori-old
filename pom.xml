@@ -5,7 +5,7 @@
 
     <groupId>io.github.nyayurn</groupId>
     <artifactId>yutori</artifactId>
-    <version>0.0.9-Fix</version>
+    <version>0.1.0</version>
     <name>Yutori</name>
     <description>基于 Satori 协议的 Java 机器人开发工具包</description>
     <url>https://github.com/Nyayurn/Yutori</url>

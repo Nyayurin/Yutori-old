@@ -92,7 +92,7 @@ public class ChannelApi {
             return Optional.ofNullable(JSONArray.parse(response))
                     .map(objects -> objects.stream().map(o -> (PageResponseEntity<ChannelEntity>) o).toList())
                     .orElse(null);
-        } catch (JSONException e) {
+        } catch (JSONException | NullPointerException e) {
             log.error("{}: {}", response, e.getLocalizedMessage());
         }
         return null;
