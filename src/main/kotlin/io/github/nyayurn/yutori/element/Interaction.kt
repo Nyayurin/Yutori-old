@@ -18,7 +18,7 @@ class Button @JvmOverloads constructor(
     val href: String? = null,
     val text: String? = null,
     val theme: String? = null
-) : GenericMessageElement(
+) : MessageElement, GenericMessageElement(
     "button",
     mapOf("id" to id, "type" to type, "href" to href, "text" to text, "theme" to theme)
 )

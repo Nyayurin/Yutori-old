@@ -3,7 +3,7 @@ package io.github.nyayurn.yutori.element
 abstract class ResourceElement(
     name: String,
     properties: Map<String, Any?>,
-) : GenericMessageElement(name, properties)
+) : MessageElement, GenericMessageElement(name, properties)
 
 class Image @JvmOverloads constructor(
     val src: String,

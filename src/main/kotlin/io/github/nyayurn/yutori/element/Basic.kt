@@ -26,7 +26,7 @@ interface MessageElement {
 abstract class GenericMessageElement(
     private val elementName: String,
     private val properties: Map<String, Any?> = mapOf(),
-    private val subElement: List<MessageElement> = listOf()
+    private val children: List<MessageElement> = listOf()
 ) {
     override fun toString(): String {
         var result = "<$elementName"
@@ -41,11 +41,11 @@ abstract class GenericMessageElement(
                 else -> throw Exception("Invalid type")
             }
         }
-        return if (subElement.isEmpty()) {
+        return if (children.isEmpty()) {
             "$result/>"
         } else {
             result += ">"
-            for (item in subElement) {
+            for (item in children) {
                 result += item.toString()
             }
             "$result</$elementName>"
@@ -62,7 +62,7 @@ class At @JvmOverloads constructor(
     val name: String? = null,
     val role: String? = null,
     val type: String? = null
-) : GenericMessageElement(
+) : MessageElement, GenericMessageElement(
     "at",
     mapOf("id" to id, "name" to name, "role" to role, "type" to type)
 )
@@ -70,12 +70,12 @@ class At @JvmOverloads constructor(
 class Sharp @JvmOverloads constructor(
     val id: String,
     val name: String? = null
-) : GenericMessageElement(
+) : MessageElement, GenericMessageElement(
     "sharp",
     mapOf("id" to id, "name" to name)
 )
 
-class Href(val href: String) : GenericMessageElement(
+class Href(val href: String) : MessageElement, GenericMessageElement(
     "a",
     mapOf("href" to href)
 )

@@ -32,7 +32,11 @@ object ExampleKotlinListener {
         if ("test" == event.message?.content) {
             // 通过对应 API 类的方法发送消息
             val messageApi = MessageApi.of(event, properties)
-            messageApi.createMessage(event.channel!!.id, "test done!")
+            messageApi.createMessage(event.channel!!.id,
+                message {
+                    at(event.user!!.id)
+                    +"Test done!"
+                })
         }
     }
 }

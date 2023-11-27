@@ -16,7 +16,6 @@ dependencies {
     api("com.alibaba.fastjson2:fastjson2-kotlin:2.0.42")
     api("ch.qos.logback:logback-classic:1.4.11")
     api("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.21")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 }
 
