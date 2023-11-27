@@ -59,16 +59,7 @@ publishing {
         }
         repositories {
             maven {
-                name = "repository"
                 url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                credentials {
-                    username = findProperty("ossrhUsername") as String?
-                    password = findProperty("ossrhPassword") as String?
-                }
-            }
-            maven {
-                name = "snapshotRepository"
-                url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots")
                 credentials {
                     username = findProperty("ossrhUsername") as String?
                     password = findProperty("ossrhPassword") as String?

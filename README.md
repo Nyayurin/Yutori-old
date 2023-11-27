@@ -29,6 +29,20 @@
 </dependencies>
 ```
 
+### Gradle
+
+groovy
+
+```groovy
+implementation group: 'io.github.nyayurn', name: 'yutori', version: '0.1.1'
+```
+
+kotlin
+
+```kotlin
+implementation("io.github.nyayurn:yutori:0.1.1")
+```
+
 ## 示例
 
 [Java](https://github.com/Nyayurn/Yutori/blob/master/src/test/java/example/Main.java)
