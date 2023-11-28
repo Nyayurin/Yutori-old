@@ -10,7 +10,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package io.github.nyayurn.yutori.element
+package io.github.nyayurn.yutori.message.element
 
 private fun String.encode(): String {
     return this.replace("&", "&amp;")
@@ -51,6 +51,10 @@ abstract class GenericMessageElement(
             "$result</$elementName>"
         }
     }
+}
+
+class Custom(val text: String) : MessageElement {
+    override fun toString(): String = text
 }
 
 class Text(val text: String) : MessageElement {

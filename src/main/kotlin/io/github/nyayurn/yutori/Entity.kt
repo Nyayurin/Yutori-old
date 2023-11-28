@@ -17,7 +17,7 @@ import com.alibaba.fastjson2.parseObject
 import com.alibaba.fastjson2.to
 import com.alibaba.fastjson2.toList
 
-data class Channel(
+class Channel(
     val id: String,
     val type: Type,
     val name: String?,
@@ -31,38 +31,38 @@ data class Channel(
     }
 }
 
-data class Guild(
-    var id: String,
+class Guild(
+    val id: String,
     val name: String?,
     val avatar: String?,
 )
 
-data class GuildMember(
-    var user: User?,
+class GuildMember(
+    val user: User?,
     val nick: String?,
     val avatar: String?,
     @JSONField(name = "joined_at") val joinedAt: Number?
 )
 
-data class GuildRole(
-    var id: String,
+class GuildRole(
+    val id: String,
     val name: String?
 )
 
 interface Interaction
 
-data class Argv(
-    var name: String,
-    var arguments: List<Any>,
-    var options: Any
+class Argv(
+    val name: String,
+    val arguments: List<Any>,
+    val options: Any
 ) : Interaction
 
-data class Button(
-    var id: String
+class Button(
+    val id: String
 ) : Interaction
 
-data class Login(
-    var user: User?,
+class Login(
+    val user: User?,
     @JSONField(name = "self_id") val selfId: String?,
     val platform: String?,
     val status: Status
@@ -76,8 +76,8 @@ data class Login(
     }
 }
 
-data class Message(
-    var id: String,
+class Message(
+    val id: String,
     val content: String,
     val channel: Channel?,
     val guild: Guild?,
@@ -87,15 +87,15 @@ data class Message(
     @JSONField(name = "updated_at") val updatedAt: Number?
 )
 
-data class User(
-    var id: String,
+class User(
+    val id: String,
     val name: String?,
     val nick: String?,
     val avatar: String?,
     @JSONField(name = "is_bot") val isBot: Boolean?
 )
 
-data class Signaling(val op: Int, var body: Body? = null) {
+class Signaling(val op: Int, var body: Body? = null) {
     interface Body
     class Ready(val logins: List<Login>) : Body
     companion object {
@@ -124,31 +124,31 @@ data class Signaling(val op: Int, var body: Body? = null) {
     }
 }
 
-data class Identify(
+class Identify(
     var token: String? = null,
     var sequence: Number? = null
 ) : Signaling.Body
 
-data class Event(
-    var id: Number,
+open class Event @JvmOverloads constructor(
+    val id: Number,
     val type: String,
     val platform: String,
     @JSONField(name = "self_id") val selfId: String,
     val timestamp: Number,
-    val argv: Argv?,
-    val button: Button?,
-    val channel: Channel?,
-    val guild: Guild?,
-    val login: Login?,
-    val member: GuildMember?,
-    val message: Message?,
-    val operator: User?,
-    val role: GuildRole?,
-    val user: User?
+    open val argv: Argv? = null,
+    open val button: Button? = null,
+    open val channel: Channel? = null,
+    open val guild: Guild? = null,
+    open val login: Login? = null,
+    open val member: GuildMember? = null,
+    open val message: Message? = null,
+    open val operator: User? = null,
+    open val role: GuildRole? = null,
+    open val user: User? = null
 ) : Signaling.Body
 
-data class InternalEvent(
-    var id: Number,
+class InternalEvent(
+    val id: Number,
     val type: String,
     val platform: String,
     @JSONField(name = "self_id") val selfId: String,
@@ -157,12 +157,12 @@ data class InternalEvent(
     @JSONField(name = "_data") val internalData: Any
 )
 
-data class PageResponse<T> @JvmOverloads constructor(
+class PageResponse<T> @JvmOverloads constructor(
     val data: List<T>,
     val next: String? = null
 )
 
-data class Properties @JvmOverloads constructor(
+class Properties @JvmOverloads constructor(
     val address: String,
     val token: String? = null
 )

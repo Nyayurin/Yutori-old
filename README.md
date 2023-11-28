@@ -10,37 +10,25 @@
 
 # 快速开始
 
-1. 创建一个 Maven 项目
-2. 依赖引入
-3. 基本配置
-4. 进阶
-
 ## 依赖引入
 
 ### Maven
 
 ```xml
+
 <dependencies>
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>yutori</artifactId>
-        <version>0.1.1</version>
+        <version>0.1.2</version>
     </dependency>
 </dependencies>
 ```
 
 ### Gradle
 
-groovy
-
-```groovy
-implementation group: 'io.github.nyayurn', name: 'yutori', version: '0.1.1'
-```
-
-kotlin
-
 ```kotlin
-implementation("io.github.nyayurn:yutori:0.1.1")
+implementation("io.github.nyayurn:yutori:0.1.2")
 ```
 
 ## 示例
@@ -65,30 +53,31 @@ implementation("io.github.nyayurn:yutori:0.1.1")
 |  ReactionApi   |  表态相关的 API  |
 |    UserApi     |  用户相关的 API  |
 
-|     MessageElement      |  描述  |
-|:-----------------------:|:----:|
-|          Text           | 纯文本  |
-|           At            |  AT  |
-|          Sharp          | 提及频道 |
-|          Href           | 超链接  |
-|           Img           |  图片  |
-|          Audio          |  语音  |
-|          Video          |  视频  |
-|          File           |  文件  |
-|     Bold<br>Strong      |  粗体  |
-|     Idiomatic<br>Em     |  斜线  |
-|    Underline<br>Ins     | 下划线  |
-| Strikethrough<br>Delete | 删除线  |
-|           Spl           |  剧透  |
-|          Code           | 代码片段 |
-|           Sup           |  上标  |
-|           Sub           |  下标  |
-|           Br            |  换行  |
-|        Paragraph        |  段落  |
-|         Message         |  消息  |
-|          Quote          |  引用  |
-|         Author          |  作者  |
-|         Button          |  按钮  |
+|     MessageElement      |     描述      |
+|:-----------------------:|:-----------:|
+|         Custom          | 自定义(不会自动转码) |
+|          Text           |     纯文本     |
+|           At            |     AT      |
+|          Sharp          |    提及频道     |
+|          Href           |     超链接     |
+|           Img           |     图片      |
+|          Audio          |     语音      |
+|          Video          |     视频      |
+|          File           |     文件      |
+|     Bold<br>Strong      |     粗体      |
+|     Idiomatic<br>Em     |     斜线      |
+|    Underline<br>Ins     |     下划线     |
+| Strikethrough<br>Delete |     删除线     |
+|           Spl           |     剧透      |
+|          Code           |    代码片段     |
+|           Sup           |     上标      |
+|           Sub           |     下标      |
+|           Br            |     换行      |
+|        Paragraph        |     段落      |
+|         Message         |     消息      |
+|          Quote          |     引用      |
+|         Author          |     作者      |
+|         Button          |     按钮      |
 
 # 迁移
 

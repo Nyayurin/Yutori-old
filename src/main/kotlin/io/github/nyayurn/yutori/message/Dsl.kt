@@ -1,9 +1,18 @@
-package io.github.nyayurn.yutori
+/*
+Copyright (c) 2023 Yurn
+yutori is licensed under Mulan PSL v2.
+You can use this software according to the terms and conditions of the Mulan PSL v2.
+You may obtain a copy of Mulan PSL v2 at:
+         http://license.coscl.org.cn/MulanPSL2
+THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+See the Mulan PSL v2 for more details.
+ */
 
-import io.github.nyayurn.yutori.element.*
-import io.github.nyayurn.yutori.element.Button
-import io.github.nyayurn.yutori.element.Message
+package io.github.nyayurn.yutori.message
 
+import io.github.nyayurn.yutori.message.element.*
 
 fun message(init: DslMessage.() -> Unit): String {
     return DslMessage().apply {
@@ -12,12 +21,16 @@ fun message(init: DslMessage.() -> Unit): String {
 }
 
 class DslMessage {
-    private val children = mutableListOf<MessageElement>()
+    private val list = mutableListOf<MessageElement>()
 
-    operator fun String.unaryPlus() = text(this)
+    operator fun String.unaryPlus() = custom(this)
+
+    fun custom(text: String) {
+        list.add(Custom(text))
+    }
 
     fun text(text: String) {
-        children.add(Text(text))
+        list.add(Text(text))
     }
 
     fun at(
@@ -26,15 +39,15 @@ class DslMessage {
         role: String? = null,
         type: String? = null
     ) {
-        children.add(At(id, name, role, type))
+        list.add(At(id, name, role, type))
     }
 
     fun sharp(id: String, name: String? = null) {
-        children.add(Sharp(id, name))
+        list.add(Sharp(id, name))
     }
 
     fun a(href: String) {
-        children.add(Href(href))
+        list.add(Href(href))
     }
 
     fun img(
@@ -44,7 +57,7 @@ class DslMessage {
         width: Number? = null,
         height: Number? = null
     ) {
-        children.add(Image(src, cache, timeout, width, height))
+        list.add(Image(src, cache, timeout, width, height))
     }
 
     fun audio(
@@ -52,7 +65,7 @@ class DslMessage {
         cache: Boolean? = null,
         timeout: String? = null
     ) {
-        children.add(Audio(src, cache, timeout))
+        list.add(Audio(src, cache, timeout))
     }
 
     fun video(
@@ -60,7 +73,7 @@ class DslMessage {
         cache: Boolean? = null,
         timeout: String? = null
     ) {
-        children.add(Video(src, cache, timeout))
+        list.add(Video(src, cache, timeout))
     }
 
     fun file(
@@ -68,63 +81,63 @@ class DslMessage {
         cache: Boolean? = null,
         timeout: String? = null
     ) {
-        children.add(File(src, cache, timeout))
+        list.add(File(src, cache, timeout))
     }
 
     fun b(text: String) {
-        children.add(Bold(text))
+        list.add(Bold(text))
     }
 
     fun strong(text: String) {
-        children.add(Strong(text))
+        list.add(Strong(text))
     }
 
     fun i(text: String) {
-        children.add(Idiomatic(text))
+        list.add(Idiomatic(text))
     }
 
     fun em(text: String) {
-        children.add(Em(text))
+        list.add(Em(text))
     }
 
     fun u(text: String) {
-        children.add(Underline(text))
+        list.add(Underline(text))
     }
 
     fun ins(text: String) {
-        children.add(Ins(text))
+        list.add(Ins(text))
     }
 
     fun s(text: String) {
-        children.add(Strikethrough(text))
+        list.add(Strikethrough(text))
     }
 
     fun del(text: String) {
-        children.add(Delete(text))
+        list.add(Delete(text))
     }
 
     fun spl(text: String) {
-        children.add(Spl(text))
+        list.add(Spl(text))
     }
 
     fun code(text: String) {
-        children.add(Code(text))
+        list.add(Code(text))
     }
 
     fun sup(text: String) {
-        children.add(Sup(text))
+        list.add(Sup(text))
     }
 
     fun sub(text: String) {
-        children.add(Sub(text))
+        list.add(Sub(text))
     }
 
     fun br() {
-        children.add(Br())
+        list.add(Br())
     }
 
     fun p() {
-        children.add(Paragraph())
+        list.add(Paragraph())
     }
 
     fun message(
@@ -132,11 +145,11 @@ class DslMessage {
         id: String? = null,
         forward: Boolean? = null
     ) {
-        children.add(Message(text, id, forward))
+        list.add(Message(text, id, forward))
     }
 
     fun quote(text: String) {
-        children.add(Quote(text))
+        list.add(Quote(text))
     }
 
     fun author(
@@ -144,7 +157,7 @@ class DslMessage {
         name: String? = null,
         avatar: String? = null
     ) {
-        children.add(Author(id, name, avatar))
+        list.add(Author(id, name, avatar))
     }
 
     fun button(
@@ -154,12 +167,12 @@ class DslMessage {
         text: String? = null,
         theme: String? = null
     ) {
-        children.add(Button(id, type, href, text, theme))
+        list.add(Button(id, type, href, text, theme))
     }
 
     override fun toString(): String {
         var result = ""
-        for (item in children) {
+        for (item in list) {
             result += item
         }
         return result

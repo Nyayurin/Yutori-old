@@ -10,7 +10,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package io.github.nyayurn.yutori.element
+package io.github.nyayurn.yutori.message.element
 
 abstract class DecorationElement(name: String, text: String) : MessageElement, GenericMessageElement(name, children = listOf(Text(text)))
 class Bold(val text: String) : DecorationElement("b", text)

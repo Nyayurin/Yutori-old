@@ -19,70 +19,12 @@ import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
 import org.java_websocket.util.NamedThreadFactory
 import java.net.URI
-import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-class ListenerContainer {
-    val onOpenDelegate = mutableListOf<(ServerHandshake) -> Unit>()
-    val onMessageDelegate = mutableListOf<(Signaling) -> Unit>()
-    val onConnectDelegate = mutableListOf<(Signaling.Ready) -> Unit>()
-    val onEventDelegate = mutableListOf<(Event) -> Unit>()
-    val onDisconnectDelegate = mutableListOf<(String) -> Unit>()
-    val onErrorDelegate = mutableListOf<(Exception) -> Unit>()
-
-    fun runOnOpenListeners(response: ServerHandshake) {
-        Executors.defaultThreadFactory().newThread {
-            for (listener in onOpenDelegate) {
-                listener(response)
-            }
-        }.start()
-    }
-
-    fun runOnMessageListeners(entity: Signaling) {
-        Executors.defaultThreadFactory().newThread {
-            for (listener in onMessageDelegate) {
-                listener(entity)
-            }
-        }.start()
-    }
-
-    fun runOnConnectListeners(ready: Signaling.Ready) {
-        Executors.defaultThreadFactory().newThread {
-            for (listener in onConnectDelegate) {
-                listener(ready)
-            }
-        }.start()
-    }
-
-    fun runOnEventListeners(event: Event) {
-        Executors.defaultThreadFactory().newThread {
-            for (listener in onEventDelegate) {
-                listener(event)
-            }
-        }.start()
-    }
-
-    fun runOnDisconnectListeners(s: String) {
-        Executors.defaultThreadFactory().newThread {
-            for (listener in onDisconnectDelegate) {
-                listener(s)
-            }
-        }.start()
-    }
-
-    fun runOnErrorListeners(e: Exception) {
-        Executors.defaultThreadFactory().newThread {
-            for (listener in onErrorDelegate) {
-                listener(e)
-            }
-        }.start()
-    }
-}
-
 @Slf4j
-class MyWebSocketClient(address: String, private val token: String? = null, private val listenerContainer: ListenerContainer) :
+class MyWebSocketClient(address: String, private val token: String? = null) :
     WebSocketClient(URI("ws://$address/v1/events"), Draft_6455()) {
 
     private var heart: ScheduledFuture<*>? = null
@@ -94,18 +36,16 @@ class MyWebSocketClient(address: String, private val token: String? = null, priv
         if (reconnect != null && !reconnect!!.isCancelled && !reconnect!!.isDone) {
             reconnect!!.cancel(true)
         }
-        listenerContainer.runOnOpenListeners(serverHandshake)
         sendIdentify()
     }
 
     override fun onMessage(message: String) {
         val connection = Signaling.parse(message)
-        listenerContainer.runOnMessageListeners(connection)
         when (connection.op) {
             Signaling.EVENT -> {
                 val body = connection.body as Event
                 sequence = body.id
-                listenerContainer.runOnEventListeners(body)
+                ListenerDispatcher.runEvent(body)
             }
 
             Signaling.PONG -> {}
@@ -117,7 +57,6 @@ class MyWebSocketClient(address: String, private val token: String? = null, priv
                 heart = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Heart")).scheduleAtFixedRate(
                     { send(JSONObject.toJSONString(sendConnection)) }, 10, 10, TimeUnit.SECONDS
                 )
-                listenerContainer.runOnConnectListeners(ready)
             }
 
             else -> {
@@ -131,9 +70,6 @@ class MyWebSocketClient(address: String, private val token: String? = null, priv
         if (heart != null && !heart!!.isCancelled && !heart!!.isDone) {
             heart!!.cancel(true)
         }
-
-        listenerContainer.runOnDisconnectListeners(reason)
-
         // 断线重练
         reconnect = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Reconnect"))
             .scheduleAtFixedRate({
@@ -144,7 +80,6 @@ class MyWebSocketClient(address: String, private val token: String? = null, priv
 
     override fun onError(e: Exception) {
         log.error("出现错误: $e")
-        listenerContainer.runOnErrorListeners(e)
     }
 
     private fun sendIdentify() {
@@ -163,8 +98,7 @@ class MyWebSocketClient(address: String, private val token: String? = null, priv
     }
 
     companion object {
-        infix fun Properties.makeClient(listenerContainer: ListenerContainer) = of(this, listenerContainer)
-        fun of(properties: Properties, listenerContainer: ListenerContainer) =
-            MyWebSocketClient(properties.address, properties.token, listenerContainer)
+        infix fun of(properties: Properties) =
+            MyWebSocketClient(properties.address, properties.token)
     }
 }

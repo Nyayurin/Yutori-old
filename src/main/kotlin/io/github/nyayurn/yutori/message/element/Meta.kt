@@ -10,15 +10,18 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package io.github.nyayurn.yutori.element
+package io.github.nyayurn.yutori.message.element
 
-class Button @JvmOverloads constructor(
+class Quote(val text: String) : MessageElement, GenericMessageElement(
+    "quote",
+    children = listOf(Text(text))
+)
+
+class Author @JvmOverloads constructor(
     val id: String? = null,
-    val type: String? = null,
-    val href: String? = null,
-    val text: String? = null,
-    val theme: String? = null
+    val name: String? = null,
+    val avatar: String? = null
 ) : MessageElement, GenericMessageElement(
-    "button",
-    mapOf("id" to id, "type" to type, "href" to href, "text" to text, "theme" to theme)
+    "author",
+    mapOf("id" to id, "name" to name, "avatar" to avatar)
 )

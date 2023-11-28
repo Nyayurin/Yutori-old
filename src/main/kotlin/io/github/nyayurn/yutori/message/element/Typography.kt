@@ -10,18 +10,16 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-package io.github.nyayurn.yutori
+package io.github.nyayurn.yutori.message.element
 
-import mu.KotlinLogging
-import org.slf4j.Logger
-
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class Slf4j {
-    companion object {
-        val <reified T> T.log: Logger
-            inline get() = logger
-        val <reified T> T.logger: Logger
-            inline get() = KotlinLogging.logger { T::class.java.name }
-    }
-}
+class Br : MessageElement, GenericMessageElement("br")
+class Paragraph : MessageElement, GenericMessageElement("p")
+class Message @JvmOverloads constructor(
+    val text: String? = null,
+    val id: String? = null,
+    val forward: Boolean? = null
+) : MessageElement, GenericMessageElement(
+    "message",
+    mapOf("id" to id, "forward" to forward),
+    listOf(Text(text ?: ""))
+)
