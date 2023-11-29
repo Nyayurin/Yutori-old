@@ -19,6 +19,76 @@ import org.apache.hc.client5.http.fluent.Request
 import org.apache.hc.core5.http.io.entity.StringEntity
 import java.nio.charset.StandardCharsets
 
+class Bot private constructor(
+    private val channelApi: ChannelApi,
+    private val guildApi: GuildApi,
+    private val memberApi: GuildMemberApi,
+    private val roleApi: GuildRoleApi,
+    private val loginApi: LoginApi,
+    private val messageApi: MessageApi,
+    private val reactionApi: ReactionApi,
+    private val userApi: UserApi,
+    private val sendMessage: SendMessage
+) {
+    fun getChannel(channelId: String) = channelApi.getChannel(channelId)
+    fun listChannel(guildId: String, next: String? = null) = channelApi.listChannel(guildId, next)
+    fun createChannel(guildId: String, data: Channel) = channelApi.createChannel(guildId, data)
+    fun updateChannel(channelId: String, data: Channel) = channelApi.updateChannel(channelId, data)
+    fun deleteChannel(channelId: String) = channelApi.deleteChannel(channelId)
+    fun createUserChannel(userId: String, guildId: String?) = channelApi.createUserChannel(userId, guildId)
+    fun getGuild(guildId: String) = guildApi.getGuild(guildId)
+    fun listGuild(next: String? = null) = guildApi.listGuild(next)
+    fun approveGuild(messageId: String, approve: Boolean, comment: String) = guildApi.approveGuild(messageId, approve, comment)
+    fun getGuildMember(guildId: String, userId: String) = memberApi.getGuildMember(guildId, userId)
+    fun listGuildMember(guildId: String, next: String? = null) = memberApi.listGuildMember(guildId, next)
+    fun kickGuildMember(guildId: String, userId: String, permanent: Boolean? = null) = memberApi.kickGuildMember(guildId, userId, permanent)
+    fun approveGuildMember(messageId: String, approve: Boolean, comment: String? = null) =
+        memberApi.approveGuildMember(messageId, approve, comment)
+
+    fun setGuildRole(guildId: String, userId: String, roleId: String) = roleApi.setGuildRole(guildId, userId, roleId)
+    fun unsetGuildRole(guildId: String, userId: String, roleId: String) = roleApi.unsetGuildRole(guildId, userId, roleId)
+    fun listGuildRole(guildId: String, next: String? = null) = roleApi.listGuildRole(guildId, next)
+    fun createGuildRole(guildId: String, role: GuildRole) = roleApi.createGuildRole(guildId, role)
+    fun updateGuildRole(guildId: String, roleId: String, role: GuildRole) = roleApi.updateGuildRole(guildId, roleId, role)
+    fun deleteGuildRole(guildId: String, roleId: String) = roleApi.deleteGuildRole(guildId, roleId)
+    fun getLogin() = loginApi.getLogin()
+    fun createMessage(channelId: String, content: String) = messageApi.createMessage(channelId, content)
+    fun getMessage(channelId: String, messageId: String) = messageApi.getMessage(channelId, messageId)
+    fun deleteMessage(channelId: String, messageId: String) = messageApi.deleteMessage(channelId, messageId)
+    fun updateMessage(channelId: String, messageId: String, content: String) = messageApi.updateMessage(channelId, messageId, content)
+    fun listMessage(channelId: String, next: String? = null) = messageApi.listMessage(channelId, next)
+    fun createReaction(channelId: String, messageId: String, emoji: String) = reactionApi.createReaction(channelId, messageId, emoji)
+    fun deleteReaction(channelId: String, messageId: String, emoji: String, userId: String? = null) =
+        reactionApi.deleteReaction(channelId, messageId, emoji, userId)
+
+    fun clearReaction(channelId: String, messageId: String, emoji: String? = null) = reactionApi.clearReaction(channelId, messageId, emoji)
+    fun listReaction(channelId: String, messageId: String, emoji: String, next: String? = null) =
+        reactionApi.listReaction(channelId, messageId, emoji, next)
+
+    fun getUser(userId: String) = userApi.getUser(userId)
+    fun listFriend(next: String? = null) = userApi.listFriend(next)
+    fun approveFriend(messageId: String, approve: Boolean, comment: String? = null) = userApi.approveFriend(messageId, approve, comment)
+    fun sendGenericMessage(resource: String, method: String, body: String?) = sendMessage.sendGenericMessage(resource, method, body)
+    fun sendInternalMessage(method: String, body: String) = sendMessage.sendInternalMessage(method, body)
+
+    companion object {
+        fun of(sendMessage: SendMessage) = Bot(
+            ChannelApi.of(sendMessage),
+            GuildApi.of(sendMessage),
+            GuildMemberApi.of(sendMessage),
+            GuildRoleApi.of(sendMessage),
+            LoginApi.of(sendMessage),
+            MessageApi.of(sendMessage),
+            ReactionApi.of(sendMessage),
+            UserApi.of(sendMessage),
+            sendMessage
+        )
+
+        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+    }
+}
+
 class ChannelApi private constructor(private val sendMessage: SendMessage) {
     fun getChannel(channelId: String): Channel {
         val map = JSONObject()
@@ -344,13 +414,13 @@ class SendMessage private constructor(
     private val version = "v1"
 
     fun sendGenericMessage(resource: String, method: String, body: String?): String {
-        val request = Request.post(String.format("http://%s/%s/%s.%s", properties.address, version, resource, method))
+        val request = Request.post("http://${properties.address}/$version/$resource.$method")
         request initHttpPost body
         return this send request
     }
 
     fun sendInternalMessage(method: String, body: String): String {
-        val request = Request.post(String.format("http://%s/%s/internal/%s", properties.address, version, method))
+        val request = Request.post("http://${properties.address}/$version/internal/$method")
         request initHttpPost body
         return this send request
     }

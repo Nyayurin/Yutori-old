@@ -2,6 +2,7 @@ package example;
 
 import io.github.nyayurn.yutori.*;
 import io.github.nyayurn.yutori.message.MessageBuilder;
+import io.github.nyayurn.yutori.message.element.At;
 import kotlin.Unit;
 
 public class Main {
@@ -19,27 +20,25 @@ public class Main {
 class ExampleJavaListener {
     public ExampleJavaListener() {
         // 在构造器内对 listenerContainer 注册事件
-        ListenerDispatcher.INSTANCE.onMessageCreated(this::idkWhatIShouldNameIt);
-        ListenerDispatcher.INSTANCE.onMessageCreated(this::recipeMenu);
+        DispatcherListener.INSTANCE.onMessageCreated(Main.properties, this::idkWhatIShouldNameIt);
+        DispatcherListener.INSTANCE.onMessageCreated(Main.properties, this::recipeMenu);
     }
 
-    private Unit idkWhatIShouldNameIt(MessageEvent event) {
+    private Unit idkWhatIShouldNameIt(Bot bot, MessageEvent event, String msg) {
+        // msg: 只保留纯文本后的字符串, 去掉 <img> 等非纯文本元素
         // 判断消息内容是否符合触发条件
-        if ("在吗".equals(event.getMessage().getContent())) {
-            // 通过对应 API 类的方法发送消息
-            final var messageApi = MessageApi.Companion.of(event, Main.properties);
-            messageApi.createMessage(event.getChannel().getId(), MessageBuilder.Companion.of()
-                    .at(event.getUser().getId())
-                    .text("我在!").build());
+        if ("在吗".equals(msg)) {
+            // 通过 Bot 类发送消息
+            bot.createMessage(event.getChannel().getId(), new At(event.getUser().getId()) + "我在!");
         }
         return null;
     }
 
-    private Unit recipeMenu(MessageEvent event) {
-        if ("菜单".equals(event.getMessage().getContent())) {
-            final var messageApi = MessageApi.Companion.of(event, Main.properties);
+    private Unit recipeMenu(Bot bot, MessageEvent event, String msg) {
+        if ("菜单".equals(msg)) {
             // 资源来自: https://home.meishichina.com/recipe-menu.html
-            messageApi.createMessage(event.getChannel().getId(), MessageBuilder.Companion.of()
+            // 使用 Builder 配合链式调用构建消息
+            bot.createMessage(event.getChannel().getId(), MessageBuilder.Companion.of()
                     .at(event.getUser().getId())
                     .custom("菜单:<br/>")
                     .custom("红烧肉 红烧排骨 可乐鸡翅 糖醋排骨 水煮鱼 红烧鱼<br/>")

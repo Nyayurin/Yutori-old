@@ -45,7 +45,7 @@ class MyWebSocketClient(address: String, private val token: String? = null) :
             Signaling.EVENT -> {
                 val body = connection.body as Event
                 sequence = body.id
-                ListenerDispatcher.runEvent(body)
+                DispatcherListener.runEvent(body)
             }
 
             Signaling.PONG -> {}

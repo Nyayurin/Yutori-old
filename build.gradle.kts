@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.nyayurn"
-version = "0.1.2"
+version = "0.1.3"
 description = "基于 Satori 协议的 Java 机器人开发工具包"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
@@ -16,6 +16,7 @@ dependencies {
     api("com.alibaba.fastjson2:fastjson2-kotlin:2.0.42")
     api("ch.qos.logback:logback-classic:1.4.11")
     api("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    api("org.jsoup:jsoup:1.17.1")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 }
 

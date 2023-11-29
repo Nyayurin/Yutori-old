@@ -1,6 +1,7 @@
 package example
 
 import io.github.nyayurn.yutori.*
+import io.github.nyayurn.yutori.message.element.At
 import io.github.nyayurn.yutori.message.message
 
 // Satori 相关设置
@@ -16,28 +17,25 @@ fun main() {
 object ExampleKotlinListener {
     init {
         // 在 init 内对 ListenerContainer 注册事件
-        ListenerDispatcher onMessageCreated { idkWhatIShouldNameIt(it) }
-        ListenerDispatcher onMessageCreated { recipeMenu(it) }
+        DispatcherListener.onMessageCreated(properties) { bot, event, msg -> idkWhatIShouldNameIt(bot, event, msg) }
+        DispatcherListener.onMessageCreated(properties) { bot, event, msg -> recipeMenu(bot, event, msg) }
     }
 
-    private fun idkWhatIShouldNameIt(event: MessageEvent) {
+    private fun idkWhatIShouldNameIt(bot: Bot, event: MessageEvent, msg: String) {
+        // msg: 只保留纯文本后的字符串, 去掉 <img> 等非纯文本元素
         // 判断消息内容是否符合触发条件
-        if ("在吗" == event.message.content) {
-            // 通过对应 API 类的方法发送消息
-            val messageApi = MessageApi.of(event, properties)
-            messageApi.createMessage(event.channel.id,
-                message {
-                    at(event.user.id)
-                    +"我在!"
-                })
+        if ("在吗" == msg) {
+            // 通过 Bot 类发送消息
+            bot.createMessage(event.channel.id, "" + At(event.user.id) + "我在!")
         }
     }
 
-    private fun recipeMenu(event: MessageEvent) {
-        if ("菜单" == event.message.content) {
-            val messageApi = MessageApi.of(event, properties)
+    private fun recipeMenu(bot: Bot, event: MessageEvent, msg: String) {
+        if ("菜单" == msg) {
             // 资源来自: https://home.meishichina.com/recipe-menu.html
-            messageApi.createMessage(event.channel.id,
+            // 使用 DSL 构建消息
+            // +"" 与 custom("") 等效
+            bot.createMessage(event.channel.id,
                 message {
                     at(event.user.id)
                     +"菜单:<br/>"
