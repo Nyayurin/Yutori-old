@@ -31,103 +31,78 @@ class Satori private constructor(val properties: Properties) {
     private val message = MessageListenerContext
     private val reaction = ReactionListenerContext
     private val user = UserListenerContext
-
     fun onEvent(handle: SatoriEventHandle<Event>) {
         event.eventDelegate[properties] = handle
     }
-
     fun onGuildAdded(handle: SatoriEventHandle<GuildEvent>) {
         guild.addedDelegate[properties] = handle
     }
-
     fun onGuildUpdated(handle: SatoriEventHandle<GuildEvent>) {
         guild.updatedDelegate[properties] = handle
     }
-
     fun onGuildRemoved(handle: SatoriEventHandle<GuildEvent>) {
         guild.removedDelegate[properties] = handle
     }
-
     fun onGuildRequest(handle: SatoriEventHandle<GuildEvent>) {
         guild.requestDelegate[properties] = handle
     }
-
     fun onGuildMemberAdded(handle: SatoriEventHandle<GuildMemberEvent>) {
         member.addedDelegate[properties] = handle
     }
-
     fun onGuildMemberUpdated(handle: SatoriEventHandle<GuildMemberEvent>) {
         member.updatedDelegate[properties] = handle
     }
-
     fun onGuildMemberRemoved(handle: SatoriEventHandle<GuildMemberEvent>) {
         member.removedDelegate[properties] = handle
     }
-
     fun onGuildMemberRequest(handle: SatoriEventHandle<GuildMemberEvent>) {
         member.requestDelegate[properties] = handle
     }
-
     fun onGuildRoleCreated(handle: SatoriEventHandle<GuildRoleEvent>) {
         role.createdDelegate[properties] = handle
     }
-
     fun onGuildRoleUpdated(handle: SatoriEventHandle<GuildRoleEvent>) {
         role.updatedDelegate[properties] = handle
     }
-
     fun onGuildRoleDeleted(handle: SatoriEventHandle<GuildRoleEvent>) {
         role.deletedDelegate[properties] = handle
     }
-
     fun onInteractionButton(handle: SatoriEventHandle<InteractionButtonEvent>) {
         interaction.buttonDelegate[properties] = handle
     }
-
     fun onInteractionCommand(handle: SatoriEventHandle<InteractionCommandEvent>) {
         interaction.commandDelegate[properties] = handle
     }
-
     fun onLoginAdded(handle: SatoriEventHandle<LoginEvent>) {
         login.addedDelegate[properties] = handle
     }
-
     fun onLoginRemoved(handle: SatoriEventHandle<LoginEvent>) {
         login.removedDelegate[properties] = handle
     }
-
     fun onLoginUpdated(handle: SatoriEventHandle<LoginEvent>) {
         login.updatedDelegate[properties] = handle
     }
-
     fun onMessageCreated(handle: SatoriMessageEventHandle) {
         message.createdDelegate[properties] = handle
     }
-
     fun onMessageUpdated(handle: SatoriMessageEventHandle) {
         message.updatedDelegate[properties] = handle
     }
-
     fun onMessageDeleted(handle: SatoriMessageEventHandle) {
         message.deleteDelegate[properties] = handle
     }
-
     fun onReactionAdded(handle: SatoriEventHandle<ReactionEvent>) {
         reaction.addedDelegate[properties] = handle
     }
-
     fun onReactionRemoved(handle: SatoriEventHandle<ReactionEvent>) {
         reaction.removedDelegate[properties] = handle
     }
-
     fun onFriendRequest(handle: SatoriEventHandle<UserEvent>) {
         user.friendRequestDelegate[properties] = handle
     }
-
     fun connect() {
         (SatoriSocketClient.of(this)).connect()
     }
-
     fun runEvent(event: Event) {
         Executors.defaultThreadFactory().newThread {
             this.event run event
@@ -141,24 +116,20 @@ class Satori private constructor(val properties: Properties) {
             this.user run event
         }.start()
     }
-
     companion object {
         @JvmStatic
         fun client(properties: Properties): Satori {
             return Satori(properties)
         }
-
         @JvmStatic
         fun client(address: String, token: String): Satori {
             return Satori(Properties(address, token))
         }
-
         // 以下仅 kotlin 使用
         @JvmSynthetic
         fun client(address: String, token: String?, apply: Satori.() -> Unit): Satori {
             return client(Properties(address, token), apply)
         }
-
         @JvmSynthetic
         fun client(properties: Properties, apply: Satori.() -> Unit): Satori {
             return Satori(properties).apply { apply() }
@@ -201,21 +172,18 @@ private object GuildMemberListenerContext {
                     GuildMemberEvent.parse(event)
                 )
             }
-
             GuildMemberEvents.UPDATED -> updatedDelegate.forEach {
                 it.value(
                     Bot.of(event, it.key),
                     GuildMemberEvent.parse(event)
                 )
             }
-
             GuildMemberEvents.REMOVED -> removedDelegate.forEach {
                 it.value(
                     Bot.of(event, it.key),
                     GuildMemberEvent.parse(event)
                 )
             }
-
             GuildMemberEvents.REQUEST -> requestDelegate.forEach {
                 it.value(
                     Bot.of(event, it.key),
@@ -238,14 +206,12 @@ private object GuildRoleListenerContext {
                     GuildRoleEvent.parse(event)
                 )
             }
-
             GuildRoleEvents.UPDATED -> updatedDelegate.forEach {
                 it.value(
                     Bot.of(event, it.key),
                     GuildRoleEvent.parse(event)
                 )
             }
-
             GuildRoleEvents.DELETED -> deletedDelegate.forEach {
                 it.value(
                     Bot.of(event, it.key),
@@ -267,7 +233,6 @@ private object InteractionListenerContext {
                     InteractionButtonEvent.parse(event)
                 )
             }
-
             InteractionEvents.COMMAND -> commandDelegate.forEach {
                 it.value(
                     Bot.of(event, it.key),
@@ -305,7 +270,6 @@ private object MessageListenerContext {
                     Jsoup.parse(messageEvent.message.content).body().text()
                 )
             }
-
             MessageEvents.UPDATED -> updatedDelegate.forEach {
                 val messageEvent = MessageEvent.parse(event)
                 it.value(
@@ -314,7 +278,6 @@ private object MessageListenerContext {
                     Jsoup.parse(messageEvent.message.content).body().text()
                 )
             }
-
             MessageEvents.DELETED -> deleteDelegate.forEach {
                 val messageEvent = MessageEvent.parse(event)
                 it.value(
@@ -338,7 +301,6 @@ private object ReactionListenerContext {
                     ReactionEvent.parse(event)
                 )
             }
-
             ReactionEvents.REMOVED -> removedDelegate.forEach {
                 it.value(
                     Bot.of(event, it.key),
