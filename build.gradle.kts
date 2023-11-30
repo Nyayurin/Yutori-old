@@ -10,6 +10,10 @@ version = "0.1.3"
 description = "基于 Satori 协议的 Java 机器人开发工具包"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     api("org.apache.httpcomponents.client5:httpclient5-fluent:5.2.1")
     api("org.java-websocket:Java-WebSocket:1.5.4")
