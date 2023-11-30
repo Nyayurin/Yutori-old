@@ -129,7 +129,7 @@ class Identify(
     var sequence: Number? = null
 ) : Signaling.Body
 
-open class Event @JvmOverloads constructor(
+sealed class Event @JvmOverloads constructor(
     val id: Number,
     val type: String,
     val platform: String,
@@ -162,7 +162,8 @@ class PageResponse<T> @JvmOverloads constructor(
     val next: String? = null
 )
 
-class Properties @JvmOverloads constructor(
+@JvmRecord
+data class Properties @JvmOverloads constructor(
     val address: String,
     val token: String? = null
 )
