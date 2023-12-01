@@ -24,7 +24,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 @Slf4j
-class MyWebSocketClient(address: String, private val token: String? = null) :
+class SatoriSocketClient(private val address: String, private val token: String? = null, private val client: Satori) :
     WebSocketClient(URI("ws://$address/v1/events"), Draft_6455()) {
 
     private var heart: ScheduledFuture<*>? = null
@@ -45,7 +45,7 @@ class MyWebSocketClient(address: String, private val token: String? = null) :
             Signaling.EVENT -> {
                 val body = connection.body as Event
                 sequence = body.id
-                DispatcherListener.runEvent(body)
+                client.runEvent(body)
             }
 
             Signaling.PONG -> {}
@@ -98,7 +98,7 @@ class MyWebSocketClient(address: String, private val token: String? = null) :
     }
 
     companion object {
-        infix fun of(properties: Properties) =
-            MyWebSocketClient(properties.address, properties.token)
+        fun of(client: Satori) =
+            SatoriSocketClient(client.properties.address, client.properties.token, client)
     }
 }

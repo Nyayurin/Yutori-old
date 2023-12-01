@@ -162,7 +162,8 @@ class PageResponse<T> @JvmOverloads constructor(
     val next: String? = null
 )
 
-class Properties @JvmOverloads constructor(
+@JvmRecord
+data class Properties @JvmOverloads constructor(
     val address: String,
     val token: String? = null
 )
