@@ -48,7 +48,6 @@ class SatoriSocketClient(private val address: String, private val token: String?
                 client.runEvent(body)
             }
 
-            Signaling.PONG -> {}
             Signaling.READY -> {
                 val ready = connection.body as Signaling.Ready
                 log.info("成功建立事件推送: ${ready.logins}")
@@ -59,9 +58,8 @@ class SatoriSocketClient(private val address: String, private val token: String?
                 )
             }
 
-            else -> {
-                log.error("Unsupported $connection")
-            }
+            Signaling.PONG -> {}
+            else -> log.error("Unsupported $connection")
         }
     }
 

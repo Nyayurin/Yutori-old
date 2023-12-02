@@ -12,16 +12,34 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
-class Quote(val text: String) : MessageElement, GenericMessageElement(
-    "quote",
-    children = listOf(Text(text))
-)
+class Quote(text: String) : NodeMessageElement("quote") {
+    var text: String
+        get() = (super.children[0] as Text).text
+        set(value) {
+            if (super.children.isEmpty()) {
+                super.children += Text(value)
+            } else {
+                (super.children[0] as Text).text = value
+            }
+        }
+
+    init {
+        this.text = text
+    }
+}
 
 class Author @JvmOverloads constructor(
-    val id: String? = null,
-    val name: String? = null,
-    val avatar: String? = null
-) : MessageElement, GenericMessageElement(
-    "author",
-    mapOf("id" to id, "name" to name, "avatar" to avatar)
-)
+    id: String? = null,
+    name: String? = null,
+    avatar: String? = null
+) : NodeMessageElement("author") {
+    var id: String? by super.properties
+    var name: String? by super.properties
+    var avatar: String? by super.properties
+
+    init {
+        this.id = id
+        this.name = name
+        this.avatar = avatar
+    }
+}

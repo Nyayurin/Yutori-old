@@ -32,77 +32,101 @@ class Satori private constructor(val properties: Properties) {
     private val reaction = ReactionListenerContext
     private val user = UserListenerContext
     fun onEvent(handle: SatoriEventHandle<Event>) {
-        event.eventDelegate[properties] = handle
+        event.eventDelegate[handle] = properties
     }
+
     fun onGuildAdded(handle: SatoriEventHandle<GuildEvent>) {
-        guild.addedDelegate[properties] = handle
+        guild.addedDelegate[handle] = properties
     }
+
     fun onGuildUpdated(handle: SatoriEventHandle<GuildEvent>) {
-        guild.updatedDelegate[properties] = handle
+        guild.updatedDelegate[handle] = properties
     }
+
     fun onGuildRemoved(handle: SatoriEventHandle<GuildEvent>) {
-        guild.removedDelegate[properties] = handle
+        guild.removedDelegate[handle] = properties
     }
+
     fun onGuildRequest(handle: SatoriEventHandle<GuildEvent>) {
-        guild.requestDelegate[properties] = handle
+        guild.requestDelegate[handle] = properties
     }
+
     fun onGuildMemberAdded(handle: SatoriEventHandle<GuildMemberEvent>) {
-        member.addedDelegate[properties] = handle
+        member.addedDelegate[handle] = properties
     }
+
     fun onGuildMemberUpdated(handle: SatoriEventHandle<GuildMemberEvent>) {
-        member.updatedDelegate[properties] = handle
+        member.updatedDelegate[handle] = properties
     }
+
     fun onGuildMemberRemoved(handle: SatoriEventHandle<GuildMemberEvent>) {
-        member.removedDelegate[properties] = handle
+        member.removedDelegate[handle] = properties
     }
+
     fun onGuildMemberRequest(handle: SatoriEventHandle<GuildMemberEvent>) {
-        member.requestDelegate[properties] = handle
+        member.requestDelegate[handle] = properties
     }
+
     fun onGuildRoleCreated(handle: SatoriEventHandle<GuildRoleEvent>) {
-        role.createdDelegate[properties] = handle
+        role.createdDelegate[handle] = properties
     }
+
     fun onGuildRoleUpdated(handle: SatoriEventHandle<GuildRoleEvent>) {
-        role.updatedDelegate[properties] = handle
+        role.updatedDelegate[handle] = properties
     }
+
     fun onGuildRoleDeleted(handle: SatoriEventHandle<GuildRoleEvent>) {
-        role.deletedDelegate[properties] = handle
+        role.deletedDelegate[handle] = properties
     }
+
     fun onInteractionButton(handle: SatoriEventHandle<InteractionButtonEvent>) {
-        interaction.buttonDelegate[properties] = handle
+        interaction.buttonDelegate[handle] = properties
     }
+
     fun onInteractionCommand(handle: SatoriEventHandle<InteractionCommandEvent>) {
-        interaction.commandDelegate[properties] = handle
+        interaction.commandDelegate[handle] = properties
     }
+
     fun onLoginAdded(handle: SatoriEventHandle<LoginEvent>) {
-        login.addedDelegate[properties] = handle
+        login.addedDelegate[handle] = properties
     }
+
     fun onLoginRemoved(handle: SatoriEventHandle<LoginEvent>) {
-        login.removedDelegate[properties] = handle
+        login.removedDelegate[handle] = properties
     }
+
     fun onLoginUpdated(handle: SatoriEventHandle<LoginEvent>) {
-        login.updatedDelegate[properties] = handle
+        login.updatedDelegate[handle] = properties
     }
+
     fun onMessageCreated(handle: SatoriMessageEventHandle) {
-        message.createdDelegate[properties] = handle
+        message.createdDelegate[handle] = properties
     }
+
     fun onMessageUpdated(handle: SatoriMessageEventHandle) {
-        message.updatedDelegate[properties] = handle
+        message.updatedDelegate[handle] = properties
     }
+
     fun onMessageDeleted(handle: SatoriMessageEventHandle) {
-        message.deleteDelegate[properties] = handle
+        message.deleteDelegate[handle] = properties
     }
+
     fun onReactionAdded(handle: SatoriEventHandle<ReactionEvent>) {
-        reaction.addedDelegate[properties] = handle
+        reaction.addedDelegate[handle] = properties
     }
+
     fun onReactionRemoved(handle: SatoriEventHandle<ReactionEvent>) {
-        reaction.removedDelegate[properties] = handle
+        reaction.removedDelegate[handle] = properties
     }
+
     fun onFriendRequest(handle: SatoriEventHandle<UserEvent>) {
-        user.friendRequestDelegate[properties] = handle
+        user.friendRequestDelegate[handle] = properties
     }
+
     fun connect() {
         (SatoriSocketClient.of(this)).connect()
     }
+
     fun runEvent(event: Event) {
         Executors.defaultThreadFactory().newThread {
             this.event run event
@@ -116,20 +140,24 @@ class Satori private constructor(val properties: Properties) {
             this.user run event
         }.start()
     }
+
     companion object {
         @JvmStatic
         fun client(properties: Properties): Satori {
             return Satori(properties)
         }
+
         @JvmStatic
         fun client(address: String, token: String): Satori {
             return Satori(Properties(address, token))
         }
+
         // 以下仅 kotlin 使用
         @JvmSynthetic
         fun client(address: String, token: String?, apply: Satori.() -> Unit): Satori {
             return client(Properties(address, token), apply)
         }
+
         @JvmSynthetic
         fun client(properties: Properties, apply: Satori.() -> Unit): Satori {
             return Satori(properties).apply { apply() }
@@ -138,55 +166,58 @@ class Satori private constructor(val properties: Properties) {
 }
 
 private object EventListenerContext {
-    val eventDelegate = mutableMapOf<Properties, SatoriEventHandle<Event>>()
+    val eventDelegate = mutableMapOf<SatoriEventHandle<Event>, Properties>()
     infix fun run(event: Event) {
-        eventDelegate.forEach { it.value(Bot.of(event, it.key), event) }
+        eventDelegate.forEach { it.key(Bot.of(event, it.value), event) }
     }
 }
 
 private object GuildListenerContext {
-    val addedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildEvent>>()
-    val updatedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildEvent>>()
-    val removedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildEvent>>()
-    val requestDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildEvent>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Properties>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Properties>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Properties>()
+    val requestDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
-            GuildEvents.ADDED -> addedDelegate.forEach { it.value(Bot.of(event, it.key), GuildEvent.parse(event)) }
-            GuildEvents.UPDATED -> updatedDelegate.forEach { it.value(Bot.of(event, it.key), GuildEvent.parse(event)) }
-            GuildEvents.REMOVED -> removedDelegate.forEach { it.value(Bot.of(event, it.key), GuildEvent.parse(event)) }
-            GuildEvents.REQUEST -> requestDelegate.forEach { it.value(Bot.of(event, it.key), GuildEvent.parse(event)) }
+            GuildEvents.ADDED -> addedDelegate.forEach { it.key(Bot.of(event, it.value), GuildEvent.parse(event)) }
+            GuildEvents.UPDATED -> updatedDelegate.forEach { it.key(Bot.of(event, it.value), GuildEvent.parse(event)) }
+            GuildEvents.REMOVED -> removedDelegate.forEach { it.key(Bot.of(event, it.value), GuildEvent.parse(event)) }
+            GuildEvents.REQUEST -> requestDelegate.forEach { it.key(Bot.of(event, it.value), GuildEvent.parse(event)) }
         }
     }
 }
 
 private object GuildMemberListenerContext {
-    val addedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildMemberEvent>>()
-    val updatedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildMemberEvent>>()
-    val removedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildMemberEvent>>()
-    val requestDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildMemberEvent>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Properties>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Properties>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Properties>()
+    val requestDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
             GuildMemberEvents.ADDED -> addedDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     GuildMemberEvent.parse(event)
                 )
             }
+
             GuildMemberEvents.UPDATED -> updatedDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     GuildMemberEvent.parse(event)
                 )
             }
+
             GuildMemberEvents.REMOVED -> removedDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     GuildMemberEvent.parse(event)
                 )
             }
+
             GuildMemberEvents.REQUEST -> requestDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     GuildMemberEvent.parse(event)
                 )
             }
@@ -195,26 +226,28 @@ private object GuildMemberListenerContext {
 }
 
 private object GuildRoleListenerContext {
-    val createdDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildRoleEvent>>()
-    val updatedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildRoleEvent>>()
-    val deletedDelegate = mutableMapOf<Properties, SatoriEventHandle<GuildRoleEvent>>()
+    val createdDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Properties>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Properties>()
+    val deletedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
             GuildRoleEvents.CREATED -> createdDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     GuildRoleEvent.parse(event)
                 )
             }
+
             GuildRoleEvents.UPDATED -> updatedDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     GuildRoleEvent.parse(event)
                 )
             }
+
             GuildRoleEvents.DELETED -> deletedDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     GuildRoleEvent.parse(event)
                 )
             }
@@ -223,19 +256,20 @@ private object GuildRoleListenerContext {
 }
 
 private object InteractionListenerContext {
-    val buttonDelegate = mutableMapOf<Properties, SatoriEventHandle<InteractionButtonEvent>>()
-    val commandDelegate = mutableMapOf<Properties, SatoriEventHandle<InteractionCommandEvent>>()
+    val buttonDelegate = mutableMapOf<SatoriEventHandle<InteractionButtonEvent>, Properties>()
+    val commandDelegate = mutableMapOf<SatoriEventHandle<InteractionCommandEvent>, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
             InteractionEvents.BUTTON -> buttonDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     InteractionButtonEvent.parse(event)
                 )
             }
+
             InteractionEvents.COMMAND -> commandDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     InteractionCommandEvent.parse(event)
                 )
             }
@@ -244,44 +278,46 @@ private object InteractionListenerContext {
 }
 
 private object LoginListenerContext {
-    val addedDelegate = mutableMapOf<Properties, SatoriEventHandle<LoginEvent>>()
-    val removedDelegate = mutableMapOf<Properties, SatoriEventHandle<LoginEvent>>()
-    val updatedDelegate = mutableMapOf<Properties, SatoriEventHandle<LoginEvent>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Properties>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Properties>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
-            LoginEvents.ADDED -> addedDelegate.forEach { it.value(Bot.of(event, it.key), LoginEvent.parse(event)) }
-            LoginEvents.REMOVED -> removedDelegate.forEach { it.value(Bot.of(event, it.key), LoginEvent.parse(event)) }
-            LoginEvents.UPDATED -> updatedDelegate.forEach { it.value(Bot.of(event, it.key), LoginEvent.parse(event)) }
+            LoginEvents.ADDED -> addedDelegate.forEach { it.key(Bot.of(event, it.value), LoginEvent.parse(event)) }
+            LoginEvents.REMOVED -> removedDelegate.forEach { it.key(Bot.of(event, it.value), LoginEvent.parse(event)) }
+            LoginEvents.UPDATED -> updatedDelegate.forEach { it.key(Bot.of(event, it.value), LoginEvent.parse(event)) }
         }
     }
 }
 
 private object MessageListenerContext {
-    val createdDelegate = mutableMapOf<Properties, SatoriMessageEventHandle>()
-    val updatedDelegate = mutableMapOf<Properties, SatoriMessageEventHandle>()
-    val deleteDelegate = mutableMapOf<Properties, SatoriMessageEventHandle>()
+    val createdDelegate = mutableMapOf<SatoriMessageEventHandle, Properties>()
+    val updatedDelegate = mutableMapOf<SatoriMessageEventHandle, Properties>()
+    val deleteDelegate = mutableMapOf<SatoriMessageEventHandle, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
             MessageEvents.CREATED -> createdDelegate.forEach {
                 val messageEvent = MessageEvent.parse(event)
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     messageEvent,
                     Jsoup.parse(messageEvent.message.content).body().text()
                 )
             }
+
             MessageEvents.UPDATED -> updatedDelegate.forEach {
                 val messageEvent = MessageEvent.parse(event)
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     messageEvent,
                     Jsoup.parse(messageEvent.message.content).body().text()
                 )
             }
+
             MessageEvents.DELETED -> deleteDelegate.forEach {
                 val messageEvent = MessageEvent.parse(event)
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     messageEvent,
                     Jsoup.parse(messageEvent.message.content).body().text()
                 )
@@ -291,19 +327,20 @@ private object MessageListenerContext {
 }
 
 private object ReactionListenerContext {
-    val addedDelegate = mutableMapOf<Properties, SatoriEventHandle<ReactionEvent>>()
-    val removedDelegate = mutableMapOf<Properties, SatoriEventHandle<ReactionEvent>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, Properties>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
             ReactionEvents.ADDED -> addedDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     ReactionEvent.parse(event)
                 )
             }
+
             ReactionEvents.REMOVED -> removedDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     ReactionEvent.parse(event)
                 )
             }
@@ -312,12 +349,12 @@ private object ReactionListenerContext {
 }
 
 private object UserListenerContext {
-    val friendRequestDelegate = mutableMapOf<Properties, SatoriEventHandle<UserEvent>>()
+    val friendRequestDelegate = mutableMapOf<SatoriEventHandle<UserEvent>, Properties>()
     infix fun run(event: Event) {
         when (event.type) {
             UserEvents.FRIEND_REQUEST -> friendRequestDelegate.forEach {
-                it.value(
-                    Bot.of(event, it.key),
+                it.key(
+                    Bot.of(event, it.value),
                     UserEvent.parse(event)
                 )
             }

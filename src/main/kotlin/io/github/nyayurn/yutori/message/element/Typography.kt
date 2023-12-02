@@ -12,14 +12,32 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
-class Br : MessageElement, GenericMessageElement("br")
-class Paragraph : MessageElement, GenericMessageElement("p")
+class Br : NodeMessageElement("br")
+class Paragraph : NodeMessageElement("p")
 class Message @JvmOverloads constructor(
-    val text: String? = null,
-    val id: String? = null,
-    val forward: Boolean? = null
-) : MessageElement, GenericMessageElement(
-    "message",
-    mapOf("id" to id, "forward" to forward),
-    listOf(Text(text ?: ""))
-)
+    text: String? = null,
+    id: String? = null,
+    forward: Boolean? = null
+) : NodeMessageElement("message") {
+    var text: String?
+        get() = (super.children[0] as Text).text
+        set(value) {
+            if (value == null) {
+                super.children.clear()
+                return
+            }
+            if (super.children.isEmpty()) {
+                super.children += Text(value)
+            } else {
+                (super.children[0] as Text).text = value
+            }
+        }
+    var id: String? by super.properties
+    var forward: Boolean? by super.properties
+
+    init {
+        this.text = text
+        this.id = id
+        this.forward = forward
+    }
+}

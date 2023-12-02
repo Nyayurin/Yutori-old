@@ -13,12 +13,23 @@ See the Mulan PSL v2 for more details.
 package io.github.nyayurn.yutori.message.element
 
 class Button @JvmOverloads constructor(
-    val id: String? = null,
-    val type: String? = null,
-    val href: String? = null,
-    val text: String? = null,
-    val theme: String? = null
-) : MessageElement, GenericMessageElement(
-    "button",
-    mapOf("id" to id, "type" to type, "href" to href, "text" to text, "theme" to theme)
-)
+    id: String? = null,
+    type: String? = null,
+    href: String? = null,
+    text: String? = null,
+    theme: String? = null
+) : NodeMessageElement("button") {
+    var id: String? by super.properties
+    var type: String? by super.properties
+    var href: String? by super.properties
+    var text: String? by super.properties
+    var theme: String? by super.properties
+
+    init {
+        this.id = id
+        this.type = type
+        this.href = href
+        this.text = text
+        this.theme = theme
+    }
+}

@@ -112,6 +112,7 @@ class Signaling(val op: Int, var body: Body? = null) {
                     Signaling(op, body)
                 }
 
+                PONG -> Signaling(op)
                 else -> throw NoSuchElementException()
             }
         }

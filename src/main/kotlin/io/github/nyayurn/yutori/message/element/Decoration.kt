@@ -12,16 +12,31 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
-abstract class DecorationElement(name: String, text: String) : MessageElement, GenericMessageElement(name, children = listOf(Text(text)))
-class Bold(val text: String) : DecorationElement("b", text)
-class Strong(val text: String) : DecorationElement("strong", text)
-class Idiomatic(val text: String) : DecorationElement("i", text)
-class Em(val text: String) : DecorationElement("em", text)
-class Underline(val text: String) : DecorationElement("u", text)
-class Ins(val text: String) : DecorationElement("ins", text)
-class Strikethrough(val text: String) : DecorationElement("s", text)
-class Delete(val text: String) : DecorationElement("del", text)
-class Spl(val text: String) : DecorationElement("spl", text)
-class Code(val text: String) : DecorationElement("code", text)
-class Sup(val text: String) : DecorationElement("sup", text)
-class Sub(val text: String) : DecorationElement("sub", text)
+abstract class DecorationElement(name: String, text: String) : NodeMessageElement(name) {
+    var text: String
+        get() = (super.children[0] as Text).text
+        set(value) {
+            if (super.children.isEmpty()) {
+                super.children += Text(value)
+            } else {
+                (super.children[0] as Text).text = value
+            }
+        }
+
+    init {
+        this.text = text
+    }
+}
+
+class Bold(text: String) : DecorationElement("b", text)
+class Strong(text: String) : DecorationElement("strong", text)
+class Idiomatic(text: String) : DecorationElement("i", text)
+class Em(text: String) : DecorationElement("em", text)
+class Underline(text: String) : DecorationElement("u", text)
+class Ins(text: String) : DecorationElement("ins", text)
+class Strikethrough(text: String) : DecorationElement("s", text)
+class Delete(text: String) : DecorationElement("del", text)
+class Spl(text: String) : DecorationElement("spl", text)
+class Code(text: String) : DecorationElement("code", text)
+class Sup(text: String) : DecorationElement("sup", text)
+class Sub(text: String) : DecorationElement("sub", text)
