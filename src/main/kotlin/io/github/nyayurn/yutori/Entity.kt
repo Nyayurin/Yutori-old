@@ -103,7 +103,25 @@ class Signaling(val op: Int, var body: Body? = null) {
             val jsonObject = json.parseObject()
             return when (val op = jsonObject.getIntValue("op")) {
                 EVENT -> {
-                    val event = jsonObject.getJSONObject("body").to<Event>()
+                    // val event = jsonObject.getJSONObject("body").to<Event>()
+                    val body = jsonObject.getJSONObject("body")
+                    val event = Event(
+                        body["id"] as Number,
+                        body["type"] as String,
+                        body["platform"] as String,
+                        body["self_id"] as String,
+                        body["timestamp"] as Number,
+                        body.getJSONObject("argv")?.to<Argv>(),
+                        body.getJSONObject("button")?.to<Button>(),
+                        body.getJSONObject("channel")?.to<Channel>(),
+                        body.getJSONObject("guild")?.to<Guild>(),
+                        body.getJSONObject("login")?.to<Login>(),
+                        body.getJSONObject("member")?.to<GuildMember>(),
+                        body.getJSONObject("message")?.to<Message>(),
+                        body.getJSONObject("operator")?.to<User>(),
+                        body.getJSONObject("role")?.to<GuildRole>(),
+                        body.getJSONObject("user")?.to<User>()
+                    )
                     Signaling(op, event)
                 }
 

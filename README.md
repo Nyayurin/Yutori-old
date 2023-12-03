@@ -20,7 +20,7 @@
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>yutori</artifactId>
-        <version>0.1.4</version>
+        <version>0.1.4-fix</version>
     </dependency>
 </dependencies>
 ```
@@ -28,14 +28,14 @@
 ### Gradle
 
 ```kotlin
-implementation("io.github.nyayurn:yutori:0.1.4")
+implementation("io.github.nyayurn:yutori:0.1.4-fix")
 ```
 
 ## 示例
 
-[Java](https://github.com/Nyayurn/Yutori/blob/master/src/test/java/example/Main.java)
+[Java](https://github.com/Nyayurn/Yutori/blob/0.1.4-fix/src/test/java/example/Main.java)
 
-[Kotlin](https://github.com/Nyayurn/Yutori/blob/master/src/test/kotlin/example/Example.kt)
+[Kotlin](https://github.com/Nyayurn/Yutori/blob/0.1.4-fix/src/test/kotlin/example/Example.kt)
 
 # 进阶
 

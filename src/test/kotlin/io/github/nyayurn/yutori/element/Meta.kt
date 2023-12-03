@@ -5,7 +5,6 @@ import io.github.nyayurn.yutori.message.element.Quote
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-
 class MetaTest {
     @Test
     fun author() {
