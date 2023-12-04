@@ -4,7 +4,7 @@
 
 基于 [Satori](https://satori.chat) 协议的 JVM 平台机器人开发工具包
 
-<img src="https://img.shields.io/badge/JDK-17+-brightgreen.svg?style=flat-square" alt="jdk-version">
+<img src="https://img.shields.io/badge/JDK-8+-brightgreen.svg?style=flat-square" alt="jdk-version">
 
 </div>
 
@@ -20,7 +20,7 @@
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>yutori</artifactId>
-        <version>0.1.4-fix</version>
+        <version>0.1.5</version>
     </dependency>
 </dependencies>
 ```
@@ -28,14 +28,14 @@
 ### Gradle
 
 ```kotlin
-implementation("io.github.nyayurn:yutori:0.1.4-fix")
+implementation("io.github.nyayurn:yutori:0.1.5")
 ```
 
 ## 示例
 
-[Java](https://github.com/Nyayurn/Yutori/blob/0.1.4-fix/src/test/java/example/Main.java)
+[Java](src/test/java/example/Main.java)
 
-[Kotlin](https://github.com/Nyayurn/Yutori/blob/0.1.4-fix/src/test/kotlin/example/Example.kt)
+[Kotlin](src/test/kotlin/example/Example.kt)
 
 # 进阶
 

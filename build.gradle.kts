@@ -6,9 +6,9 @@ plugins {
 }
 
 group = "io.github.nyayurn"
-version = "0.1.4-fix"
+version = "0.1.5"
 description = "基于 Satori 协议的 Java 机器人开发工具包"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
@@ -74,7 +74,7 @@ publishing {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(8)
 }
 
 signing {

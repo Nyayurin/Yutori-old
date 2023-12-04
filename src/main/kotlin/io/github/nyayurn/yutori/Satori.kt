@@ -15,11 +15,9 @@ package io.github.nyayurn.yutori
 import org.jsoup.Jsoup
 import java.util.concurrent.Executors
 
-interface SatoriEventHandle<in T : Event> : Function2<Bot, T, Unit> {
-    override operator fun invoke(bot: Bot, event: T)
-}
+typealias SatoriEventHandle<T> = (Bot, T) -> Unit
 
-typealias SatoriMessageEventHandle = Function3<Bot, MessageEvent, String, Unit>
+typealias SatoriMessageEventHandle = (Bot, MessageEvent, String) -> Unit
 
 class Satori private constructor(val properties: Properties) {
     private val event = EventListenerContext
