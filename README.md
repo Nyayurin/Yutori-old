@@ -20,7 +20,7 @@
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>yutori</artifactId>
-        <version>0.1.5</version>
+        <version>0.1.6</version>
     </dependency>
 </dependencies>
 ```
@@ -28,7 +28,7 @@
 ### Gradle
 
 ```kotlin
-implementation("io.github.nyayurn:yutori:0.1.5")
+implementation("io.github.nyayurn:yutori:0.1.6")
 ```
 
 ## 示例
@@ -39,45 +39,18 @@ implementation("io.github.nyayurn:yutori:0.1.5")
 
 # 进阶
 
+## 回话恢复
+
+- 在 0.1.6 版本之前若要进行 Sequence 属性持久化可自行写一个定时器定时读取 Sequence(为private, 需使用反射) 并保存
+- 由于 0.1.6 版本的更新提取了抽象类增加了可扩展性, 对于回话恢复的 Sequence 持久化保存可采取自定义 SatoriProperties 实现类或自定义 SatoriSocketClient 实现类通过重写对应方法实现访问数据库等持久化操作
+
+## WebHook
+
+请等待后续版本支持...
+
+## 其他
 - 参考 [Satori 文档](https://satori.chat/zh-CN/protocol)
 - 请自行阅读源码
-
-|      API       |     描述      |
-|:--------------:|:-----------:|
-|   ChannelApi   |  频道相关的 API  |
-|    GuildApi    |  群组相关的 API  |
-| GuildMemberApi | 群组成员相关的 API |
-|  GuildRoleApi  | 群组角色相关的 API |
-|    LoginApi    | 登录信息相关的 API |
-|   MessageApi   |  消息相关的 API  |
-|  ReactionApi   |  表态相关的 API  |
-|    UserApi     |  用户相关的 API  |
-
-|     MessageElement      |     描述      |
-|:-----------------------:|:-----------:|
-|         Custom          | 自定义(不会自动转码) |
-|          Text           |     纯文本     |
-|           At            |     AT      |
-|          Sharp          |    提及频道     |
-|          Href           |     超链接     |
-|           Img           |     图片      |
-|          Audio          |     语音      |
-|          Video          |     视频      |
-|          File           |     文件      |
-|     Bold<br>Strong      |     粗体      |
-|     Idiomatic<br>Em     |     斜线      |
-|    Underline<br>Ins     |     下划线     |
-| Strikethrough<br>Delete |     删除线     |
-|           Spl           |     剧透      |
-|          Code           |    代码片段     |
-|           Sup           |     上标      |
-|           Sub           |     下标      |
-|           Br            |     换行      |
-|        Paragraph        |     段落      |
-|         Message         |     消息      |
-|          Quote          |     引用      |
-|         Author          |     作者      |
-|         Button          |     按钮      |
 
 # 迁移
 

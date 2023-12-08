@@ -39,6 +39,7 @@ class GuildEvent @JvmOverloads constructor(
     user: User? = null
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): GuildEvent = GuildEvent(
             event.id,
             event.type,
@@ -84,6 +85,7 @@ class GuildMemberEvent @JvmOverloads constructor(
     override val user: User
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): GuildMemberEvent = GuildMemberEvent(
             event.id,
             event.type,
@@ -128,6 +130,7 @@ class GuildRoleEvent @JvmOverloads constructor(
     user: User? = null
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): GuildRoleEvent = GuildRoleEvent(
             event.id,
             event.type,
@@ -171,6 +174,7 @@ class InteractionButtonEvent @JvmOverloads constructor(
     user: User? = null
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): InteractionButtonEvent = InteractionButtonEvent(
             event.id,
             event.type,
@@ -209,6 +213,7 @@ class InteractionCommandEvent @JvmOverloads constructor(
     user: User? = null
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): InteractionCommandEvent = InteractionCommandEvent(
             event.id,
             event.type,
@@ -253,6 +258,7 @@ class LoginEvent @JvmOverloads constructor(
     user: User? = null
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): LoginEvent = LoginEvent(
             event.id,
             event.type,
@@ -297,6 +303,7 @@ class MessageEvent @JvmOverloads constructor(
     override val user: User
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): MessageEvent = MessageEvent(
             event.id,
             event.type,
@@ -340,6 +347,7 @@ class ReactionEvent @JvmOverloads constructor(
     user: User? = null
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): ReactionEvent = ReactionEvent(
             event.id,
             event.type,
@@ -382,6 +390,7 @@ class UserEvent @JvmOverloads constructor(
     override val user: User
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
+        @JvmStatic
         infix fun parse(event: Event): UserEvent = UserEvent(
             event.id,
             event.type,

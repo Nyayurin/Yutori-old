@@ -104,6 +104,7 @@ class Signaling(val op: Int, var body: Body? = null) {
     interface Body
     class Ready(val logins: List<Login>) : Body
     companion object {
+        @JvmStatic
         fun parse(json: String?): Signaling {
             val jsonObject = json.parseObject()
             return when (val op = jsonObject.getIntValue("op")) {
@@ -303,7 +304,14 @@ class PageResponse<T> @JvmOverloads constructor(
     val next: String? = null
 )
 
-data class Properties @JvmOverloads constructor(
-    val address: String,
-    val token: String? = null
-)
+interface SatoriProperties {
+    val address: String
+    val token: String?
+    var sequence: Number?
+}
+
+class SimpleSatoriProperties @JvmOverloads constructor(
+    override val address: String,
+    override val token: String? = null,
+    override var sequence: Number? = null
+) : SatoriProperties

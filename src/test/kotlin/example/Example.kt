@@ -2,13 +2,13 @@ package example
 
 import io.github.nyayurn.yutori.Bot
 import io.github.nyayurn.yutori.MessageEvent
-import io.github.nyayurn.yutori.Properties
+import io.github.nyayurn.yutori.SimpleSatoriProperties
 import io.github.nyayurn.yutori.Satori
 import io.github.nyayurn.yutori.message.element.At
 import io.github.nyayurn.yutori.message.message
 
 // Satori 相关设置
-val properties = Properties("127.0.0.1:5500", "token")
+val properties = SimpleSatoriProperties("127.0.0.1:5500", "token")
 
 fun main() {
     // 也可以直接 Satori.client("127.0.0.1:5500", "token");

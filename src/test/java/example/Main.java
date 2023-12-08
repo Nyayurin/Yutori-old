@@ -2,7 +2,7 @@ package example;
 
 import io.github.nyayurn.yutori.Bot;
 import io.github.nyayurn.yutori.MessageEvent;
-import io.github.nyayurn.yutori.Properties;
+import io.github.nyayurn.yutori.SimpleSatoriProperties;
 import io.github.nyayurn.yutori.Satori;
 import io.github.nyayurn.yutori.message.MessageBuilder;
 import io.github.nyayurn.yutori.message.element.At;
@@ -10,7 +10,7 @@ import kotlin.Unit;
 
 public class Main {
     // Satori 相关设置
-    public static final Properties properties = new Properties("127.0.0.1:5500", "token");
+    public static final SimpleSatoriProperties properties = new SimpleSatoriProperties("127.0.0.1:5500", "token");
 
     public static void main(String[] args) {
         // 也可以直接 Satori.client("127.0.0.1:5500", "token");

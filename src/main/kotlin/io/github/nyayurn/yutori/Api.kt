@@ -72,6 +72,7 @@ class Bot private constructor(
     fun sendInternalMessage(method: String, body: String) = sendMessage.sendInternalMessage(method, body)
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = Bot(
             ChannelApi.of(sendMessage),
             GuildApi.of(sendMessage),
@@ -84,8 +85,11 @@ class Bot private constructor(
             sendMessage
         )
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
@@ -135,10 +139,14 @@ class ChannelApi private constructor(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = ChannelApi(sendMessage)
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
@@ -166,10 +174,14 @@ class GuildApi private constructor(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = GuildApi(sendMessage)
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
@@ -207,10 +219,14 @@ class GuildMemberApi private constructor(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = GuildMemberApi(sendMessage)
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
@@ -263,10 +279,14 @@ class GuildRoleApi private constructor(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = GuildRoleApi(sendMessage)
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
@@ -277,9 +297,11 @@ class LoginApi private constructor(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = LoginApi(sendMessage)
 
-        fun of(properties: Properties) = of(SendMessage.of(null, null, properties))
+        @JvmStatic
+        fun of(properties: SatoriProperties) = of(SendMessage.of(null, null, properties))
     }
 }
 
@@ -324,10 +346,14 @@ class MessageApi(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = MessageApi(sendMessage)
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
@@ -368,10 +394,14 @@ class ReactionApi private constructor(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = ReactionApi(sendMessage)
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
@@ -399,17 +429,21 @@ class UserApi private constructor(private val sendMessage: SendMessage) {
     }
 
     companion object {
+        @JvmStatic
         fun of(sendMessage: SendMessage) = UserApi(sendMessage)
 
-        fun of(platform: String, selfId: String, properties: Properties) = of(SendMessage.of(platform, selfId, properties))
-        fun of(event: Event, properties: Properties) = of(event.platform, event.selfId, properties)
+        @JvmStatic
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+
+        @JvmStatic
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
 class SendMessage private constructor(
     private val platform: String?,
     private val selfId: String?,
-    private val properties: Properties
+    private val properties: SatoriProperties
 ) {
     private val version = "v1"
 
@@ -438,6 +472,7 @@ class SendMessage private constructor(
     }
 
     companion object {
-        fun of(platform: String? = null, selfId: String? = null, properties: Properties) = SendMessage(platform, selfId, properties)
+        @JvmStatic
+        fun of(platform: String? = null, selfId: String? = null, properties: SatoriProperties) = SendMessage(platform, selfId, properties)
     }
 }
