@@ -23,39 +23,15 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-abstract class SatoriSocketClient(protected val client: Satori) :
-    WebSocketClient(URI("ws://${client.properties.address}/v1/events"), Draft_6455()) {
-    protected fun sendIdentify() {
-        val connection = Signaling(Signaling.IDENTIFY)
-        val token = client.properties.token
-        val sequence = client.properties.sequence
-        if (token != null || sequence != null) {
-            val body = Identify()
-            if (token != null) {
-                body.token = token
-            }
-            if (sequence != null) {
-                body.sequence = sequence
-            }
-            connection.body = body
-        }
-        this.send(JSONObject.toJSONString(connection))
-    }
-
-    protected fun sendEvent(signaling: Signaling) {
-        val body = signaling.body as Event
-        client.properties.sequence = body.id
-        client.runEvent(body)
-    }
-}
-
 @Slf4j
-class SimpleSatoriSocketClient(client: Satori) : SatoriSocketClient(client) {
+class SatoriSocketClient(private val client: Satori) : WebSocketClient(
+    URI("ws://${client.properties.address}/v1/events"), Draft_6455()
+) {
     private var heart: ScheduledFuture<*>? = null
     private var reconnect: ScheduledFuture<*>? = null
 
     override fun onOpen(serverHandshake: ServerHandshake) {
-        log.info("成功建立 WebSocket 连接: ${serverHandshake.content}")
+        log.info("成功建立 WebSocket 连接: ${serverHandshake.httpStatusMessage}")
         if (reconnect != null && !reconnect!!.isCancelled && !reconnect!!.isDone) {
             reconnect!!.cancel(true)
         }
@@ -97,6 +73,29 @@ class SimpleSatoriSocketClient(client: Satori) : SatoriSocketClient(client) {
         setReconnect()
     }
 
+    private fun sendIdentify() {
+        val connection = Signaling(Signaling.IDENTIFY)
+        val token = client.properties.token
+        val sequence = client.properties.sequence
+        if (token != null || sequence != null) {
+            val body = Identify()
+            if (token != null) {
+                body.token = token
+            }
+            if (sequence != null) {
+                body.sequence = sequence
+            }
+            connection.body = body
+        }
+        this.send(JSONObject.toJSONString(connection))
+    }
+
+    private fun sendEvent(signaling: Signaling) {
+        val body = signaling.body as Event
+        client.properties.sequence = body.id
+        client.runEvent(body)
+    }
+
     private fun setReconnect() {
         reconnect = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Reconnect"))
             .scheduleAtFixedRate({
@@ -107,6 +106,6 @@ class SimpleSatoriSocketClient(client: Satori) : SatoriSocketClient(client) {
 
     companion object {
         @JvmStatic
-        fun of(client: Satori) = SimpleSatoriSocketClient(client)
+        fun of(client: Satori) = SatoriSocketClient(client)
     }
 }

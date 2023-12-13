@@ -121,12 +121,8 @@ class Satori private constructor(val properties: SatoriProperties) {
         user.friendRequestDelegate[handle] = properties
     }
 
-    fun connect(client: SatoriSocketClient) {
-        client.connect()
-    }
-
     fun connect() {
-        (SimpleSatoriSocketClient.of(this)).connect()
+        (SatoriSocketClient.of(this)).connect()
     }
 
     fun runEvent(event: Event) {
