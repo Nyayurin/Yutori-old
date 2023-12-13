@@ -52,9 +52,13 @@ abstract class SatoriSocketClient(protected val client: Satori) :
 @Slf4j
 class SimpleSatoriSocketClient(client: Satori) : SatoriSocketClient(client) {
     private var heart: ScheduledFuture<*>? = null
+    private var reconnect: ScheduledFuture<*>? = null
 
     override fun onOpen(serverHandshake: ServerHandshake) {
-        log.info("成功建立 WebSocket 连接: $serverHandshake")
+        log.info("成功建立 WebSocket 连接: ${serverHandshake.content}")
+        if (reconnect != null && !reconnect!!.isCancelled && !reconnect!!.isDone) {
+            reconnect!!.cancel(true)
+        }
         sendIdentify()
     }
 
@@ -62,7 +66,7 @@ class SimpleSatoriSocketClient(client: Satori) : SatoriSocketClient(client) {
         val signaling = Signaling.parse(message)
         when (signaling.op) {
             Signaling.READY -> {
-                val ready = signaling.body as Signaling.Ready
+                val ready = signaling.body as Ready
                 log.info("成功建立事件推送: ${ready.logins}")
                 // 心跳
                 val sendConnection = Signaling(Signaling.PING)
@@ -82,10 +86,23 @@ class SimpleSatoriSocketClient(client: Satori) : SatoriSocketClient(client) {
         if (heart != null && !heart!!.isCancelled && !heart!!.isDone) {
             heart!!.cancel(true)
         }
+        setReconnect()
     }
 
     override fun onError(e: Exception) {
         log.error("出现错误: $e")
+        if (heart != null && !heart!!.isCancelled && !heart!!.isDone) {
+            heart!!.cancel(true)
+        }
+        setReconnect()
+    }
+
+    private fun setReconnect() {
+        reconnect = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Reconnect"))
+            .scheduleAtFixedRate({
+                log.info("尝试重新连接")
+                connect()
+            }, 3, 3, TimeUnit.SECONDS)
     }
 
     companion object {

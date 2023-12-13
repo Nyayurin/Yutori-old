@@ -34,25 +34,41 @@ class Channel(
         CATEGORY(2),
         DIRECT(3)
     }
+
+    override fun toString(): String {
+        return "Channel(id='$id', type=$type, name=$name, parentId=$parentId)"
+    }
 }
 
 class Guild(
     val id: String,
     val name: String?,
     val avatar: String?,
-)
+) {
+    override fun toString(): String {
+        return "Guild(id='$id', name=$name, avatar=$avatar)"
+    }
+}
 
 class GuildMember(
     val user: User?,
     val nick: String?,
     val avatar: String?,
     @JSONField(name = "joined_at") val joinedAt: Number?
-)
+) {
+    override fun toString(): String {
+        return "GuildMember(user=$user, nick=$nick, avatar=$avatar, joinedAt=$joinedAt)"
+    }
+}
 
 class GuildRole(
     val id: String,
     val name: String?
-)
+) {
+    override fun toString(): String {
+        return "GuildRole(id='$id', name=$name)"
+    }
+}
 
 interface Interaction
 
@@ -60,11 +76,19 @@ class Argv(
     val name: String,
     val arguments: List<Any>,
     val options: Any
-) : Interaction
+) : Interaction {
+    override fun toString(): String {
+        return "Argv(name='$name', arguments=$arguments, options=$options)"
+    }
+}
 
 class Button(
     val id: String
-) : Interaction
+) : Interaction {
+    override fun toString(): String {
+        return "Button(id='$id')"
+    }
+}
 
 class Login(
     val user: User?,
@@ -79,6 +103,10 @@ class Login(
         DISCONNECT(3),
         RECONNECT(4)
     }
+
+    override fun toString(): String {
+        return "Login(user=$user, selfId=$selfId, platform=$platform, status=$status)"
+    }
 }
 
 class Message(
@@ -90,7 +118,11 @@ class Message(
     val user: User?,
     @JSONField(name = "created_at") val createdAt: Number?,
     @JSONField(name = "updated_at") val updatedAt: Number?
-)
+) {
+    override fun toString(): String {
+        return "Message(id='$id', content='$content', channel=$channel, guild=$guild, member=$member, user=$user, createdAt=$createdAt, updatedAt=$updatedAt)"
+    }
+}
 
 class User(
     val id: String,
@@ -98,11 +130,19 @@ class User(
     val nick: String?,
     val avatar: String?,
     @JSONField(name = "is_bot") val isBot: Boolean?
-)
+) {
+    override fun toString(): String {
+        return "User(id='$id', name=$name, nick=$nick, avatar=$avatar, isBot=$isBot)"
+    }
+}
 
 class Signaling(val op: Int, var body: Body? = null) {
     interface Body
-    class Ready(val logins: List<Login>) : Body
+
+    override fun toString(): String {
+        return "Signaling(op=$op, body=$body)"
+    }
+
     companion object {
         @JvmStatic
         fun parse(json: String?): Signaling {
@@ -149,10 +189,20 @@ class Signaling(val op: Int, var body: Body? = null) {
     }
 }
 
+class Ready(val logins: List<Login>) : Signaling.Body {
+    override fun toString(): String {
+        return "Ready(logins=$logins)"
+    }
+}
+
 class Identify(
     var token: String? = null,
     var sequence: Number? = null
-) : Signaling.Body
+) : Signaling.Body {
+    override fun toString(): String {
+        return "Identify(token=$token, sequence=$sequence)"
+    }
+}
 
 open class Event @JvmOverloads constructor(
     val id: Number,
@@ -287,6 +337,10 @@ open class Event @JvmOverloads constructor(
         }
         return msgChain
     }
+
+    override fun toString(): String {
+        return "Event(id=$id, type='$type', platform='$platform', selfId='$selfId', timestamp=$timestamp, argv=$argv, button=$button, channel=$channel, guild=$guild, login=$login, member=$member, message=$message, operator=$operator, role=$role, user=$user)"
+    }
 }
 
 class InternalEvent(
@@ -297,12 +351,20 @@ class InternalEvent(
     val timestamp: Number,
     @JSONField(name = "_type") val internalType: String,
     @JSONField(name = "_data") val internalData: Any
-)
+) {
+    override fun toString(): String {
+        return "InternalEvent(id=$id, type='$type', platform='$platform', selfId='$selfId', timestamp=$timestamp, internalType='$internalType', internalData=$internalData)"
+    }
+}
 
 class PageResponse<T> @JvmOverloads constructor(
     val data: List<T>,
     val next: String? = null
-)
+) {
+    override fun toString(): String {
+        return "PageResponse(data=$data, next=$next)"
+    }
+}
 
 interface SatoriProperties {
     val address: String
@@ -314,4 +376,8 @@ class SimpleSatoriProperties @JvmOverloads constructor(
     override val address: String,
     override val token: String? = null,
     override var sequence: Number? = null
-) : SatoriProperties
+) : SatoriProperties {
+    override fun toString(): String {
+        return "SimpleSatoriProperties(address='$address', token=$token, sequence=$sequence)"
+    }
+}

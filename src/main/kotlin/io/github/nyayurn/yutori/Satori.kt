@@ -20,15 +20,15 @@ typealias SatoriEventHandle<T> = (Bot, T) -> Unit
 typealias SatoriMessageEventHandle = (Bot, MessageEvent, String) -> Unit
 
 class Satori private constructor(val properties: SatoriProperties) {
-    private val event = EventListenerContext
-    private val guild = GuildListenerContext
-    private val member = GuildMemberListenerContext
-    private val role = GuildRoleListenerContext
-    private val interaction = InteractionListenerContext
-    private val login = LoginListenerContext
-    private val message = MessageListenerContext
-    private val reaction = ReactionListenerContext
-    private val user = UserListenerContext
+    private val event = EventListenerContext()
+    private val guild = GuildListenerContext()
+    private val member = GuildMemberListenerContext()
+    private val role = GuildRoleListenerContext()
+    private val interaction = InteractionListenerContext()
+    private val login = LoginListenerContext()
+    private val message = MessageListenerContext()
+    private val reaction = ReactionListenerContext()
+    private val user = UserListenerContext()
     fun onEvent(handle: SatoriEventHandle<Event>) {
         event.eventDelegate[handle] = properties
     }
@@ -141,6 +141,12 @@ class Satori private constructor(val properties: SatoriProperties) {
             this.reaction run event
             this.user run event
         }.start()
+
+
+    }
+
+    override fun toString(): String {
+        return "Satori(properties=$properties, event=$event, guild=$guild, member=$member, role=$role, interaction=$interaction, login=$login, message=$message, reaction=$reaction, user=$user)"
     }
 
     companion object {
@@ -150,6 +156,7 @@ class Satori private constructor(val properties: SatoriProperties) {
         }
 
         @JvmStatic
+        @JvmOverloads
         fun client(address: String, token: String? = null, sequence: Number? = null): Satori {
             return Satori(SimpleSatoriProperties(address, token, sequence))
         }
@@ -167,14 +174,18 @@ class Satori private constructor(val properties: SatoriProperties) {
     }
 }
 
-private object EventListenerContext {
+private class EventListenerContext {
     val eventDelegate = mutableMapOf<SatoriEventHandle<Event>, SatoriProperties>()
     infix fun run(event: Event) {
         eventDelegate.forEach { it.key(Bot.of(event, it.value), event) }
     }
+
+    override fun toString(): String {
+        return "EventListenerContext(eventDelegate=$eventDelegate)"
+    }
 }
 
-private object GuildListenerContext {
+private class GuildListenerContext {
     val addedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, SatoriProperties>()
     val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, SatoriProperties>()
     val removedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, SatoriProperties>()
@@ -187,9 +198,13 @@ private object GuildListenerContext {
             GuildEvents.REQUEST -> requestDelegate.forEach { it.key(Bot.of(event, it.value), GuildEvent.parse(event)) }
         }
     }
+
+    override fun toString(): String {
+        return "GuildListenerContext(addedDelegate=$addedDelegate, updatedDelegate=$updatedDelegate, removedDelegate=$removedDelegate, requestDelegate=$requestDelegate)"
+    }
 }
 
-private object GuildMemberListenerContext {
+private class GuildMemberListenerContext {
     val addedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, SatoriProperties>()
     val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, SatoriProperties>()
     val removedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, SatoriProperties>()
@@ -225,9 +240,13 @@ private object GuildMemberListenerContext {
             }
         }
     }
+
+    override fun toString(): String {
+        return "GuildMemberListenerContext(addedDelegate=$addedDelegate, updatedDelegate=$updatedDelegate, removedDelegate=$removedDelegate, requestDelegate=$requestDelegate)"
+    }
 }
 
-private object GuildRoleListenerContext {
+private class GuildRoleListenerContext {
     val createdDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, SatoriProperties>()
     val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, SatoriProperties>()
     val deletedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, SatoriProperties>()
@@ -255,9 +274,13 @@ private object GuildRoleListenerContext {
             }
         }
     }
+
+    override fun toString(): String {
+        return "GuildRoleListenerContext(createdDelegate=$createdDelegate, updatedDelegate=$updatedDelegate, deletedDelegate=$deletedDelegate)"
+    }
 }
 
-private object InteractionListenerContext {
+private class InteractionListenerContext {
     val buttonDelegate = mutableMapOf<SatoriEventHandle<InteractionButtonEvent>, SatoriProperties>()
     val commandDelegate = mutableMapOf<SatoriEventHandle<InteractionCommandEvent>, SatoriProperties>()
     infix fun run(event: Event) {
@@ -277,9 +300,13 @@ private object InteractionListenerContext {
             }
         }
     }
+
+    override fun toString(): String {
+        return "InteractionListenerContext(buttonDelegate=$buttonDelegate, commandDelegate=$commandDelegate)"
+    }
 }
 
-private object LoginListenerContext {
+private class LoginListenerContext {
     val addedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, SatoriProperties>()
     val removedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, SatoriProperties>()
     val updatedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, SatoriProperties>()
@@ -290,9 +317,13 @@ private object LoginListenerContext {
             LoginEvents.UPDATED -> updatedDelegate.forEach { it.key(Bot.of(event, it.value), LoginEvent.parse(event)) }
         }
     }
+
+    override fun toString(): String {
+        return "LoginListenerContext(addedDelegate=$addedDelegate, removedDelegate=$removedDelegate, updatedDelegate=$updatedDelegate)"
+    }
 }
 
-private object MessageListenerContext {
+private class MessageListenerContext {
     val createdDelegate = mutableMapOf<SatoriMessageEventHandle, SatoriProperties>()
     val updatedDelegate = mutableMapOf<SatoriMessageEventHandle, SatoriProperties>()
     val deleteDelegate = mutableMapOf<SatoriMessageEventHandle, SatoriProperties>()
@@ -326,9 +357,13 @@ private object MessageListenerContext {
             }
         }
     }
+
+    override fun toString(): String {
+        return "MessageListenerContext(createdDelegate=$createdDelegate, updatedDelegate=$updatedDelegate, deleteDelegate=$deleteDelegate)"
+    }
 }
 
-private object ReactionListenerContext {
+private class ReactionListenerContext {
     val addedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, SatoriProperties>()
     val removedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, SatoriProperties>()
     infix fun run(event: Event) {
@@ -348,9 +383,13 @@ private object ReactionListenerContext {
             }
         }
     }
+
+    override fun toString(): String {
+        return "ReactionListenerContext(addedDelegate=$addedDelegate, removedDelegate=$removedDelegate)"
+    }
 }
 
-private object UserListenerContext {
+private class UserListenerContext {
     val friendRequestDelegate = mutableMapOf<SatoriEventHandle<UserEvent>, SatoriProperties>()
     infix fun run(event: Event) {
         when (event.type) {
@@ -361,5 +400,9 @@ private object UserListenerContext {
                 )
             }
         }
+    }
+
+    override fun toString(): String {
+        return "UserListenerContext(friendRequestDelegate=$friendRequestDelegate)"
     }
 }
