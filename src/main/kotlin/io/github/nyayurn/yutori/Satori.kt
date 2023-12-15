@@ -121,11 +121,13 @@ class Satori private constructor(val properties: SatoriProperties) {
         user.friendRequestDelegate[handle] = properties
     }
 
-    fun connect() {
-        (SatoriSocketClient.of(this)).connect()
+    @JvmOverloads
+    fun connect(name: String? = null) {
+        (SatoriSocketClient.of(this, name)).connect()
     }
 
     fun runEvent(event: Event) {
+        if (event.user?.id == event.selfId && !properties.listenSelfEvent) return
         Executors.defaultThreadFactory().newThread {
             this.event run event
             this.guild run event
@@ -137,8 +139,6 @@ class Satori private constructor(val properties: SatoriProperties) {
             this.reaction run event
             this.user run event
         }.start()
-
-
     }
 
     override fun toString(): String {
@@ -147,26 +147,29 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     companion object {
         @JvmStatic
-        fun client(properties: SatoriProperties): Satori {
-            return Satori(properties)
-        }
+        fun client(properties: SatoriProperties) = Satori(properties)
 
         @JvmStatic
         @JvmOverloads
-        fun client(address: String, token: String? = null, sequence: Number? = null): Satori {
-            return Satori(SimpleSatoriProperties(address, token, sequence))
-        }
+        fun client(
+            address: String,
+            token: String? = null,
+            sequence: Number? = null,
+            listenSelfEvent: Boolean = false
+        ) = Satori(SimpleSatoriProperties(address, token, sequence, listenSelfEvent))
 
         // 以下仅 kotlin 使用
         @JvmSynthetic
-        fun client(properties: SatoriProperties, apply: Satori.() -> Unit): Satori {
-            return Satori(properties).apply { apply() }
-        }
+        fun client(properties: SatoriProperties, apply: Satori.() -> Unit) = Satori(properties).apply { apply() }
 
         @JvmSynthetic
-        fun client(address: String, token: String? = null, sequence: Number? = null, apply: Satori.() -> Unit): Satori {
-            return client(SimpleSatoriProperties(address, token, sequence), apply)
-        }
+        fun client(
+            address: String,
+            token: String? = null,
+            sequence: Number? = null,
+            listenSelfEvent: Boolean = false,
+            apply: Satori.() -> Unit
+        ) = Satori(SimpleSatoriProperties(address, token, sequence, listenSelfEvent)).apply { apply() }
     }
 }
 

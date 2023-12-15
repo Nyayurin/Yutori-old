@@ -24,14 +24,14 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 @Slf4j
-class SatoriSocketClient(private val client: Satori) : WebSocketClient(
+class SatoriSocketClient(private val client: Satori, private val name: String? = null) : WebSocketClient(
     URI("ws://${client.properties.address}/v1/events"), Draft_6455()
 ) {
     private var heart: ScheduledFuture<*>? = null
     private var reconnect: ScheduledFuture<*>? = null
 
     override fun onOpen(serverHandshake: ServerHandshake) {
-        log.info("成功建立 WebSocket 连接: ${serverHandshake.httpStatusMessage}")
+        log.info("[$name]: 成功建立 WebSocket 连接")
         if (reconnect != null && !reconnect!!.isCancelled && !reconnect!!.isDone) {
             reconnect!!.cancel(true)
         }
@@ -43,7 +43,9 @@ class SatoriSocketClient(private val client: Satori) : WebSocketClient(
         when (signaling.op) {
             Signaling.READY -> {
                 val ready = signaling.body as Ready
-                log.info("成功建立事件推送: ${ready.logins}")
+                log.info("[$name]: 成功建立事件推送(${ready.logins.size}): \n${
+                    ready.logins.joinToString("\n") { "{platform: ${it.platform}, selfId: ${it.selfId}}" }
+                }")
                 // 心跳
                 val sendConnection = Signaling(Signaling.PING)
                 heart = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Heart")).scheduleAtFixedRate(
@@ -58,7 +60,7 @@ class SatoriSocketClient(private val client: Satori) : WebSocketClient(
     }
 
     override fun onClose(code: Int, reason: String, remote: Boolean) {
-        log.info("断开连接, code: $code, reason: $reason, remote: $remote")
+        log.info("[$name]: 断开连接, code: $code, reason: $reason, remote: $remote")
         if (heart != null && !heart!!.isCancelled && !heart!!.isDone) {
             heart!!.cancel(true)
         }
@@ -92,6 +94,9 @@ class SatoriSocketClient(private val client: Satori) : WebSocketClient(
 
     private fun sendEvent(signaling: Signaling) {
         val body = signaling.body as Event
+        log.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
+        @Suppress("LoggingStringTemplateAsArgument")
+        log.debug("[$name]: 事件详细信息: $body")
         client.properties.sequence = body.id
         client.runEvent(body)
     }
@@ -99,13 +104,14 @@ class SatoriSocketClient(private val client: Satori) : WebSocketClient(
     private fun setReconnect() {
         reconnect = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Reconnect"))
             .scheduleAtFixedRate({
-                log.info("尝试重新连接")
+                log.info("[$name]: 尝试重新连接")
                 connect()
             }, 3, 3, TimeUnit.SECONDS)
     }
 
     companion object {
         @JvmStatic
-        fun of(client: Satori) = SatoriSocketClient(client)
+        @JvmOverloads
+        fun of(client: Satori, name: String? = null) = SatoriSocketClient(client, name)
     }
 }
