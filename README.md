@@ -2,7 +2,7 @@
 
 # Yutori
 
-基于 [Satori](https://satori.chat) 协议的 JVM 平台机器人开发工具包
+一个基于 [Satori](https://satori.chat) 协议的多平台机器人开发框架
 
 <img src="https://img.shields.io/badge/JDK-8+-brightgreen.svg?style=flat-square" alt="jdk-version">
 
