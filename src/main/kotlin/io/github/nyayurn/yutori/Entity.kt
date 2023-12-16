@@ -151,6 +151,9 @@ class Signaling(val op: Int, var body: Body? = null) {
                 EVENT -> {
                     // val event = jsonObject.getJSONObject("body").to<Event>()
                     val body = jsonObject.getJSONObject("body")
+                    if (body["user"] != null && body.getJSONObject("user")["id"] == null) {
+                        throw NullPointerException("event.user.id is null")
+                    }
                     val event = Event(
                         body["id"] as Number,
                         body["type"] as String,
