@@ -16,10 +16,9 @@ import com.alibaba.fastjson2.annotation.JSONField
 import com.alibaba.fastjson2.parseObject
 import com.alibaba.fastjson2.to
 import com.alibaba.fastjson2.toList
-import io.github.nyayurn.yutori.message.element.*
+import io.github.nyayurn.yutori.message.Elements
+import io.github.nyayurn.yutori.message.element.MessageElement
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.nodes.TextNode
 
 
 class Channel(
@@ -149,7 +148,6 @@ class Signaling(val op: Int, var body: Body? = null) {
             val jsonObject = json.parseObject()
             return when (val op = jsonObject.getIntValue("op")) {
                 EVENT -> {
-                    // val event = jsonObject.getJSONObject("body").to<Event>()
                     val body = jsonObject.getJSONObject("body")
                     if (body["user"] != null && body.getJSONObject("user")["id"] == null) {
                         throw NullPointerException("event.user.id is null")
@@ -228,115 +226,7 @@ open class Event @JvmOverloads constructor(
         val msgChain = mutableListOf<MessageElement>()
         val childNodes = Jsoup.parse(message!!.content).body().childNodes()
         for (node in childNodes) {
-            if (node is TextNode) {
-                msgChain.add(Text(node.text()))
-            } else if (node is Element) {
-                when (node.tagName()) {
-                    "at" -> {
-                        val element = At()
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "sharp" -> {
-                        val element = Sharp(node.attr("id"))
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "a" -> {
-                        val element = Href(node.attr("href"))
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "img" -> {
-                        val element = Image(node.attr("src"))
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "audio" -> {
-                        val element = Audio(node.attr("src"))
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "video" -> {
-                        val element = Video(node.attr("src"))
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "file" -> {
-                        val element = File(node.attr("src"))
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "b" -> msgChain.add(Bold((node.childNode(0) as TextNode).text()))
-                    "strong" -> msgChain.add(Strong((node.childNode(0) as TextNode).text()))
-                    "i" -> msgChain.add(Idiomatic((node.childNode(0) as TextNode).text()))
-                    "em" -> msgChain.add(Em((node.childNode(0) as TextNode).text()))
-                    "u" -> msgChain.add(Underline((node.childNode(0) as TextNode).text()))
-                    "ins" -> msgChain.add(Ins((node.childNode(0) as TextNode).text()))
-                    "s" -> msgChain.add(Strikethrough((node.childNode(0) as TextNode).text()))
-                    "del" -> msgChain.add(Delete((node.childNode(0) as TextNode).text()))
-                    "spl" -> msgChain.add(Spl((node.childNode(0) as TextNode).text()))
-                    "code" -> msgChain.add(Code((node.childNode(0) as TextNode).text()))
-                    "sup" -> msgChain.add(Sup((node.childNode(0) as TextNode).text()))
-                    "sub" -> msgChain.add(Sub((node.childNode(0) as TextNode).text()))
-                    "br" -> msgChain.add(Br())
-                    "p" -> msgChain.add(Paragraph())
-                    "message" -> {
-                        val element = io.github.nyayurn.yutori.message.element.Message()
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "quote" -> {
-                        val element = Quote((node.childNode(0) as TextNode).text())
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "author" -> {
-                        val element = Author()
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    "button" -> {
-                        val element = io.github.nyayurn.yutori.message.element.Button()
-                        for (attr in node.attributes()) {
-                            element[attr.key] = attr.value
-                        }
-                        msgChain.add(element)
-                    }
-
-                    else -> throw IllegalStateException("Unsupported tag: " + node.tagName())
-                }
-            }
+            msgChain.add(Elements.parseMessageElement(node) ?: throw IllegalStateException("unknown node: ${node.nodeName()}"))
         }
         return msgChain
     }

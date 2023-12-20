@@ -21,7 +21,7 @@ typealias SatoriEventHandle<T> = (Bot, T) -> Unit
 typealias SatoriMessageEventHandle = (Bot, MessageEvent, String) -> Unit
 
 private fun <T : Event> Array<out Predicate<T>>.filter(event: T) =
-    if (this.isEmpty()) true else this.map { it.test(event) }.reduce { acc, unit -> acc && unit }
+    this.isEmpty() || this.map { it.test(event) }.reduce { acc, unit -> acc && unit }
 
 class Satori private constructor(val properties: SatoriProperties) {
     private val event = EventListenerContext()

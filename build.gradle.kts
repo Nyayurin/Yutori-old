@@ -10,6 +10,8 @@ version = "0.1.9.2"
 description = "基于 Satori 协议的 Java 机器人开发工具包"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
+val junitVersion = "5.10.1"
+
 repositories {
     mavenCentral()
 }
@@ -21,7 +23,7 @@ dependencies {
     api("ch.qos.logback:logback-classic:1.4.11")
     api("io.github.microutils:kotlin-logging-jvm:3.0.5")
     api("org.jsoup:jsoup:1.17.1")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }
 
 java {
