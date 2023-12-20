@@ -236,20 +236,6 @@ open class Event @JvmOverloads constructor(
     }
 }
 
-class InternalEvent(
-    val id: Number,
-    val type: String,
-    val platform: String,
-    @JSONField(name = "self_id") val selfId: String,
-    val timestamp: Number,
-    @JSONField(name = "_type") val internalType: String,
-    @JSONField(name = "_data") val internalData: Any
-) {
-    override fun toString(): String {
-        return "InternalEvent(id=$id, type='$type', platform='$platform', selfId='$selfId', timestamp=$timestamp, internalType='$internalType', internalData=$internalData)"
-    }
-}
-
 class PageResponse<T> @JvmOverloads constructor(
     val data: List<T>,
     val next: String? = null

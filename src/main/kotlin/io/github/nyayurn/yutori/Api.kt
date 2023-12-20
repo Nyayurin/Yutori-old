@@ -69,7 +69,6 @@ class Bot private constructor(
     fun listFriend(next: String? = null) = userApi.listFriend(next)
     fun approveFriend(messageId: String, approve: Boolean, comment: String? = null) = userApi.approveFriend(messageId, approve, comment)
     fun sendGenericMessage(resource: String, method: String, body: String?) = sendMessage.sendGenericMessage(resource, method, body)
-    fun sendInternalMessage(method: String, body: String) = sendMessage.sendInternalMessage(method, body)
 
     companion object {
         @JvmStatic
@@ -443,36 +442,31 @@ class UserApi private constructor(private val sendMessage: SendMessage) {
 class SendMessage private constructor(
     private val platform: String?,
     private val selfId: String?,
-    private val properties: SatoriProperties
+    private val properties: SatoriProperties,
+    private val version: String
 ) {
-    private val version = "v1"
+    fun sendGenericMessage(resource: String, method: String, body: String?): String =
+        send(Request.post("http://${properties.address}/$version/$resource.$method").init(body))
 
-    fun sendGenericMessage(resource: String, method: String, body: String?): String {
-        val request = Request.post("http://${properties.address}/$version/$resource.$method")
-        request initHttpPost body
-        return this send request
+    private fun Request.init(body: String?): Request {
+        body(StringEntity(body, StandardCharsets.UTF_8))
+        setHeader("Content-Type", "application/json")
+        setHeader("Authorization", "Bearer ${properties.token}")
+        setHeader("X-Platform", platform)
+        setHeader("X-Self-ID", selfId)
+        return this
     }
 
-    fun sendInternalMessage(method: String, body: String): String {
-        val request = Request.post("http://${properties.address}/$version/internal/$method")
-        request initHttpPost body
-        return this send request
-    }
-
-    private infix fun Request.initHttpPost(body: String?) {
-        this.body(StringEntity(body, StandardCharsets.UTF_8))
-        this.setHeader("Content-Type", "application/json")
-        this.setHeader("Authorization", "Bearer ${properties.token}")
-        this.setHeader("X-Platform", platform)
-        this.setHeader("X-Self-ID", selfId)
-    }
-
-    private infix fun send(request: Request): String {
-        return request.execute().returnContent().asString()
-    }
+    private fun send(request: Request) = request.execute().returnContent().asString()
 
     companion object {
         @JvmStatic
-        fun of(platform: String? = null, selfId: String? = null, properties: SatoriProperties) = SendMessage(platform, selfId, properties)
+        @JvmOverloads
+        fun of(
+            platform: String? = null,
+            selfId: String? = null,
+            properties: SatoriProperties,
+            version: String = "v1"
+        ) = SendMessage(platform, selfId, properties, version)
     }
 }
