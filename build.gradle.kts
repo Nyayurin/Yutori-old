@@ -10,6 +10,12 @@ version = "0.2.0"
 description = "基于 Satori 协议的 Java 机器人开发工具包"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
+val httpclientVersion = "5.2.1"
+val websocketVersion = "1.5.4"
+val fastjsonVersion = "2.0.42"
+val loggingVersion = "3.0.5"
+val jsoupVersion = "1.17.1"
+val slf4jVersion = "1.7.2"
 val junitVersion = "5.10.1"
 
 repositories {
@@ -17,12 +23,12 @@ repositories {
 }
 
 dependencies {
-    api("org.apache.httpcomponents.client5:httpclient5-fluent:5.2.1")
-    api("org.java-websocket:Java-WebSocket:1.5.4")
-    api("com.alibaba.fastjson2:fastjson2-kotlin:2.0.42")
-    api("ch.qos.logback:logback-api:1.4.11")
-    api("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    api("org.jsoup:jsoup:1.17.1")
+    implementation("org.apache.httpcomponents.client5:httpclient5-fluent:$httpclientVersion")
+    implementation("org.java-websocket:Java-WebSocket:$websocketVersion")
+    implementation("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
+    implementation("io.github.microutils:kotlin-logging-jvm:$loggingVersion")
+    implementation("org.jsoup:jsoup:$jsoupVersion")
+    implementation("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }
 
