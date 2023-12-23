@@ -20,7 +20,7 @@
     <dependency>
         <groupId>io.github.nyayurn</groupId>
         <artifactId>yutori</artifactId>
-        <version>0.1.9.2</version>
+        <version>0.2.0</version>
     </dependency>
 </dependencies>
 ```
@@ -28,7 +28,7 @@
 ### Gradle
 
 ```kotlin
-implementation("io.github.nyayurn:yutori:0.1.9.2")
+implementation("io.github.nyayurn:yutori:0.2.0")
 ```
 
 ## 示例

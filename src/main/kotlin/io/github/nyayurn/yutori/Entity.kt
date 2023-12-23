@@ -250,15 +250,17 @@ interface SatoriProperties {
     val token: String?
     var sequence: Number?
     val listenSelfEvent: Boolean
+    val botDirect: () -> Bot?
 }
 
 class SimpleSatoriProperties @JvmOverloads constructor(
     override val address: String,
     override val token: String? = null,
     override var sequence: Number? = null,
-    override val listenSelfEvent: Boolean = false
+    override val listenSelfEvent: Boolean = false,
+    override val botDirect: () -> Bot? = { null }
 ) : SatoriProperties {
     override fun toString(): String {
-        return "SimpleSatoriProperties(address='$address', token=$token, sequence=$sequence, listenSelfEvent=$listenSelfEvent)"
+        return "SimpleSatoriProperties(address='$address', token=$token, sequence=$sequence, listenSelfEvent=$listenSelfEvent, botDirect=$botDirect)"
     }
 }
