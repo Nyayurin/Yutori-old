@@ -14,14 +14,13 @@ package io.github.nyayurn.yutori
 
 import org.jsoup.Jsoup
 import java.util.concurrent.Executors
-import java.util.function.Predicate
 
 typealias SatoriEventHandle<T> = (Bot, T) -> Unit
 
 typealias SatoriMessageEventHandle = (Bot, MessageEvent, String) -> Unit
 
-private fun <T : Event> Array<out Predicate<T>>.filter(event: T) =
-    this.isEmpty() || this.map { it.test(event) }.reduce { acc, unit -> acc && unit }
+private fun <T : Event> Array<out (T) -> Boolean>.filter(event: T) =
+    this.isEmpty() || this.map { it(event) }.reduce { acc, unit -> acc && unit }
 
 class Satori private constructor(val properties: SatoriProperties) {
     private val event = EventListenerContext()
@@ -36,7 +35,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onEvent(
-        vararg predicate: Predicate<Event> = arrayOf(),
+        vararg predicate: (Event) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<Event>
     ) {
         event.eventDelegate[handle] = predicate
@@ -44,7 +43,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildAdded(
-        vararg predicate: Predicate<GuildEvent> = arrayOf(),
+        vararg predicate: (GuildEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildEvent>
     ) {
         guild.addedDelegate[handle] = predicate
@@ -52,7 +51,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildUpdated(
-        vararg predicate: Predicate<GuildEvent> = arrayOf(),
+        vararg predicate: (GuildEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildEvent>
     ) {
         guild.updatedDelegate[handle] = predicate
@@ -60,7 +59,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildRemoved(
-        vararg predicate: Predicate<GuildEvent> = arrayOf(),
+        vararg predicate: (GuildEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildEvent>
     ) {
         guild.removedDelegate[handle] = predicate
@@ -68,7 +67,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildRequest(
-        vararg predicate: Predicate<GuildEvent> = arrayOf(),
+        vararg predicate: (GuildEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildEvent>
     ) {
         guild.requestDelegate[handle] = predicate
@@ -76,7 +75,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildMemberAdded(
-        vararg predicate: Predicate<GuildMemberEvent> = arrayOf(),
+        vararg predicate: (GuildMemberEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildMemberEvent>
     ) {
         member.addedDelegate[handle] = predicate
@@ -84,7 +83,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildMemberUpdated(
-        vararg predicate: Predicate<GuildMemberEvent> = arrayOf(),
+        vararg predicate: (GuildMemberEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildMemberEvent>
     ) {
         member.updatedDelegate[handle] = predicate
@@ -92,7 +91,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildMemberRemoved(
-        vararg predicate: Predicate<GuildMemberEvent> = arrayOf(),
+        vararg predicate: (GuildMemberEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildMemberEvent>
     ) {
         member.removedDelegate[handle] = predicate
@@ -100,7 +99,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildMemberRequest(
-        vararg predicate: Predicate<GuildMemberEvent> = arrayOf(),
+        vararg predicate: (GuildMemberEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildMemberEvent>
     ) {
         member.requestDelegate[handle] = predicate
@@ -108,7 +107,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildRoleCreated(
-        vararg predicate: Predicate<GuildRoleEvent> = arrayOf(),
+        vararg predicate: (GuildRoleEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildRoleEvent>
     ) {
         role.createdDelegate[handle] = predicate
@@ -116,7 +115,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildRoleUpdated(
-        vararg predicate: Predicate<GuildRoleEvent> = arrayOf(),
+        vararg predicate: (GuildRoleEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildRoleEvent>
     ) {
         role.updatedDelegate[handle] = predicate
@@ -124,7 +123,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onGuildRoleDeleted(
-        vararg predicate: Predicate<GuildRoleEvent> = arrayOf(),
+        vararg predicate: (GuildRoleEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<GuildRoleEvent>
     ) {
         role.deletedDelegate[handle] = predicate
@@ -132,7 +131,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onInteractionButton(
-        vararg predicate: Predicate<InteractionButtonEvent> = arrayOf(),
+        vararg predicate: (InteractionButtonEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<InteractionButtonEvent>
     ) {
         interaction.buttonDelegate[handle] = predicate
@@ -140,7 +139,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onInteractionCommand(
-        vararg predicate: Predicate<InteractionCommandEvent> = arrayOf(),
+        vararg predicate: (InteractionCommandEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<InteractionCommandEvent>,
     ) {
         interaction.commandDelegate[handle] = predicate
@@ -148,7 +147,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onLoginAdded(
-        vararg predicate: Predicate<LoginEvent> = arrayOf(),
+        vararg predicate: (LoginEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<LoginEvent>
     ) {
         login.addedDelegate[handle] = predicate
@@ -156,7 +155,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onLoginRemoved(
-        vararg predicate: Predicate<LoginEvent> = arrayOf(),
+        vararg predicate: (LoginEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<LoginEvent>
     ) {
         login.removedDelegate[handle] = predicate
@@ -164,7 +163,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onLoginUpdated(
-        vararg predicate: Predicate<LoginEvent> = arrayOf(),
+        vararg predicate: (LoginEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<LoginEvent>
     ) {
         login.updatedDelegate[handle] = predicate
@@ -172,7 +171,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onMessageCreated(
-        vararg predicate: Predicate<MessageEvent> = arrayOf(),
+        vararg predicate: (MessageEvent) -> Boolean = arrayOf(),
         handle: SatoriMessageEventHandle
     ) {
         message.createdDelegate[handle] = predicate
@@ -180,7 +179,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onMessageUpdated(
-        vararg predicate: Predicate<MessageEvent> = arrayOf(),
+        vararg predicate: (MessageEvent) -> Boolean = arrayOf(),
         handle: SatoriMessageEventHandle
     ) {
         message.updatedDelegate[handle] = predicate
@@ -188,7 +187,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onMessageDeleted(
-        vararg predicate: Predicate<MessageEvent> = arrayOf(),
+        vararg predicate: (MessageEvent) -> Boolean = arrayOf(),
         handle: SatoriMessageEventHandle
     ) {
         message.deleteDelegate[handle] = predicate
@@ -196,7 +195,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onReactionAdded(
-        vararg predicate: Predicate<ReactionEvent> = arrayOf(),
+        vararg predicate: (ReactionEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<ReactionEvent>
     ) {
         reaction.addedDelegate[handle] = predicate
@@ -204,7 +203,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onReactionRemoved(
-        vararg predicate: Predicate<ReactionEvent> = arrayOf(),
+        vararg predicate: (ReactionEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<ReactionEvent>
     ) {
         reaction.removedDelegate[handle] = predicate
@@ -212,7 +211,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     @JvmOverloads
     fun onFriendRequest(
-        vararg predicate: Predicate<UserEvent> = arrayOf(),
+        vararg predicate: (UserEvent) -> Boolean = arrayOf(),
         handle: SatoriEventHandle<UserEvent>
     ) {
         user.friendRequestDelegate[handle] = predicate
@@ -270,15 +269,15 @@ class Satori private constructor(val properties: SatoriProperties) {
 }
 
 private class EventListenerContext {
-    val eventDelegate = mutableMapOf<SatoriEventHandle<Event>, Array<out Predicate<Event>>>()
+    val eventDelegate = mutableMapOf<SatoriEventHandle<Event>, Array<out (Event) -> Boolean>>()
     fun run(bot: Bot, event: Event) = eventDelegate.filter { it.value.filter(event) }.forEach { it.key(bot, event) }
 }
 
 private class GuildListenerContext {
-    val addedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out Predicate<GuildEvent>>>()
-    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out Predicate<GuildEvent>>>()
-    val removedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out Predicate<GuildEvent>>>()
-    val requestDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out Predicate<GuildEvent>>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out (GuildEvent) -> Boolean>>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out (GuildEvent) -> Boolean>>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out (GuildEvent) -> Boolean>>()
+    val requestDelegate = mutableMapOf<SatoriEventHandle<GuildEvent>, Array<out (GuildEvent) -> Boolean>>()
     fun run(bot: Bot, event: Event) {
         when (event.type) {
             GuildEvents.ADDED -> GuildEvent.parse(event) { newEvent ->
@@ -301,10 +300,10 @@ private class GuildListenerContext {
 }
 
 private class GuildMemberListenerContext {
-    val addedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out Predicate<GuildMemberEvent>>>()
-    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out Predicate<GuildMemberEvent>>>()
-    val removedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out Predicate<GuildMemberEvent>>>()
-    val requestDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out Predicate<GuildMemberEvent>>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out (GuildMemberEvent) -> Boolean>>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out (GuildMemberEvent) -> Boolean>>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out (GuildMemberEvent) -> Boolean>>()
+    val requestDelegate = mutableMapOf<SatoriEventHandle<GuildMemberEvent>, Array<out (GuildMemberEvent) -> Boolean>>()
 
     fun run(bot: Bot, event: Event) {
         when (event.type) {
@@ -328,9 +327,9 @@ private class GuildMemberListenerContext {
 }
 
 private class GuildRoleListenerContext {
-    val createdDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Array<out Predicate<GuildRoleEvent>>>()
-    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Array<out Predicate<GuildRoleEvent>>>()
-    val deletedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Array<out Predicate<GuildRoleEvent>>>()
+    val createdDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Array<out (GuildRoleEvent) -> Boolean>>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Array<out (GuildRoleEvent) -> Boolean>>()
+    val deletedDelegate = mutableMapOf<SatoriEventHandle<GuildRoleEvent>, Array<out (GuildRoleEvent) -> Boolean>>()
     fun run(bot: Bot, event: Event) {
         when (event.type) {
             GuildRoleEvents.CREATED -> GuildRoleEvent.parse(event) { newEvent ->
@@ -349,8 +348,8 @@ private class GuildRoleListenerContext {
 }
 
 private class InteractionListenerContext {
-    val buttonDelegate = mutableMapOf<SatoriEventHandle<InteractionButtonEvent>, Array<out Predicate<InteractionButtonEvent>>>()
-    val commandDelegate = mutableMapOf<SatoriEventHandle<InteractionCommandEvent>, Array<out Predicate<InteractionCommandEvent>>>()
+    val buttonDelegate = mutableMapOf<SatoriEventHandle<InteractionButtonEvent>, Array<out (InteractionButtonEvent) -> Boolean>>()
+    val commandDelegate = mutableMapOf<SatoriEventHandle<InteractionCommandEvent>, Array<out (InteractionCommandEvent) -> Boolean>>()
 
     fun run(bot: Bot, event: Event) {
         when (event.type) {
@@ -366,9 +365,9 @@ private class InteractionListenerContext {
 }
 
 private class LoginListenerContext {
-    val addedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Array<out Predicate<LoginEvent>>>()
-    val removedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Array<out Predicate<LoginEvent>>>()
-    val updatedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Array<out Predicate<LoginEvent>>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Array<out (LoginEvent) -> Boolean>>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Array<out (LoginEvent) -> Boolean>>()
+    val updatedDelegate = mutableMapOf<SatoriEventHandle<LoginEvent>, Array<out (LoginEvent) -> Boolean>>()
     fun run(bot: Bot, event: Event) {
         when (event.type) {
             LoginEvents.ADDED -> LoginEvent.parse(event) { newEvent ->
@@ -387,9 +386,9 @@ private class LoginListenerContext {
 }
 
 private class MessageListenerContext {
-    val createdDelegate = mutableMapOf<SatoriMessageEventHandle, Array<out Predicate<MessageEvent>>>()
-    val updatedDelegate = mutableMapOf<SatoriMessageEventHandle, Array<out Predicate<MessageEvent>>>()
-    val deleteDelegate = mutableMapOf<SatoriMessageEventHandle, Array<out Predicate<MessageEvent>>>()
+    val createdDelegate = mutableMapOf<SatoriMessageEventHandle, Array<out (MessageEvent) -> Boolean>>()
+    val updatedDelegate = mutableMapOf<SatoriMessageEventHandle, Array<out (MessageEvent) -> Boolean>>()
+    val deleteDelegate = mutableMapOf<SatoriMessageEventHandle, Array<out (MessageEvent) -> Boolean>>()
     fun run(bot: Bot, event: Event) {
         when (event.type) {
             MessageEvents.CREATED -> MessageEvent.parse(event) { newEvent ->
@@ -410,8 +409,8 @@ private class MessageListenerContext {
 }
 
 private class ReactionListenerContext {
-    val addedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, Array<out Predicate<ReactionEvent>>>()
-    val removedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, Array<out Predicate<ReactionEvent>>>()
+    val addedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, Array<out (ReactionEvent) -> Boolean>>()
+    val removedDelegate = mutableMapOf<SatoriEventHandle<ReactionEvent>, Array<out (ReactionEvent) -> Boolean>>()
     fun run(bot: Bot, event: Event) {
         when (event.type) {
             ReactionEvents.ADDED -> ReactionEvent.parse(event) { newEvent ->
@@ -426,7 +425,7 @@ private class ReactionListenerContext {
 }
 
 private class UserListenerContext {
-    val friendRequestDelegate = mutableMapOf<SatoriEventHandle<UserEvent>, Array<out Predicate<UserEvent>>>()
+    val friendRequestDelegate = mutableMapOf<SatoriEventHandle<UserEvent>, Array<out (UserEvent) -> Boolean>>()
     fun run(bot: Bot, event: Event) {
         when (event.type) {
             UserEvents.FRIEND_REQUEST -> UserEvent.parse(event) { newEvent ->

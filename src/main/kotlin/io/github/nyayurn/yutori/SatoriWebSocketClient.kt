@@ -54,7 +54,7 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
             }
 
             Signaling.EVENT -> sendEvent(signaling)
-            Signaling.PONG -> log.info("[$name]: 收到 PONG")
+            Signaling.PONG -> log.debug("[$name]: 收到 PONG")
             else -> log.error("Unsupported $signaling")
         }
     }

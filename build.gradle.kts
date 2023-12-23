@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.nyayurn"
-version = "0.2.0"
+version = "0.2.1"
 description = "基于 Satori 协议的 Java 机器人开发工具包"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -23,12 +23,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.httpcomponents.client5:httpclient5-fluent:$httpclientVersion")
-    implementation("org.java-websocket:Java-WebSocket:$websocketVersion")
-    implementation("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
-    implementation("io.github.microutils:kotlin-logging-jvm:$loggingVersion")
-    implementation("org.jsoup:jsoup:$jsoupVersion")
-    implementation("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
+    api("org.apache.httpcomponents.client5:httpclient5-fluent:$httpclientVersion")
+    api("org.java-websocket:Java-WebSocket:$websocketVersion")
+    api("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
+    api("io.github.microutils:kotlin-logging-jvm:$loggingVersion")
+    api("org.jsoup:jsoup:$jsoupVersion")
+    api("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }
 
