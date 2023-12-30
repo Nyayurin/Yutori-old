@@ -14,6 +14,11 @@ package io.github.nyayurn.yutori.message
 
 import io.github.nyayurn.yutori.message.element.*
 
+/**
+ * 消息 DSL 构造器, 供 Kotlin 使用者使用
+ * @param init DSL
+ * @return 消息
+ */
 fun message(init: DslMessage.() -> Unit): String {
     return DslMessage().apply {
         init()

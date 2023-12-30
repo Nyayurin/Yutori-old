@@ -14,6 +14,10 @@ package io.github.nyayurn.yutori.message
 
 import io.github.nyayurn.yutori.message.element.*
 
+/**
+ * 消息链式构造器, 供 Java 使用者使用
+ * @property list 消息列表
+ */
 class MessageBuilder private constructor() {
     private val list = mutableListOf<MessageElement>()
 

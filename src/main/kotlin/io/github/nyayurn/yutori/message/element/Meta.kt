@@ -12,6 +12,10 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
+/**
+ * 引用
+ * @property text 被引用的文本
+ */
 class Quote(text: String) : NodeMessageElement("quote") {
     var text: String
         get() = (super.children[0] as Text).text
@@ -28,6 +32,12 @@ class Quote(text: String) : NodeMessageElement("quote") {
     }
 }
 
+/**
+ * 作者
+ * @property id 用户 ID
+ * @property name 昵称
+ * @property avatar 头像 URL
+ */
 class Author @JvmOverloads constructor(
     id: String? = null,
     name: String? = null,

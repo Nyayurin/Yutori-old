@@ -12,6 +12,14 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
+/**
+ * 按钮
+ * @property id 按钮的 ID
+ * @property type 按钮的类型
+ * @property href 按钮的链接
+ * @property text 待输入文本
+ * @property theme 按钮的样式
+ */
 class Button @JvmOverloads constructor(
     id: String? = null,
     type: String? = null,

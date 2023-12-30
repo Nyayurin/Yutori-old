@@ -15,13 +15,32 @@ package io.github.nyayurn.yutori
 import org.jsoup.Jsoup
 import java.util.concurrent.Executors
 
+/**
+ * Satori 事件处理器
+ */
 typealias SatoriEventHandle<T> = (Bot, T) -> Unit
 
+/**
+ * Satori 消息事件处理器
+ */
 typealias SatoriMessageEventHandle = (Bot, MessageEvent, String) -> Unit
 
 private fun <T : Event> Array<out (T) -> Boolean>.filter(event: T) =
     this.isEmpty() || this.map { it(event) }.reduce { acc, unit -> acc && unit }
 
+/**
+ * Satori 事件处理器上下文
+ * @property properties 配置
+ * @property event 事件监听器上下文
+ * @property guild 群组事件监听器上下文
+ * @property member 群组成员事件监听器上下文
+ * @property role 群组角色事件监听器上下文
+ * @property interaction 交互事件监听器上下文
+ * @property login 登录信息事件监听器上下文
+ * @property message 消息事件监听器上下文
+ * @property reaction 表态事件监听器上下文
+ * @property user 用户事件监听器上下文
+ */
 class Satori private constructor(val properties: SatoriProperties) {
     private val event = EventListenerContext()
     private val guild = GuildListenerContext()

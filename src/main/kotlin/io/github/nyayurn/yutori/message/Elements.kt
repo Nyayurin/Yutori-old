@@ -18,8 +18,16 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 
+/**
+ * 为了减少 Event.toMsgChain() 方法复杂度而分离出来
+ */
 @Slf4j
 object Elements {
+    /**
+     * 解析消息元素
+     * @param node 节点
+     * @return 消息元素
+     */
     fun parseMessageElement(node: Node): MessageElement? {
         if (node is TextNode) {
             return Text(node.text())

@@ -12,37 +12,79 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
+/**
+ * 消息元素
+ */
 interface MessageElement {
     override fun toString(): String
-    fun encode(str: String): String {
-        return str.replace("&", "&amp;")
-            .replace("\"", "&quot;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
+
+    /**
+     * 转义字符串
+     * @param str 需要转义的字符串
+     * @return 转以后的字符串
+     */
+    fun encode(str: String) = str.apply {
+        replace("&", "&amp;")
+        replace("\"", "&quot;")
+        replace("<", "&lt;")
+        replace(">", "&gt;")
     }
 }
 
+/**
+ * 节点消息元素
+ * @property nodeName 节点名称
+ * @property properties 属性
+ * @property children 子元素
+ */
 open class NodeMessageElement(
-    val elementName: String
+    val nodeName: String
 ) : MessageElement {
     val properties: MutableMap<String, Any?> = mutableMapOf()
     val children: MutableList<MessageElement> = mutableListOf()
+
+    /**
+     * 获取属性
+     * @param key 属性名
+     * @return 属性值
+     */
     operator fun get(key: String) = properties[key]
+
+    /**
+     * 获取子元素
+     * @param index 子元素索引
+     * @return 消息元素
+     */
     operator fun get(index: Int) = children[index]
+
+    /**
+     * 设置属性
+     * @param key 属性名
+     * @param value 属性值
+     */
     operator fun set(key: String, value: Any) {
         properties[key] = value
     }
 
+    /**
+     * 设置子元素
+     * @param index 索引
+     * @param value 消息元素
+     */
     operator fun set(index: Int, value: MessageElement) {
         children[index] = value
     }
 
+    /**
+     * 添加子元素
+     * @param element 消息元素
+     */
     operator fun plusAssign(element: MessageElement) {
         children.add(element)
     }
 
     override fun toString(): String {
-        var result = "<$elementName"
+        var result = "<$nodeName"
         for (item in properties) {
             val key = item.key
             val value = item.value ?: continue
@@ -61,19 +103,34 @@ open class NodeMessageElement(
             for (item in children) {
                 result += item.toString()
             }
-            "$result</$elementName>"
+            "$result</$nodeName>"
         }
     }
 }
 
+/**
+ * 自定义
+ * @property text 内容
+ */
 class Custom(var text: String) : MessageElement {
     override fun toString(): String = text
 }
 
+/**
+ * 纯文本
+ * @property text 内容
+ */
 class Text(var text: String) : MessageElement {
     override fun toString(): String = encode(text)
 }
 
+/**
+ * 提及用户
+ * @property id 目标用户的 ID
+ * @property name 目标用户的名称
+ * @property role 目标角色
+ * @property type 特殊操作，例如 all 表示 @全体成员，here 表示 @在线成员
+ */
 class At @JvmOverloads constructor(
     id: String? = null,
     name: String? = null,
@@ -93,6 +150,11 @@ class At @JvmOverloads constructor(
     }
 }
 
+/**
+ * 提及频道
+ * @property id 目标频道的 ID
+ * @property name 目标频道的名称
+ */
 class Sharp @JvmOverloads constructor(
     id: String,
     name: String? = null
@@ -106,6 +168,10 @@ class Sharp @JvmOverloads constructor(
     }
 }
 
+/**
+ * 链接
+ * @property href 链接的 URL
+ */
 class Href(href: String) : NodeMessageElement("a") {
     var href: String by super.properties
 

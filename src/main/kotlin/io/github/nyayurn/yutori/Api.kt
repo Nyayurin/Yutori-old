@@ -19,6 +19,18 @@ import org.apache.hc.client5.http.fluent.Request
 import org.apache.hc.core5.http.io.entity.StringEntity
 import java.nio.charset.StandardCharsets
 
+/**
+ * 封装所有 API, 应通过本类对 Satori Server 发送事件
+ * @property channelApi 频道 API
+ * @property guildApi 群组 API
+ * @property memberApi 群组成员 API
+ * @property roleApi 群组角色 API
+ * @property loginApi 登录信息 API
+ * @property messageApi 消息 API
+ * @property reactionApi 表态 API
+ * @property userApi 用户 API
+ * @property sendMessage SendMessage 底层
+ */
 class Bot private constructor(
     private val channelApi: ChannelApi,
     private val guildApi: GuildApi,
@@ -71,6 +83,11 @@ class Bot private constructor(
     fun sendGenericMessage(resource: String, method: String, body: String?) = sendMessage.sendGenericMessage(resource, method, body)
 
     companion object {
+        /**
+         * 工厂方法
+         * @param sendMessage SendMessage
+         * @return Bot
+         */
         @JvmStatic
         fun of(sendMessage: SendMessage) = Bot(
             ChannelApi.of(sendMessage),
@@ -84,14 +101,31 @@ class Bot private constructor(
             sendMessage
         )
 
+        /**
+         * 工厂方法
+         * @param platform 平台
+         * @param selfId 自身 ID
+         * @param properties 配置
+         * @return Bot
+         */
         @JvmStatic
         fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
 
+        /**
+         * 工厂方法
+         * @param event 事件
+         * @param properties 配置
+         * @return Bot
+         */
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
+/**
+ * 频道 API
+ * @property sendMessage SendMessage
+ */
 class ChannelApi private constructor(private val sendMessage: SendMessage) {
     fun getChannel(channelId: String): Channel {
         val map = JSONObject()
@@ -149,6 +183,10 @@ class ChannelApi private constructor(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 群组 API
+ * @property sendMessage SendMessage
+ */
 class GuildApi private constructor(private val sendMessage: SendMessage) {
     fun getGuild(guildId: String): Guild {
         val map = JSONObject()
@@ -184,6 +222,10 @@ class GuildApi private constructor(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 群组成员 API
+ * @property sendMessage SendMessage
+ */
 class GuildMemberApi private constructor(private val sendMessage: SendMessage) {
     fun getGuildMember(guildId: String, userId: String): GuildMember {
         val map = JSONObject()
@@ -229,6 +271,10 @@ class GuildMemberApi private constructor(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 群组角色 API
+ * @property sendMessage SendMessage
+ */
 class GuildRoleApi private constructor(private val sendMessage: SendMessage) {
     fun setGuildRole(guildId: String, userId: String, roleId: String) {
         val map = JSONObject()
@@ -289,6 +335,10 @@ class GuildRoleApi private constructor(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 登录信息 API
+ * @property sendMessage SendMessage
+ */
 class LoginApi private constructor(private val sendMessage: SendMessage) {
     fun getLogin(): Login {
         val response = sendMessage.sendGenericMessage("login", "get", null)
@@ -304,6 +354,10 @@ class LoginApi private constructor(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 消息 API
+ * @property sendMessage SendMessage
+ */
 class MessageApi(private val sendMessage: SendMessage) {
     fun createMessage(channelId: String, content: String): List<Message> {
         val map = JSONObject()
@@ -356,6 +410,10 @@ class MessageApi(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 表态 API
+ * @property sendMessage SendMessage
+ */
 class ReactionApi private constructor(private val sendMessage: SendMessage) {
     fun createReaction(channelId: String, messageId: String, emoji: String) {
         val map = JSONObject()
@@ -404,6 +462,10 @@ class ReactionApi private constructor(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 用户 API
+ * @property sendMessage SendMessage
+ */
 class UserApi private constructor(private val sendMessage: SendMessage) {
     fun getUser(userId: String): User {
         val map = JSONObject()
@@ -439,27 +501,38 @@ class UserApi private constructor(private val sendMessage: SendMessage) {
     }
 }
 
+/**
+ * 实现 HTTP 交互的底层类
+ * @property platform 平台
+ * @property selfId 自身的 ID
+ * @property properties 配置
+ * @property version Satori 协议版本
+ */
 class SendMessage private constructor(
     private val platform: String?,
     private val selfId: String?,
     private val properties: SatoriProperties,
     private val version: String
 ) {
-    fun sendGenericMessage(resource: String, method: String, body: String?): String =
-        send(Request.post("http://${properties.address}/$version/$resource.$method").init(body))
-
-    private fun Request.init(body: String?): Request {
-        body(StringEntity(body, StandardCharsets.UTF_8))
-        setHeader("Content-Type", "application/json")
-        setHeader("Authorization", "Bearer ${properties.token}")
-        setHeader("X-Platform", platform)
-        setHeader("X-Self-ID", selfId)
-        return this
+    fun sendGenericMessage(resource: String, method: String, body: String?): String {
+        return (Request.post("http://${properties.address}/$version/$resource.$method").apply {
+            body(StringEntity(body, StandardCharsets.UTF_8))
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", "Bearer ${properties.token}")
+            setHeader("X-Platform", platform)
+            setHeader("X-Self-ID", selfId)
+        }).execute().returnContent().asString()
     }
 
-    private fun send(request: Request) = request.execute().returnContent().asString()
-
     companion object {
+        /**
+         * 工厂方法
+         * @param platform 平台
+         * @param selfId 自身的 ID
+         * @param properties 配置
+         * @param version Satori 协议版本
+         * @return SendMessage
+         */
         @JvmStatic
         @JvmOverloads
         fun of(

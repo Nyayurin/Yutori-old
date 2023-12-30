@@ -23,6 +23,13 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
+/**
+ * Satori Websocket 客户端
+ * @property client Satori
+ * @property name 客户端名称, 用于区分多个客户端
+ * @property heart 心跳
+ * @property reconnect 重练
+ */
 @Slf4j
 class SatoriSocketClient(private val client: Satori, private val name: String? = null) : WebSocketClient(
     URI("ws://${client.properties.address}/v1/events"), Draft_6455()

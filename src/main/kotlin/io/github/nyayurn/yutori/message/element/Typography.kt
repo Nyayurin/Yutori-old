@@ -12,8 +12,22 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
+/**
+ * 换行
+ */
 class Br : NodeMessageElement("br")
+
+/**
+ * 段落
+ */
 class Paragraph : NodeMessageElement("p")
+
+/**
+ * 消息
+ * @property text 内容
+ * @property id 消息的 ID
+ * @property forward 是否为转发消息
+ */
 class Message @JvmOverloads constructor(
     text: String? = null,
     id: String? = null,
