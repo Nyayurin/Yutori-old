@@ -266,10 +266,11 @@ class Satori private constructor(val properties: SatoriProperties) {
         fun client(
             address: String,
             token: String? = null,
+            version: String = "v1",
             sequence: Number? = null,
             listenSelfEvent: Boolean = false,
             botDirect: () -> Bot?
-        ) = Satori(SimpleSatoriProperties(address, token, sequence, listenSelfEvent, botDirect))
+        ) = Satori(SimpleSatoriProperties(address, token, version, sequence, listenSelfEvent, botDirect))
 
         // 以下仅 kotlin 使用
         @JvmSynthetic
@@ -279,11 +280,12 @@ class Satori private constructor(val properties: SatoriProperties) {
         fun client(
             address: String,
             token: String? = null,
+            version: String = "v1",
             sequence: Number? = null,
             listenSelfEvent: Boolean = false,
             botDirect: () -> Bot?,
             apply: Satori.() -> Unit
-        ) = Satori(SimpleSatoriProperties(address, token, sequence, listenSelfEvent, botDirect)).apply { apply() }
+        ) = Satori(SimpleSatoriProperties(address, token, version, sequence, listenSelfEvent, botDirect)).apply { apply() }
     }
 }
 

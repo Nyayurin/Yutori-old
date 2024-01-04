@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.nyayurn"
-version = "0.2.1"
+version = "0.2.2"
 description = "基于 Satori 协议的 Java 机器人开发工具包"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -91,7 +91,7 @@ signing {
 
 sourceSets {
     main {
-        java.srcDirs("src/main/java", "src/main/kotlin")
+        java.srcDir("src/main/kotlin")
         resources.srcDir("src/main/resource")
     }
     test {
