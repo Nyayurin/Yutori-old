@@ -15,6 +15,8 @@ package io.github.nyayurn.yutori
 import com.alibaba.fastjson2.JSONObject
 import com.alibaba.fastjson2.parseArray
 import com.alibaba.fastjson2.parseObject
+import io.github.nyayurn.yutori.message.DslMessage
+import io.github.nyayurn.yutori.message.message
 import org.apache.hc.client5.http.fluent.Request
 import org.apache.hc.core5.http.io.entity.StringEntity
 import java.nio.charset.StandardCharsets
@@ -65,9 +67,13 @@ class Bot private constructor(
     fun deleteGuildRole(guildId: String, roleId: String) = roleApi.deleteGuildRole(guildId, roleId)
     fun getLogin() = loginApi.getLogin()
     fun createMessage(channelId: String, content: String) = messageApi.createMessage(channelId, content)
+    fun createMessage(channelId: String, content: DslMessage.() -> Unit) = messageApi.createMessage(channelId, message(content))
     fun getMessage(channelId: String, messageId: String) = messageApi.getMessage(channelId, messageId)
     fun deleteMessage(channelId: String, messageId: String) = messageApi.deleteMessage(channelId, messageId)
     fun updateMessage(channelId: String, messageId: String, content: String) = messageApi.updateMessage(channelId, messageId, content)
+    fun updateMessage(channelId: String, messageId: String, content: DslMessage.() -> Unit) =
+        messageApi.updateMessage(channelId, messageId, message(content))
+
     fun listMessage(channelId: String, next: String? = null) = messageApi.listMessage(channelId, next)
     fun createReaction(channelId: String, messageId: String, emoji: String) = reactionApi.createReaction(channelId, messageId, emoji)
     fun deleteReaction(channelId: String, messageId: String, emoji: String, userId: String? = null) =

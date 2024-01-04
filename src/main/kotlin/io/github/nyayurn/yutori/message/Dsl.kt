@@ -28,7 +28,7 @@ fun message(init: DslMessage.() -> Unit): String {
 class DslMessage {
     private val list = mutableListOf<MessageElement>()
 
-    operator fun String.unaryPlus() = custom(this)
+    operator fun String.unaryPlus() = list.add(Custom(this))
 
     fun custom(text: String) {
         list.add(Custom(text))

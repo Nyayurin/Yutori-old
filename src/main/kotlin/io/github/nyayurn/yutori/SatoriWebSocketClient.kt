@@ -27,21 +27,19 @@ import java.util.concurrent.TimeUnit
  * Satori Websocket 客户端
  * @property client Satori
  * @property name 客户端名称, 用于区分多个客户端
- * @property heart 心跳
+ * @property heartbeat 心跳
  * @property reconnect 重练
  */
 @Slf4j
 class SatoriSocketClient(private val client: Satori, private val name: String? = null) : WebSocketClient(
-    URI("ws://${client.properties.address}/v1/events"), Draft_6455()
+    URI("ws://${client.properties.address}/${client.properties.version}/events"), Draft_6455()
 ) {
-    private var heart: ScheduledFuture<*>? = null
+    private var heartbeat: ScheduledFuture<*>? = null
     private var reconnect: ScheduledFuture<*>? = null
 
     override fun onOpen(serverHandshake: ServerHandshake) {
         log.info("[$name]: 成功建立 WebSocket 连接")
-        if (reconnect != null && !reconnect!!.isCancelled && !reconnect!!.isDone) {
-            reconnect!!.cancel(true)
-        }
+        reconnect?.cancel(false)
         sendIdentify()
     }
 
@@ -54,10 +52,11 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
                     ready.logins.joinToString("\n") { "{platform: ${it.platform}, selfId: ${it.selfId}}" }
                 }")
                 // 心跳
-                val sendConnection = Signaling(Signaling.PING)
-                heart = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Heart")).scheduleAtFixedRate(
-                    { send(JSONObject.toJSONString(sendConnection)) }, 10, 10, TimeUnit.SECONDS
-                )
+                heartbeat?.cancel(false)
+                val sendSignaling = Signaling(Signaling.PING)
+                heartbeat = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Heart")).scheduleAtFixedRate({
+                    if (this.isOpen) send(JSONObject.toJSONString(sendSignaling))
+                }, 10, 10, TimeUnit.SECONDS)
             }
 
             Signaling.EVENT -> sendEvent(signaling)
@@ -68,17 +67,15 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
 
     override fun onClose(code: Int, reason: String, remote: Boolean) {
         log.info("[$name]: 断开连接, code: $code, reason: $reason, remote: $remote")
-        if (heart != null && !heart!!.isCancelled && !heart!!.isDone) {
-            heart!!.cancel(true)
-        }
+        heartbeat?.cancel(false)
+        reconnect?.cancel(false)
         setReconnect()
     }
 
     override fun onError(e: Exception) {
-        log.error("出现错误: $e")
-        if (heart != null && !heart!!.isCancelled && !heart!!.isDone) {
-            heart!!.cancel(true)
-        }
+        log.error("[$name]: 出现错误: $e")
+        heartbeat?.cancel(false)
+        reconnect?.cancel(false)
         setReconnect()
     }
 
@@ -88,12 +85,8 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
         val sequence = client.properties.sequence
         if (token != null || sequence != null) {
             val body = Identify()
-            if (token != null) {
-                body.token = token
-            }
-            if (sequence != null) {
-                body.sequence = sequence
-            }
+            body.token = token
+            body.sequence = sequence
             connection.body = body
         }
         this.send(JSONObject.toJSONString(connection))
@@ -102,18 +95,16 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
     private fun sendEvent(signaling: Signaling) {
         val body = signaling.body as Event
         log.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
-        @Suppress("LoggingStringTemplateAsArgument")
         log.debug("[$name]: 事件详细信息: $body")
         client.properties.sequence = body.id
         client.runEvent(body)
     }
 
     private fun setReconnect() {
-        reconnect = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Reconnect"))
-            .scheduleAtFixedRate({
-                log.info("[$name]: 尝试重新连接")
-                connect()
-            }, 3, 3, TimeUnit.SECONDS)
+        reconnect = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Reconnect")).scheduleAtFixedRate({
+            log.info("[$name]: 尝试重新连接")
+            connect()
+        }, 3, 3, TimeUnit.SECONDS)
     }
 
     companion object {

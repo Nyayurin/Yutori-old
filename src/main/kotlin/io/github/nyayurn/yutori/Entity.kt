@@ -409,6 +409,7 @@ class PageResponse<T> @JvmOverloads constructor(
  * Satori 配置
  * @property address 连接地址
  * @property token Token
+ * @property version 协议版本
  * @property sequence 序列号
  * @property listenSelfEvent 监听自身发送的消息(视聊天平台不同而不同, 参考 https://github.com/satorijs/satori/issues/203)
  * @property botDirect 注册事件时 Bot 参数是否重定向
@@ -416,6 +417,7 @@ class PageResponse<T> @JvmOverloads constructor(
 interface SatoriProperties {
     val address: String
     val token: String?
+    val version: String
     var sequence: Number?
     val listenSelfEvent: Boolean
     val botDirect: () -> Bot?
@@ -432,11 +434,12 @@ interface SatoriProperties {
 class SimpleSatoriProperties @JvmOverloads constructor(
     override val address: String,
     override val token: String? = null,
+    override val version: String = "v1",
     override var sequence: Number? = null,
     override val listenSelfEvent: Boolean = false,
     override val botDirect: () -> Bot? = { null }
 ) : SatoriProperties {
     override fun toString(): String {
-        return "SimpleSatoriProperties(address='$address', token=$token, sequence=$sequence, listenSelfEvent=$listenSelfEvent, botDirect=$botDirect)"
+        return "SimpleSatoriProperties(address='$address', token=$token, version='$version', sequence=$sequence, listenSelfEvent=$listenSelfEvent, botDirect=$botDirect)"
     }
 }
