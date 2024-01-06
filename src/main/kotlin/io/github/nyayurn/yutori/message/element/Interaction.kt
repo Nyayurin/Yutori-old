@@ -40,4 +40,13 @@ class Button @JvmOverloads constructor(
         this.text = text
         this.theme = theme
     }
+
+    override fun validate() = when {
+        else -> null
+    }
+
+    companion object {
+        @JvmStatic
+        fun of(dsl: Button.() -> Unit) = Button().apply(dsl)
+    }
 }

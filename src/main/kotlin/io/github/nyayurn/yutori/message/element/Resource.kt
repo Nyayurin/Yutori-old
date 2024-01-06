@@ -20,11 +20,11 @@ package io.github.nyayurn.yutori.message.element
  */
 abstract class ResourceElement(
     name: String,
-    src: String,
+    src: String?,
     cache: Boolean?,
     timeout: String?
 ) : NodeMessageElement(name) {
-    var src: String by super.properties
+    var src: String? by super.properties
     var cache: Boolean? by super.properties
     var timeout: String? by super.properties
 
@@ -32,6 +32,11 @@ abstract class ResourceElement(
         this.src = src
         this.cache = cache
         this.timeout = timeout
+    }
+
+    override fun validate() = when {
+        src == null -> "src 不能为 null"
+        else -> null
     }
 }
 
@@ -41,7 +46,7 @@ abstract class ResourceElement(
  * @property height 图片的高度
  */
 class Image @JvmOverloads constructor(
-    src: String,
+    src: String? = null,
     cache: Boolean? = null,
     timeout: String? = null,
     width: Number? = null,
@@ -54,31 +59,51 @@ class Image @JvmOverloads constructor(
         this.width = width
         this.height = height
     }
+
+    companion object {
+        @JvmStatic
+        fun of(dsl: Image.() -> Unit) = Image().apply(dsl)
+    }
 }
 
 /**
  * 语音
  */
 class Audio @JvmOverloads constructor(
-    src: String,
+    src: String? = null,
     cache: Boolean? = null,
     timeout: String? = null
-) : ResourceElement("audio", src, cache, timeout)
+) : ResourceElement("audio", src, cache, timeout) {
+    companion object {
+        @JvmStatic
+        fun of(dsl: Audio.() -> Unit) = Audio().apply(dsl)
+    }
+}
 
 /**
  * 视频
  */
 class Video @JvmOverloads constructor(
-    src: String,
+    src: String? = null,
     cache: Boolean? = null,
     timeout: String? = null
-) : ResourceElement("video", src, cache, timeout)
+) : ResourceElement("video", src, cache, timeout) {
+    companion object {
+        @JvmStatic
+        fun of(dsl: Video.() -> Unit) = Video().apply(dsl)
+    }
+}
 
 /**
  * 文件
  */
 class File @JvmOverloads constructor(
-    src: String,
+    src: String? = null,
     cache: Boolean? = null,
     timeout: String? = null
-) : ResourceElement("file", src, cache, timeout)
+) : ResourceElement("file", src, cache, timeout) {
+    companion object {
+        @JvmStatic
+        fun of(dsl: File.() -> Unit) = File().apply(dsl)
+    }
+}

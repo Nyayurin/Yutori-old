@@ -19,6 +19,12 @@ interface MessageElement {
     override fun toString(): String
 
     /**
+     * 验证消息元素是否合法
+     * @return String? 错误信息, 返回 null 表示合法
+     */
+    fun validate(): String?
+
+    /**
      * 转义字符串
      * @param str 需要转义的字符串
      * @return 转以后的字符串
@@ -37,7 +43,7 @@ interface MessageElement {
  * @property properties 属性
  * @property children 子元素
  */
-open class NodeMessageElement(
+abstract class NodeMessageElement(
     val nodeName: String
 ) : MessageElement {
     val properties: MutableMap<String, Any?> = mutableMapOf()
@@ -112,16 +118,34 @@ open class NodeMessageElement(
  * 自定义
  * @property text 内容
  */
-class Custom(var text: String) : MessageElement {
-    override fun toString(): String = text
+class Custom @JvmOverloads constructor(var text: String? = null) : MessageElement {
+    override fun toString() = text.toString()
+    override fun validate() = when {
+        text == null -> "text 不能为 null"
+        else -> null
+    }
+
+    companion object {
+        @JvmStatic
+        fun of(dsl: Custom.() -> Unit) = Custom().apply(dsl)
+    }
 }
 
 /**
  * 纯文本
  * @property text 内容
  */
-class Text(var text: String) : MessageElement {
-    override fun toString(): String = encode(text)
+class Text @JvmOverloads constructor(var text: String? = null) : MessageElement {
+    override fun toString() = encode(text.toString())
+    override fun validate() = when {
+        text == null -> "text 不能为 null"
+        else -> null
+    }
+
+    companion object {
+        @JvmStatic
+        fun of(dsl: Text.() -> Unit) = Text().apply(dsl)
+    }
 }
 
 /**
@@ -148,6 +172,15 @@ class At @JvmOverloads constructor(
         this.role = role
         this.type = type
     }
+
+    override fun validate() = when {
+        else -> null
+    }
+
+    companion object {
+        @JvmStatic
+        fun of(dsl: At.() -> Unit) = At().apply(dsl)
+    }
 }
 
 /**
@@ -156,15 +189,25 @@ class At @JvmOverloads constructor(
  * @property name 目标频道的名称
  */
 class Sharp @JvmOverloads constructor(
-    id: String,
+    id: String? = null,
     name: String? = null
 ) : NodeMessageElement("sharp") {
-    var id: String by super.properties
+    var id: String? by super.properties
     var name: String? by super.properties
 
     init {
         this.id = id
         this.name = name
+    }
+
+    override fun validate() = when {
+        id == null -> "id 不能为 null"
+        else -> null
+    }
+
+    companion object {
+        @JvmStatic
+        fun of(dsl: Sharp.() -> Unit) = Sharp().apply(dsl)
     }
 }
 
@@ -172,10 +215,20 @@ class Sharp @JvmOverloads constructor(
  * 链接
  * @property href 链接的 URL
  */
-class Href(href: String) : NodeMessageElement("a") {
-    var href: String by super.properties
+class Href @JvmOverloads constructor(href: String? = null) : NodeMessageElement("a") {
+    var href: String? by super.properties
 
     init {
         this.href = href
+    }
+
+    override fun validate() = when {
+        href == null -> "href 不能为 null"
+        else -> null
+    }
+
+    companion object {
+        @JvmStatic
+        fun of(dsl: Href.() -> Unit) = Href().apply(dsl)
     }
 }

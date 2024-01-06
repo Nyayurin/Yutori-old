@@ -29,7 +29,7 @@ fun recipeMenu(bot: Bot, event: MessageEvent, msg: String) {
         // 资源来自: https://home.meishichina.com/recipe-menu.html
         // 使用 DSL 构建消息
         bot.createMessage(event.channel.id) {
-            at(event.user.id)
+            at { id = event.user.id }
             text(" 菜单:\n")
             text("红烧肉 红烧排骨 可乐鸡翅 糖醋排骨 水煮鱼 红烧鱼\n")
             text("凉拌黑木耳 鱼香肉丝 水煮肉片 意大利面 麻辣小龙虾 凉拌木耳\n")

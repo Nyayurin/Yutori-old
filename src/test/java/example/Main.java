@@ -4,7 +4,7 @@ import io.github.nyayurn.yutori.Bot;
 import io.github.nyayurn.yutori.MessageEvent;
 import io.github.nyayurn.yutori.SimpleSatoriProperties;
 import io.github.nyayurn.yutori.Satori;
-import io.github.nyayurn.yutori.message.MessageBuilder;
+import io.github.nyayurn.yutori.message.MessageChainBuilder;
 import io.github.nyayurn.yutori.message.element.At;
 import kotlin.Unit;
 
@@ -32,7 +32,7 @@ public class Main {
         if ("菜单".equals(msg)) {
             // 资源来自: https://home.meishichina.com/recipe-menu.html
             // 使用 Builder 配合链式调用构建消息
-            bot.createMessage(event.getChannel().getId(), MessageBuilder.Companion.of()
+            bot.createMessage(event.getChannel().getId(), MessageChainBuilder.Companion.of()
                     .at(event.getUser().getId())
                     .text("菜单:\n")
                     .text("红烧肉 红烧排骨 可乐鸡翅 糖醋排骨 水煮鱼 红烧鱼\n")
