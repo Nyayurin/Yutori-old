@@ -13,7 +13,6 @@ See the Mulan PSL v2 for more details.
 package io.github.nyayurn.yutori.message
 
 import io.github.nyayurn.yutori.Slf4j
-import io.github.nyayurn.yutori.Slf4j.Companion.log
 import io.github.nyayurn.yutori.message.element.*
 
 /**
@@ -23,7 +22,11 @@ import io.github.nyayurn.yutori.message.element.*
  */
 fun message(dsl: MessageDSLBuilder.() -> Unit) = MessageDSLBuilder().apply(dsl).toString()
 
+@DslMarker
+annotation class MessageDSL
+
 @Slf4j
+@MessageDSL
 class MessageDSLBuilder {
     private val list = mutableListOf<MessageElement>()
 
@@ -33,16 +36,16 @@ class MessageDSLBuilder {
         list.add(Custom(text))
     }
 
-    fun custom(dsl: Custom.() -> Unit) {
-        list.add(Custom().apply(dsl))
+    fun custom(dsl: () -> String) {
+        list.add(Custom(dsl()))
     }
 
     fun text(text: String) {
         list.add(Text(text))
     }
 
-    fun text(dsl: Text.() -> Unit) {
-        list.add(Text().apply(dsl))
+    fun text(dsl: () -> String) {
+        list.add(Text(dsl()))
     }
 
     fun at(
@@ -54,24 +57,24 @@ class MessageDSLBuilder {
         list.add(At(id, name, role, type))
     }
 
-    fun at(dsl: At.() -> Unit) {
-        list.add(At.of(dsl))
+    fun at(dsl: AtBuilder.() -> Unit) {
+        list.add(AtBuilder().apply(dsl).build())
     }
 
     fun sharp(id: String, name: String? = null) {
         list.add(Sharp(id, name))
     }
 
-    fun sharp(dsl: Sharp.() -> Unit) {
-        list.add(Sharp.of(dsl))
+    fun sharp(dsl: SharpBuilder.() -> Unit) {
+        list.add(SharpBuilder().apply(dsl).build())
     }
 
     fun a(href: String) {
         list.add(Href(href))
     }
 
-    fun a(dsl: Href.() -> Unit) {
-        list.add(Href.of(dsl))
+    fun a(dsl: () -> String) {
+        list.add(Href(dsl()))
     }
 
     fun img(
@@ -84,8 +87,8 @@ class MessageDSLBuilder {
         list.add(Image(src, cache, timeout, width, height))
     }
 
-    fun img(dsl: Image.() -> Unit) {
-        list.add(Image.of(dsl))
+    fun img(dsl: ImageBuilder.() -> Unit) {
+        list.add(ImageBuilder().apply(dsl).build())
     }
 
     fun audio(
@@ -96,8 +99,8 @@ class MessageDSLBuilder {
         list.add(Audio(src, cache, timeout))
     }
 
-    fun audio(dsl: Audio.() -> Unit) {
-        list.add(Audio.of(dsl))
+    fun audio(dsl: AudioBuilder.() -> Unit) {
+        list.add(AudioBuilder().apply(dsl).build())
     }
 
     fun video(
@@ -108,8 +111,8 @@ class MessageDSLBuilder {
         list.add(Video(src, cache, timeout))
     }
 
-    fun video(dsl: Video.() -> Unit) {
-        list.add(Video.of(dsl))
+    fun video(dsl: VideoBuilder.() -> Unit) {
+        list.add(VideoBuilder().apply(dsl).build())
     }
 
     fun file(
@@ -120,104 +123,104 @@ class MessageDSLBuilder {
         list.add(File(src, cache, timeout))
     }
 
-    fun file(dsl: File.() -> Unit) {
-        list.add(File.of(dsl))
+    fun file(dsl: FileBuilder.() -> Unit) {
+        list.add(FileBuilder().apply(dsl).build())
     }
 
     fun b(text: String) {
         list.add(Bold(text))
     }
 
-    fun b(dsl: Bold.() -> Unit) {
-        list.add(Bold.of(dsl))
+    fun b(dsl: () -> String) {
+        list.add(Bold(dsl()))
     }
 
     fun strong(text: String) {
         list.add(Strong(text))
     }
 
-    fun strong(dsl: Strong.() -> Unit) {
-        list.add(Strong.of(dsl))
+    fun strong(dsl: () -> String) {
+        list.add(Strong(dsl()))
     }
 
     fun i(text: String) {
         list.add(Idiomatic(text))
     }
 
-    fun i(dsl: Idiomatic.() -> Unit) {
-        list.add(Idiomatic.of(dsl))
+    fun i(dsl: () -> String) {
+        list.add(Idiomatic(dsl()))
     }
 
     fun em(text: String) {
         list.add(Em(text))
     }
 
-    fun em(dsl: Em.() -> Unit) {
-        list.add(Em.of(dsl))
+    fun em(dsl: () -> String) {
+        list.add(Em(dsl()))
     }
 
     fun u(text: String) {
         list.add(Underline(text))
     }
 
-    fun u(dsl: Underline.() -> Unit) {
-        list.add(Underline.of(dsl))
+    fun u(dsl: () -> String) {
+        list.add(Underline(dsl()))
     }
 
     fun ins(text: String) {
         list.add(Ins(text))
     }
 
-    fun ins(dsl: Ins.() -> Unit) {
-        list.add(Ins.of(dsl))
+    fun ins(dsl: () -> String) {
+        list.add(Ins(dsl()))
     }
 
     fun s(text: String) {
         list.add(Strikethrough(text))
     }
 
-    fun s(dsl: Strikethrough.() -> Unit) {
-        list.add(Strikethrough.of(dsl))
+    fun s(dsl: () -> String) {
+        list.add(Strikethrough(dsl()))
     }
 
     fun del(text: String) {
         list.add(Delete(text))
     }
 
-    fun del(dsl: Delete.() -> Unit) {
-        list.add(Delete.of(dsl))
+    fun del(dsl: () -> String) {
+        list.add(Delete(dsl()))
     }
 
     fun spl(text: String) {
         list.add(Spl(text))
     }
 
-    fun spl(dsl: Spl.() -> Unit) {
-        list.add(Spl.of(dsl))
+    fun spl(dsl: () -> String) {
+        list.add(Spl(dsl()))
     }
 
     fun code(text: String) {
         list.add(Code(text))
     }
 
-    fun code(dsl: Code.() -> Unit) {
-        list.add(Code.of(dsl))
+    fun code(dsl: () -> String) {
+        list.add(Code(dsl()))
     }
 
     fun sup(text: String) {
         list.add(Sup(text))
     }
 
-    fun sup(dsl: Sup.() -> Unit) {
-        list.add(Sup.of(dsl))
+    fun sup(dsl: () -> String) {
+        list.add(Sup(dsl()))
     }
 
     fun sub(text: String) {
         list.add(Sub(text))
     }
 
-    fun sub(dsl: Sub.() -> Unit) {
-        list.add(Sub.of(dsl))
+    fun sub(dsl: () -> String) {
+        list.add(Sub(dsl()))
     }
 
     fun br() {
@@ -236,16 +239,16 @@ class MessageDSLBuilder {
         list.add(Message(text, id, forward))
     }
 
-    fun message(dsl: Message.() -> Unit) {
-        list.add(Message.of(dsl))
+    fun message(dsl: MessageBuilder.() -> Unit) {
+        list.add(MessageBuilder().apply(dsl).build())
     }
 
     fun quote(text: String) {
         list.add(Quote(text))
     }
 
-    fun quote(dsl: Quote.() -> Unit) {
-        list.add(Quote.of(dsl))
+    fun quote(dsl: () -> String) {
+        list.add(Quote(dsl()))
     }
 
     fun author(
@@ -256,8 +259,8 @@ class MessageDSLBuilder {
         list.add(Author(id, name, avatar))
     }
 
-    fun author(dsl: Author.() -> Unit) {
-        list.add(Author.of(dsl))
+    fun author(dsl: AuthorBuilder.() -> Unit) {
+        list.add(AuthorBuilder().apply(dsl).build())
     }
 
     fun button(
@@ -270,8 +273,8 @@ class MessageDSLBuilder {
         list.add(Button(id, type, href, text, theme))
     }
 
-    fun button(dsl: Button.() -> Unit) {
-        list.add(Button.of(dsl))
+    fun button(dsl: ButtonBuilder.() -> Unit) {
+        list.add(ButtonBuilder().apply(dsl).build())
     }
 
     fun build() = toString()
@@ -279,11 +282,215 @@ class MessageDSLBuilder {
     override fun toString(): String {
         var result = ""
         for (item in list) {
-            val validate = item.validate()
-            if (validate != null) log.warn(validate)
-            else result += item
+            result += item
         }
         return result
+    }
+
+    @MessageDSL
+    class AtBuilder {
+        var id: String? = null
+        var name: String? = null
+        var role: String? = null
+        var type: String? = null
+
+        fun id(lambda: () -> String) {
+            this.id = lambda()
+        }
+
+        fun name(lambda: () -> String) {
+            this.name = lambda()
+        }
+
+        fun role(lambda: () -> String) {
+            this.role = lambda()
+        }
+
+        fun type(lambda: () -> String) {
+            this.type = lambda()
+        }
+
+        fun build() = At(id, name, role, type)
+    }
+
+    @MessageDSL
+    class SharpBuilder {
+        var id: String = ""
+        var name: String? = null
+
+        fun id(lambda: () -> String) {
+            this.id = lambda()
+        }
+
+        fun name(lambda: () -> String) {
+            this.name = lambda()
+        }
+
+        fun build() = Sharp(id, name)
+    }
+
+    @MessageDSL
+    class ImageBuilder {
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
+        var width: Number? = null
+        var height: Number? = null
+
+        fun src(lambda: () -> String) {
+            this.src = lambda()
+        }
+
+        fun cache(lambda: () -> Boolean) {
+            this.cache = lambda()
+        }
+
+        fun timeout(lambda: () -> String) {
+            this.timeout = lambda()
+        }
+
+        fun width(lambda: () -> Number) {
+            this.width = lambda()
+        }
+
+        fun height(lambda: () -> Number) {
+            this.height = lambda()
+        }
+
+        fun build() = Image(src, cache, timeout, width, height)
+    }
+
+    @MessageDSL
+    class AudioBuilder {
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
+
+        fun src(lambda: () -> String) {
+            this.src = lambda()
+        }
+
+        fun cache(lambda: () -> Boolean) {
+            this.cache = lambda()
+        }
+
+        fun timeout(lambda: () -> String) {
+            this.timeout = lambda()
+        }
+
+        fun build() = Audio(src, cache, timeout)
+    }
+
+    @MessageDSL
+    class VideoBuilder {
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
+
+        fun src(lambda: () -> String) {
+            this.src = lambda()
+        }
+
+        fun cache(lambda: () -> Boolean) {
+            this.cache = lambda()
+        }
+
+        fun timeout(lambda: () -> String) {
+            this.timeout = lambda()
+        }
+
+        fun build() = Video(src, cache, timeout)
+    }
+
+    @MessageDSL
+    class FileBuilder {
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
+
+        fun src(lambda: () -> String) {
+            this.src = lambda()
+        }
+
+        fun cache(lambda: () -> Boolean) {
+            this.cache = lambda()
+        }
+
+        fun timeout(lambda: () -> String) {
+            this.timeout = lambda()
+        }
+
+        fun build() = File(src, cache, timeout)
+    }
+
+    @MessageDSL
+    class MessageBuilder {
+        var text: String? = null
+        var id: String? = null
+        var forward: Boolean? = null
+        fun text(lambda: () -> String) {
+            text = lambda()
+        }
+
+        fun id(lambda: () -> String) {
+            id = lambda()
+        }
+
+        fun forward(lambda: () -> Boolean) {
+            forward = lambda()
+        }
+
+        fun build() = Message(text, id, forward)
+    }
+
+    @MessageDSL
+    class AuthorBuilder {
+        var id: String? = null
+        var name: String? = null
+        var avatar: String? = null
+        fun id(lambda: () -> String) {
+            id = lambda()
+        }
+
+        fun name(lambda: () -> String) {
+            name = lambda()
+        }
+
+        fun avatar(lambda: () -> String) {
+            avatar = lambda()
+        }
+
+        fun build() = Author(id, name, avatar)
+    }
+
+    @MessageDSL
+    class ButtonBuilder {
+        var id: String? = null
+        var type: String? = null
+        var href: String? = null
+        var text: String? = null
+        var theme: String? = null
+        fun id(lambda: () -> String) {
+            id = lambda()
+        }
+
+        fun type(lambda: () -> String) {
+            type = lambda()
+        }
+
+        fun href(lambda: () -> String) {
+            href = lambda()
+        }
+
+        fun text(lambda: () -> String) {
+            text = lambda()
+        }
+
+        fun theme(lambda: () -> String) {
+            theme = lambda()
+        }
+
+        fun build() = Button(id, type, href, text, theme)
     }
 }
 

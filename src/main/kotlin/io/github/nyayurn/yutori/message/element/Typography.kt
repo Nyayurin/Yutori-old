@@ -15,26 +15,12 @@ package io.github.nyayurn.yutori.message.element
 /**
  * 换行
  */
-class Br : NodeMessageElement("br") {
-    override fun validate(): String? = null
-
-    companion object {
-        @JvmStatic
-        fun of() = Br()
-    }
-}
+class Br : NodeMessageElement("br")
 
 /**
  * 段落
  */
-class Paragraph : NodeMessageElement("p") {
-    override fun validate(): String? = null
-
-    companion object {
-        @JvmStatic
-        fun of() = Paragraph()
-    }
-}
+class Paragraph : NodeMessageElement("p")
 
 /**
  * 消息
@@ -67,14 +53,5 @@ class Message @JvmOverloads constructor(
         this.text = text
         this.id = id
         this.forward = forward
-    }
-
-    override fun validate() = when {
-        else -> null
-    }
-
-    companion object {
-        @JvmStatic
-        fun of(dsl: Message.() -> Unit) = Message().apply(dsl)
     }
 }

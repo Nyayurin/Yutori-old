@@ -32,7 +32,7 @@ public class Main {
         if ("菜单".equals(msg)) {
             // 资源来自: https://home.meishichina.com/recipe-menu.html
             // 使用 Builder 配合链式调用构建消息
-            bot.createMessage(event.getChannel().getId(), MessageChainBuilder.Companion.of()
+            bot.createMessage(event.getChannel().getId(), MessageChainBuilder.of()
                     .at(event.getUser().getId())
                     .text("菜单:\n")
                     .text("红烧肉 红烧排骨 可乐鸡翅 糖醋排骨 水煮鱼 红烧鱼\n")

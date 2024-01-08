@@ -16,14 +16,13 @@ package io.github.nyayurn.yutori.message.element
  * 修饰元素
  * @property text 被修饰的文本
  */
-abstract class DecorationElement @JvmOverloads constructor(
+abstract class DecorationElement(
     nodeName: String,
-    text: String? = null
+    text: String
 ) : NodeMessageElement(nodeName) {
-    var text: String?
+    var text: String
         get() = (super.children[0] as Text).text
         set(value) {
-            if (value == null) return
             if (super.children.isEmpty()) {
                 super.children += Text(value)
             } else {
@@ -34,129 +33,64 @@ abstract class DecorationElement @JvmOverloads constructor(
     init {
         this.text = text
     }
-
-    override fun validate() = when {
-        text == null -> "text 不能为 null"
-        else -> null
-    }
 }
 
 /**
  * 粗体
  */
-class Bold @JvmOverloads constructor(text: String? = null) : DecorationElement("b", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Bold.() -> Unit) = Bold().apply(dsl)
-    }
-}
+class Bold(text: String) : DecorationElement("b", text)
 
 /**
  * 粗体
  */
-class Strong @JvmOverloads constructor(text: String? = null) : DecorationElement("strong", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Strong.() -> Unit) = Strong().apply(dsl)
-    }
-}
+class Strong(text: String) : DecorationElement("strong", text)
 
 /**
  * 斜体
  */
-class Idiomatic @JvmOverloads constructor(text: String? = null) : DecorationElement("i", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Idiomatic.() -> Unit) = Idiomatic().apply(dsl)
-    }
-}
+class Idiomatic(text: String) : DecorationElement("i", text)
 
 /**
  * 斜体
  */
-class Em @JvmOverloads constructor(text: String? = null) : DecorationElement("em", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Em.() -> Unit) = Em().apply(dsl)
-    }
-}
+class Em(text: String) : DecorationElement("em", text)
 
 /**
  * 下划线
  */
-class Underline @JvmOverloads constructor(text: String? = null) : DecorationElement("u", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Underline.() -> Unit) = Underline().apply(dsl)
-    }
-}
+class Underline(text: String) : DecorationElement("u", text)
 
 /**
  * 下划线
  */
-class Ins @JvmOverloads constructor(text: String? = null) : DecorationElement("ins", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Ins.() -> Unit) = Ins().apply(dsl)
-    }
-}
+class Ins(text: String) : DecorationElement("ins", text)
 
 /**
  * 删除线
  */
-class Strikethrough @JvmOverloads constructor(text: String? = null) : DecorationElement("s", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Strikethrough.() -> Unit) = Strikethrough().apply(dsl)
-    }
-}
+class Strikethrough(text: String) : DecorationElement("s", text)
 
 /**
  * 删除线
  */
-class Delete @JvmOverloads constructor(text: String? = null) : DecorationElement("del", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Delete.() -> Unit) = Delete().apply(dsl)
-    }
-}
+class Delete(text: String) : DecorationElement("del", text)
 
 /**
  * 剧透
  */
-class Spl @JvmOverloads constructor(text: String? = null) : DecorationElement("spl", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Spl.() -> Unit) = Spl().apply(dsl)
-    }
-}
+class Spl(text: String) : DecorationElement("spl", text)
 
 /**
  * 代码
  */
-class Code @JvmOverloads constructor(text: String? = null) : DecorationElement("code", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Code.() -> Unit) = Code().apply(dsl)
-    }
-}
+class Code(text: String) : DecorationElement("code", text)
 
 /**
  * 上标
  */
-class Sup @JvmOverloads constructor(text: String? = null) : DecorationElement("sup", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Sup.() -> Unit) = Sup().apply(dsl)
-    }
-}
+class Sup(text: String) : DecorationElement("sup", text)
 
 /**
  * 下标
  */
-class Sub @JvmOverloads constructor(text: String? = null) : DecorationElement("sub", text) {
-    companion object {
-        @JvmStatic
-        fun of(dsl: Sub.() -> Unit) = Sub().apply(dsl)
-    }
-}
+class Sub(text: String) : DecorationElement("sub", text)
