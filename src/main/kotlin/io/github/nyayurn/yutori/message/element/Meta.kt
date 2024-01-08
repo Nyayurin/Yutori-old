@@ -16,11 +16,10 @@ package io.github.nyayurn.yutori.message.element
  * 引用
  * @property text 被引用的文本
  */
-class Quote @JvmOverloads constructor(text: String? = null) : NodeMessageElement("quote") {
-    var text: String?
+class Quote(text: String) : NodeMessageElement("quote") {
+    var text: String
         get() = (super.children[0] as Text).text
         set(value) {
-            if (value == null) return
             if (super.children.isEmpty()) {
                 super.children += Text(value)
             } else {
@@ -30,16 +29,6 @@ class Quote @JvmOverloads constructor(text: String? = null) : NodeMessageElement
 
     init {
         this.text = text
-    }
-
-    override fun validate() = when {
-        text == null -> "text 不能为 null"
-        else -> null
-    }
-
-    companion object {
-        @JvmStatic
-        fun of(dsl: Quote.() -> Unit) = Quote().apply(dsl)
     }
 }
 
@@ -62,14 +51,5 @@ class Author @JvmOverloads constructor(
         this.id = id
         this.name = name
         this.avatar = avatar
-    }
-
-    override fun validate() = when {
-        else -> null
-    }
-
-    companion object {
-        @JvmStatic
-        fun of(dsl: Author.() -> Unit) = Author().apply(dsl)
     }
 }
