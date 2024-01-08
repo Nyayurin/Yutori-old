@@ -16,13 +16,13 @@ Yutori 是一个基于 [Satori](https://satori.chat) 协议的多平台机器人
 提供 [Kotlin](https://kotlinlang.org), [Java](https://www.oracle.com/cn/java) 等 JVM 平台语言的开发支持
 
 ## 指南
-[Guild.md](docs/Guild.md)
+[Guild.md](Guild.md)
 
 ## 进阶
-[Advanced.md](docs/Advanced.md)
+[Advanced.md](Advanced.md)
 
 ## 动作
-[Action.md](docs/Action.md)
+[Action.md](Action.md)
 
 ## 事件
-[Event.md](docs/Event.md)
+[Event.md](Event.md)
