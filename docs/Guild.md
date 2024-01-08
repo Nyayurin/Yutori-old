@@ -3,12 +3,12 @@
 ## 基础信息
 
 - 本项目仅支持 WebSocket 连接而不支持 WebHook 连接
-- 本项目建议使用 Kotlin 语言开发
-- 本项目不依赖也不建议搭配 Spring 进行开发
+- 本项目建议使用 Kotlin 语言进行开发
+- 本项目不依赖也不建议配合 Spring 进行开发
 
 ## 项目创建
 
-1. 首先创建一个空的项目
+1. 创建项目
 2. [引入依赖](#依赖引入)
 3. [基础使用](#基础使用)
 
@@ -64,7 +64,6 @@ fun main() {
     val client = Satori.client(properties)
     client.onMessageCreated { bot, event, msg ->
         if (msg == "在吗") {
-            // 通过 Bot 类发送消息
             bot.createMessage(event.channel.id, "" + At(event.user.id) + " 我在!")
         }
     }
