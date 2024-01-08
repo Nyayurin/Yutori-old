@@ -22,7 +22,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity
 import java.nio.charset.StandardCharsets
 
 /**
- * 封装所有 API, 应通过本类对 Satori Server 发送事件
+ * 封装所有 Action, 应通过本类对 Satori Server 发送事件
  * @property channelApi 频道 API
  * @property guildApi 群组 API
  * @property memberApi 群组成员 API
@@ -45,48 +45,86 @@ class Bot private constructor(
     private val sendMessage: SendMessage
 ) {
     fun getChannel(channelId: String) = channelApi.getChannel(channelId)
+
+    @JvmOverloads
     fun listChannel(guildId: String, next: String? = null) = channelApi.listChannel(guildId, next)
     fun createChannel(guildId: String, data: Channel) = channelApi.createChannel(guildId, data)
     fun updateChannel(channelId: String, data: Channel) = channelApi.updateChannel(channelId, data)
     fun deleteChannel(channelId: String) = channelApi.deleteChannel(channelId)
     fun createUserChannel(userId: String, guildId: String?) = channelApi.createUserChannel(userId, guildId)
     fun getGuild(guildId: String) = guildApi.getGuild(guildId)
+
+    @JvmOverloads
     fun listGuild(next: String? = null) = guildApi.listGuild(next)
-    fun approveGuild(messageId: String, approve: Boolean, comment: String) = guildApi.approveGuild(messageId, approve, comment)
+    fun approveGuild(messageId: String, approve: Boolean, comment: String) =
+        guildApi.approveGuild(messageId, approve, comment)
+
     fun getGuildMember(guildId: String, userId: String) = memberApi.getGuildMember(guildId, userId)
+
+    @JvmOverloads
     fun listGuildMember(guildId: String, next: String? = null) = memberApi.listGuildMember(guildId, next)
-    fun kickGuildMember(guildId: String, userId: String, permanent: Boolean? = null) = memberApi.kickGuildMember(guildId, userId, permanent)
+
+    @JvmOverloads
+    fun kickGuildMember(guildId: String, userId: String, permanent: Boolean? = null) =
+        memberApi.kickGuildMember(guildId, userId, permanent)
+
+    @JvmOverloads
     fun approveGuildMember(messageId: String, approve: Boolean, comment: String? = null) =
         memberApi.approveGuildMember(messageId, approve, comment)
 
     fun setGuildRole(guildId: String, userId: String, roleId: String) = roleApi.setGuildRole(guildId, userId, roleId)
-    fun unsetGuildRole(guildId: String, userId: String, roleId: String) = roleApi.unsetGuildRole(guildId, userId, roleId)
+    fun unsetGuildRole(guildId: String, userId: String, roleId: String) =
+        roleApi.unsetGuildRole(guildId, userId, roleId)
+
+    @JvmOverloads
     fun listGuildRole(guildId: String, next: String? = null) = roleApi.listGuildRole(guildId, next)
     fun createGuildRole(guildId: String, role: GuildRole) = roleApi.createGuildRole(guildId, role)
-    fun updateGuildRole(guildId: String, roleId: String, role: GuildRole) = roleApi.updateGuildRole(guildId, roleId, role)
+    fun updateGuildRole(guildId: String, roleId: String, role: GuildRole) =
+        roleApi.updateGuildRole(guildId, roleId, role)
+
     fun deleteGuildRole(guildId: String, roleId: String) = roleApi.deleteGuildRole(guildId, roleId)
     fun getLogin() = loginApi.getLogin()
     fun createMessage(channelId: String, content: String) = messageApi.createMessage(channelId, content)
-    fun createMessage(channelId: String, content: MessageDSLBuilder.() -> Unit) = messageApi.createMessage(channelId, message(content))
+    fun createMessage(channelId: String, content: MessageDSLBuilder.() -> Unit) =
+        messageApi.createMessage(channelId, message(content))
+
     fun getMessage(channelId: String, messageId: String) = messageApi.getMessage(channelId, messageId)
     fun deleteMessage(channelId: String, messageId: String) = messageApi.deleteMessage(channelId, messageId)
-    fun updateMessage(channelId: String, messageId: String, content: String) = messageApi.updateMessage(channelId, messageId, content)
+    fun updateMessage(channelId: String, messageId: String, content: String) =
+        messageApi.updateMessage(channelId, messageId, content)
+
     fun updateMessage(channelId: String, messageId: String, content: MessageDSLBuilder.() -> Unit) =
         messageApi.updateMessage(channelId, messageId, message(content))
 
+    @JvmOverloads
     fun listMessage(channelId: String, next: String? = null) = messageApi.listMessage(channelId, next)
-    fun createReaction(channelId: String, messageId: String, emoji: String) = reactionApi.createReaction(channelId, messageId, emoji)
+    fun createReaction(channelId: String, messageId: String, emoji: String) =
+        reactionApi.createReaction(channelId, messageId, emoji)
+
+    @JvmOverloads
     fun deleteReaction(channelId: String, messageId: String, emoji: String, userId: String? = null) =
         reactionApi.deleteReaction(channelId, messageId, emoji, userId)
 
-    fun clearReaction(channelId: String, messageId: String, emoji: String? = null) = reactionApi.clearReaction(channelId, messageId, emoji)
+    @JvmOverloads
+    fun clearReaction(channelId: String, messageId: String, emoji: String? = null) =
+        reactionApi.clearReaction(channelId, messageId, emoji)
+
+    @JvmOverloads
     fun listReaction(channelId: String, messageId: String, emoji: String, next: String? = null) =
         reactionApi.listReaction(channelId, messageId, emoji, next)
 
     fun getUser(userId: String) = userApi.getUser(userId)
+
+    @JvmOverloads
     fun listFriend(next: String? = null) = userApi.listFriend(next)
-    fun approveFriend(messageId: String, approve: Boolean, comment: String? = null) = userApi.approveFriend(messageId, approve, comment)
-    fun sendGenericMessage(resource: String, method: String, body: String?) = sendMessage.sendGenericMessage(resource, method, body)
+
+    @JvmOverloads
+    fun approveFriend(messageId: String, approve: Boolean, comment: String? = null) =
+        userApi.approveFriend(messageId, approve, comment)
+
+    @JvmOverloads
+    fun sendGenericMessage(resource: String, method: String, body: String? = null) =
+        sendMessage.sendGenericMessage(resource, method, body)
 
     companion object {
         /**
@@ -96,15 +134,9 @@ class Bot private constructor(
          */
         @JvmStatic
         fun of(sendMessage: SendMessage) = Bot(
-            ChannelApi.of(sendMessage),
-            GuildApi.of(sendMessage),
-            GuildMemberApi.of(sendMessage),
-            GuildRoleApi.of(sendMessage),
-            LoginApi.of(sendMessage),
-            MessageApi.of(sendMessage),
-            ReactionApi.of(sendMessage),
-            UserApi.of(sendMessage),
-            sendMessage
+            ChannelApi.of(sendMessage), GuildApi.of(sendMessage), GuildMemberApi.of(sendMessage),
+            GuildRoleApi.of(sendMessage), LoginApi.of(sendMessage), MessageApi.of(sendMessage),
+            ReactionApi.of(sendMessage), UserApi.of(sendMessage), sendMessage
         )
 
         /**
@@ -115,7 +147,8 @@ class Bot private constructor(
          * @return Bot
          */
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         /**
          * 工厂方法
@@ -182,7 +215,8 @@ class ChannelApi private constructor(private val sendMessage: SendMessage) {
         fun of(sendMessage: SendMessage) = ChannelApi(sendMessage)
 
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
@@ -221,7 +255,8 @@ class GuildApi private constructor(private val sendMessage: SendMessage) {
         fun of(sendMessage: SendMessage) = GuildApi(sendMessage)
 
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
@@ -270,7 +305,8 @@ class GuildMemberApi private constructor(private val sendMessage: SendMessage) {
         fun of(sendMessage: SendMessage) = GuildMemberApi(sendMessage)
 
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
@@ -334,7 +370,8 @@ class GuildRoleApi private constructor(private val sendMessage: SendMessage) {
         fun of(sendMessage: SendMessage) = GuildRoleApi(sendMessage)
 
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
@@ -409,7 +446,8 @@ class MessageApi(private val sendMessage: SendMessage) {
         fun of(sendMessage: SendMessage) = MessageApi(sendMessage)
 
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
@@ -446,7 +484,9 @@ class ReactionApi private constructor(private val sendMessage: SendMessage) {
         sendMessage.sendGenericMessage("reaction", "clear", map.toString())
     }
 
-    fun listReaction(channelId: String, messageId: String, emoji: String, next: String? = null): List<PageResponse<User>> {
+    fun listReaction(
+        channelId: String, messageId: String, emoji: String, next: String? = null
+    ): List<PageResponse<User>> {
         val map = JSONObject()
         map["channel_id"] = channelId
         map["message_id"] = messageId
@@ -461,7 +501,8 @@ class ReactionApi private constructor(private val sendMessage: SendMessage) {
         fun of(sendMessage: SendMessage) = ReactionApi(sendMessage)
 
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
@@ -500,7 +541,8 @@ class UserApi private constructor(private val sendMessage: SendMessage) {
         fun of(sendMessage: SendMessage) = UserApi(sendMessage)
 
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = of(SendMessage.of(platform, selfId, properties))
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            of(SendMessage.of(platform, selfId, properties))
 
         @JvmStatic
         fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
@@ -542,10 +584,7 @@ class SendMessage private constructor(
         @JvmStatic
         @JvmOverloads
         fun of(
-            platform: String? = null,
-            selfId: String? = null,
-            properties: SatoriProperties,
-            version: String = "v1"
+            platform: String? = null, selfId: String? = null, properties: SatoriProperties, version: String = "v1"
         ) = SendMessage(platform, selfId, properties, version)
     }
 }

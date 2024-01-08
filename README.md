@@ -5,52 +5,27 @@
 一个基于 [Satori](https://satori.chat) 协议的多平台机器人开发框架
 
 <img src="https://img.shields.io/badge/JDK-8+-brightgreen.svg?style=flat-square" alt="jdk-version">
-
+<a href="https://search.maven.org/search?q=https://central.sonatype.com/artifact/io.github.nyayurn/yutori">
+<img
+    src="https://img.shields.io/maven-central/v/io.github.nyayurn/yutori.svg?label=Maven%20Central&style=flat-square" 
+/>
+</a>
 </div>
 
-# 快速开始
+## 介绍
 
-## 依赖引入
+Yutori 是一个基于 [Satori](https://satori.chat) 协议的多平台机器人开发,
+框架本体使用 Kotlin 开发,
+提供 [Kotlin](https://kotlinlang.org), [Java](https://www.oracle.com/cn/java) 等 JVM 平台语言的开发支持
 
-### Maven
+## 指南
+[Guild.md](docs/Guild.md)
 
-```xml
+## 进阶
+[Advanced.md](docs/Advanced.md)
 
-<dependencies>
-    <dependency>
-        <groupId>io.github.nyayurn</groupId>
-        <artifactId>yutori</artifactId>
-        <version>0.2.4</version>
-    </dependency>
-</dependencies>
-```
+## 动作
+[Action.md](docs/Action.md)
 
-### Gradle
-
-```kotlin
-implementation("io.github.nyayurn:yutori:0.2.4")
-```
-
-## 示例
-
-[Java](src/test/java/example/Main.java)
-
-[Kotlin](src/test/kotlin/example/Example.kt)
-
-# 进阶
-
-## 回话恢复
-
-- 回话恢复的 Sequence 持久化保存可采取自定义 SatoriProperties 实现类实现
-
-## 其他
-- 参考 [Satori 文档](https://satori.chat/zh-CN/protocol)
-- 请自行阅读源码
-
-# 其他
-
-Yutori: 作者名称 Yurn 与 Satori 协议名称结合而来
-
-# 获取帮助
-
-请添加QQ: 799712878
+## 事件
+[Event.md](docs/Event.md)
