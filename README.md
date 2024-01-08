@@ -2,6 +2,8 @@
 
 # Yutori
 
+一个基于 [Satori](https://satori.chat) 协议的多平台机器人开发框架
+
 <img src="https://img.shields.io/badge/JDK-8+-brightgreen.svg?style=flat-square" alt="jdk-version">
 <a href="https://search.maven.org/search?q=https://central.sonatype.com/artifact/io.github.nyayurn/yutori">
 <img
