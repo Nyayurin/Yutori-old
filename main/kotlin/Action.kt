@@ -400,7 +400,7 @@ class SendMessage @JvmOverloads constructor(
     private val resource: String
 ) {
     fun send(method: String, body: String? = null): String {
-        return Request.post("http://${properties.address}/$${properties.version}/$resource.$method").apply {
+        return Request.post("http://${properties.address}/${properties.version}/$resource.$method").apply {
             body?.let { body(StringEntity(it, StandardCharsets.UTF_8)) }
             setHeader("Content-Type", "application/json")
             properties.token?.let { setHeader("Authorization", "Bearer $it") }

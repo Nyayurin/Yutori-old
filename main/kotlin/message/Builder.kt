@@ -179,7 +179,7 @@ class MessageDSLBuilder {
 
     inline fun button(dsl: ButtonBuilder.() -> Unit) = button(ButtonBuilder().apply(dsl).build())
 
-    fun build() = list.joinToString { it.toString() }
+    fun build() = list.joinToString("") { it.toString() }
     override fun toString() = "MessageDSLBuilder(list=$list)"
 
     @MessageDSL
@@ -529,7 +529,7 @@ class MessageChainBuilder {
         theme: String? = null
     ) = this.apply { list.add(Button(id, type, href, text, theme)) }
 
-    fun build() = list.joinToString { it.toString() }
+    fun build() = list.joinToString("") { it.toString() }
     override fun toString() = "MessageChainBuilder(list=$list)"
 
     companion object {
