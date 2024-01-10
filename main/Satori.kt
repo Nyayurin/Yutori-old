@@ -26,6 +26,10 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
+fun interface Listener<T : Event> {
+    operator fun invoke(bot: Bot, event: T)
+}
+
 class Satori private constructor(val properties: SatoriProperties) {
     private val event = mutableListOf<ListenerContext<Event>>()
     private val guild = mutableListOf<ListenerContext<GuildEvent>>()
@@ -224,7 +228,7 @@ class ListenerContext<T : Event>(private val listener: Listener<T>, init: (Liste
     fun withFilter(filter: (Bot, Event) -> Boolean) = this.apply { filters += filter }
     fun run(bot: Bot, event: T) {
         for (filter in filters) if (!filter(bot, event)) return
-        Executors.defaultThreadFactory().newThread { listener.invoke(bot, event) }.start()
+        Executors.defaultThreadFactory().newThread { listener(bot, event) }.start()
     }
 }
 

@@ -91,10 +91,10 @@ signing {
 
 sourceSets {
     main {
-        java.srcDirs("main/java", "main/kotlin")
+        java.srcDir("main")
     }
     test {
-        java.srcDirs("test/java", "test/kotlin")
+        java.srcDir("test")
     }
 }
 
