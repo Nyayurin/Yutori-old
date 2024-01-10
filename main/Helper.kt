@@ -14,32 +14,72 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori
 
+import com.alibaba.fastjson2.JSONArray
+import com.alibaba.fastjson2.JSONObject
 import io.github.nyayurn.yutori.message.element.*
 import io.github.nyayurn.yutori.message.element.Message
-import mu.KotlinLogging
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
-import org.slf4j.Logger
 
 /**
- * 供框架内部和 Kotlin 使用方使用, 提供类似于 Java 的 @Slf4j 注解
+ * JSONObject DSL 辅助构建器
  */
-@Suppress("UnusedReceiverParameter")
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class Slf4j {
-    companion object {
-        val <reified T> T.log: Logger
-            @JvmSynthetic inline get() = KotlinLogging.logger { T::class.java.name }
+@JvmSynthetic
+fun jsonObj(dsl: JsonObjectDSLBuilder.() -> Unit) = JsonObjectDSLBuilder().apply(dsl).build()
+
+/**
+ * JSONArray DSL 辅助构建器
+ */
+@JvmSynthetic
+fun jsonArr(dsl: JsonArrayDSLBuilder.() -> Unit) = JsonArrayDSLBuilder().apply(dsl).build()
+
+class JsonObjectDSLBuilder {
+    private val jsonObject = JSONObject()
+    fun put(key: String, value: Any?) {
+        jsonObject[key] = value
     }
+
+    fun put(key: String, dsl: () -> Any?) {
+        jsonObject[key] = dsl()
+    }
+
+    fun putJsonObj(key: String, dsl: JsonObjectDSLBuilder.() -> Unit) {
+        jsonObject[key] = JsonObjectDSLBuilder().apply(dsl).build()
+    }
+
+    fun putJsonArr(key: String, dsl: JsonArrayDSLBuilder.() -> Unit) {
+        jsonObject[key] = JsonArrayDSLBuilder().apply(dsl).build()
+    }
+
+    fun build() = jsonObject
+}
+
+class JsonArrayDSLBuilder {
+    private val jsonArray = JSONArray()
+    fun add(value: Any?) {
+        jsonArray += value
+    }
+
+    fun add(dsl: () -> Any?) {
+        jsonArray += dsl()
+    }
+
+    fun addJsonObj(dsl: JsonObjectDSLBuilder.() -> Unit) {
+        jsonArray += JsonObjectDSLBuilder().apply(dsl).build()
+    }
+
+    fun addJsonArr(dsl: JsonArrayDSLBuilder.() -> Unit) {
+        jsonArray.add(JsonArrayDSLBuilder().apply(dsl).build())
+    }
+
+    fun build() = jsonArray
 }
 
 /**
  * 辅助类
  */
-@Slf4j
 object MessageUtil {
     /**
      * 提取出 Satori 消息字符串中的纯文本消息元素

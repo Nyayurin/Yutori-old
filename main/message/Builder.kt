@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message
 
-import io.github.nyayurn.yutori.Slf4j
 import io.github.nyayurn.yutori.message.element.*
 
 /**
@@ -28,7 +27,6 @@ inline fun message(dsl: MessageDSLBuilder.() -> Unit) = MessageDSLBuilder().appl
 @DslMarker
 annotation class MessageDSL
 
-@Slf4j
 @MessageDSL
 class MessageDSLBuilder {
     private val list = mutableListOf<MessageElement>()

@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori
 
-import com.alibaba.fastjson2.JSONObject
 import com.alibaba.fastjson2.parseArray
 import com.alibaba.fastjson2.parseObject
 import io.github.nyayurn.yutori.message.MessageDSLBuilder
@@ -74,34 +73,34 @@ class Bot private constructor(
 class ChannelResource private constructor(private val satoriAction: SatoriAction) {
     fun get(channelId: String): Channel {
         return satoriAction.send("get") {
-            this["channel_id"] = channelId
+            put("channel_id", channelId)
         }.parseObject<Channel>()
     }
 
     fun list(guildId: String, next: String? = null): List<PaginatedData<Channel>> {
         return satoriAction.send("list") {
-            this["guild_id"] = guildId
-            this["next"] = next
+            put("guild_id", guildId)
+            put("next", next)
         }.parseArray<PaginatedData<Channel>>()
     }
 
     fun create(guildId: String, data: Channel): Channel {
         return satoriAction.send("create") {
-            this["guild_id"] = guildId
-            this["data"] = data
+            put("guild_id", guildId)
+            put("data", data)
         }.parseObject<Channel>()
     }
 
     fun update(channelId: String, data: Channel) {
         satoriAction.send("update") {
-            this["channel_id"] = channelId
-            this["data"] = data
+            put("channel_id", channelId)
+            put("data", data)
         }
     }
 
     fun delete(channelId: String) {
         satoriAction.send("delete") {
-            this["channel_id"] = channelId
+            put("channel_id", channelId)
         }
     }
 
@@ -118,21 +117,21 @@ class GuildResource private constructor(
 ) {
     fun get(guildId: String): Guild {
         return satoriAction.send("get") {
-            this["guild_id"] = guildId
+            put("guild_id", guildId)
         }.parseObject<Guild>()
     }
 
     fun list(next: String? = null): List<PaginatedData<Guild>> {
         return satoriAction.send("list") {
-            this["next"] = next
+            put("next", next)
         }.parseArray<PaginatedData<Guild>>()
     }
 
     fun approve(messageId: String, approve: Boolean, comment: String) {
         satoriAction.send("approve") {
-            this["message_id"] = messageId
-            this["approve"] = approve
-            this["comment"] = comment
+            put("message_id", messageId)
+            put("approve", approve)
+            put("comment", comment)
         }
     }
 
@@ -146,59 +145,61 @@ class GuildResource private constructor(
     class MemberResource private constructor(private val satoriAction: SatoriAction, @JvmField val role: RoleResource) {
         fun get(guildId: String, userId: String): GuildMember {
             return satoriAction.send("get") {
-                this["guild_id"] = guildId
-                this["user_id"] = userId
+                put("guild_id", guildId)
+                put("user_id", userId)
             }.parseObject<GuildMember>()
         }
 
         fun list(guildId: String, next: String? = null): List<PaginatedData<GuildMember>> {
             return satoriAction.send("list") {
-                this["guild_id"] = guildId
-                this["next"] = next
+                put("guild_id", guildId)
+                put("next", next)
             }.parseArray<PaginatedData<GuildMember>>()
         }
 
         fun kick(guildId: String, userId: String, permanent: Boolean? = null) {
             satoriAction.send("kick") {
-                this["guild_id"] = guildId
-                this["user_id"] = userId
-                this["permanent"] = permanent
+                put("guild_id", guildId)
+                put("user_id", userId)
+                put("permanent", permanent)
             }
         }
 
         fun approve(messageId: String, approve: Boolean, comment: String? = null) {
             satoriAction.send("approve") {
-                this["message_id"] = messageId
-                this["approve"] = approve
-                this["comment"] = comment
+                put("message_id", messageId)
+                put("approve", approve)
+                put("comment", comment)
             }
         }
 
         companion object {
             fun of(platform: String, selfId: String, properties: SatoriProperties) = MemberResource(
-                SatoriAction(platform, selfId, properties, "guild.member"), RoleResource.of(platform, selfId, properties)
+                SatoriAction(platform, selfId, properties, "guild.member"),
+                RoleResource.of(platform, selfId, properties)
             )
         }
 
         class RoleResource private constructor(private val satoriAction: SatoriAction) {
             fun set(guildId: String, userId: String, roleId: String) {
                 satoriAction.send("set") {
-                    this["guild_id"] = guildId
-                    this["user_id"] = userId
-                    this["role_id"] = roleId
+                    put("guild_id", guildId)
+                    put("user_id", userId)
+                    put("role_id", roleId)
                 }
             }
 
             fun unset(guildId: String, userId: String, roleId: String) {
                 satoriAction.send("unset") {
-                    this["guild_id"] = guildId
-                    this["user_id"] = userId
-                    this["role_id"] = roleId
+                    put("guild_id", guildId)
+                    put("user_id", userId)
+                    put("role_id", roleId)
                 }
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties) = RoleResource(SatoriAction(platform, selfId, properties, "guild.member.role"))
+                fun of(platform: String, selfId: String, properties: SatoriProperties) =
+                    RoleResource(SatoriAction(platform, selfId, properties, "guild.member.role"))
             }
         }
     }
@@ -206,30 +207,30 @@ class GuildResource private constructor(
     class RoleResource private constructor(private val satoriAction: SatoriAction) {
         fun list(guildId: String, next: String? = null): List<PaginatedData<GuildRole>> {
             return satoriAction.send("list") {
-                this["guild_id"] = guildId
-                this["next"] = next
+                put("guild_id", guildId)
+                put("next", next)
             }.parseArray<PaginatedData<GuildRole>>()
         }
 
         fun create(guildId: String, role: GuildRole): GuildRole {
             return satoriAction.send("create") {
-                this["guild_id"] = guildId
-                this["role"] = role
+                put("guild_id", guildId)
+                put("role", role)
             }.parseObject<GuildRole>()
         }
 
         fun update(guildId: String, roleId: String, role: GuildRole) {
             satoriAction.send("update") {
-                this["guild_id"] = guildId
-                this["role_id"] = roleId
-                this["role"] = role
+                put("guild_id", guildId)
+                put("role_id", roleId)
+                put("role", role)
             }
         }
 
         fun delete(guildId: String, roleId: String) {
             satoriAction.send("delete") {
-                this["guild_id"] = guildId
-                this["role_id"] = roleId
+                put("guild_id", guildId)
+                put("role_id", roleId)
             }
         }
 
@@ -252,8 +253,8 @@ class LoginResource private constructor(private val satoriAction: SatoriAction) 
 class MessageResource private constructor(private val satoriAction: SatoriAction) {
     fun create(channelId: String, content: String): List<Message> {
         return satoriAction.send("create") {
-            this["channel_id"] = channelId
-            this["content"] = content
+            put("channel_id", channelId)
+            put("content", content)
         }.parseArray<Message>()
     }
 
@@ -263,23 +264,23 @@ class MessageResource private constructor(private val satoriAction: SatoriAction
 
     fun get(channelId: String, messageId: String): Message {
         return satoriAction.send("get") {
-            this["channel_id"] = channelId
-            this["message_id"] = messageId
+            put("channel_id", channelId)
+            put("message_id", messageId)
         }.parseObject<Message>()
     }
 
     fun delete(channelId: String, messageId: String) {
         satoriAction.send("delete") {
-            this["channel_id"] = channelId
-            this["message_id"] = messageId
+            put("channel_id", channelId)
+            put("message_id", messageId)
         }
     }
 
     fun update(channelId: String, messageId: String, content: String) {
         satoriAction.send("update") {
-            this["channel_id"] = channelId
-            this["message_id"] = messageId
-            this["content"] = content
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("content", content)
         }
     }
 
@@ -289,8 +290,8 @@ class MessageResource private constructor(private val satoriAction: SatoriAction
 
     fun list(channelId: String, next: String? = null): List<PaginatedData<Message>> {
         return satoriAction.send("list") {
-            this["channel_id"] = channelId
-            this["next"] = next
+            put("channel_id", channelId)
+            put("next", next)
         }.parseArray<PaginatedData<Message>>()
     }
 
@@ -303,35 +304,35 @@ class MessageResource private constructor(private val satoriAction: SatoriAction
 class ReactionResource private constructor(private val satoriAction: SatoriAction) {
     fun create(channelId: String, messageId: String, emoji: String) {
         satoriAction.send("create") {
-            this["channel_id"] = channelId
-            this["message_id"] = messageId
-            this["emoji"] = emoji
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
         }
     }
 
     fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null) {
         satoriAction.send("delete") {
-            this["channel_id"] = channelId
-            this["message_id"] = messageId
-            this["emoji"] = emoji
-            this["user_id"] = userId
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
+            put("user_id", userId)
         }
     }
 
     fun clear(channelId: String, messageId: String, emoji: String? = null) {
         satoriAction.send("clear") {
-            this["channel_id"] = channelId
-            this["message_id"] = messageId
-            this["emoji"] = emoji
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
         }
     }
 
     fun list(channelId: String, messageId: String, emoji: String, next: String? = null): List<PaginatedData<User>> {
         return satoriAction.send("list") {
-            this["channel_id"] = channelId
-            this["message_id"] = messageId
-            this["emoji"] = emoji
-            this["next"] = next
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
+            put("next", next)
         }.parseArray<PaginatedData<User>>()
     }
 
@@ -344,7 +345,7 @@ class ReactionResource private constructor(private val satoriAction: SatoriActio
 class UserResource private constructor(private val satoriAction: SatoriAction, @JvmField val channel: ChannelResource) {
     fun get(userId: String): User {
         return satoriAction.send("get") {
-            this["user_id"] = userId
+            put("user_id", userId)
         }.parseObject<User>()
     }
 
@@ -357,8 +358,8 @@ class UserResource private constructor(private val satoriAction: SatoriAction, @
     class ChannelResource private constructor(private val satoriAction: SatoriAction) {
         fun create(userId: String, guildId: String?): Channel {
             return satoriAction.send("create") {
-                this["user_id"] = userId
-                this["guild_id"] = guildId
+                put("user_id", userId)
+                put("guild_id", guildId)
             }.parseObject<Channel>()
         }
 
@@ -372,15 +373,15 @@ class UserResource private constructor(private val satoriAction: SatoriAction, @
 class FriendResource private constructor(private val satoriAction: SatoriAction) {
     fun list(next: String? = null): List<PaginatedData<User>> {
         return satoriAction.send("list") {
-            this["next"] = next
+            put("next", next)
         }.parseArray<PaginatedData<User>>()
     }
 
     fun approve(messageId: String, approve: Boolean, comment: String? = null) {
         satoriAction.send("approve") {
-            this["message_id"] = messageId
-            this["approve"] = approve
-            this["comment"] = comment
+            put("message_id", messageId)
+            put("approve", approve)
+            put("comment", comment)
         }
     }
 
@@ -414,5 +415,6 @@ class SatoriAction @JvmOverloads constructor(
     }
 
     @JvmSynthetic
-    inline fun send(method: String, dsl: JSONObject.() -> Unit) = send(method, JSONObject().apply(dsl).toString())
+    inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) =
+        send(method, JsonObjectDSLBuilder().apply(dsl).toString())
 }

@@ -15,7 +15,7 @@ See the Mulan PSL v2 for more details.
 package io.github.nyayurn.yutori
 
 import com.alibaba.fastjson2.JSONObject
-import io.github.nyayurn.yutori.Slf4j.Companion.log
+import mu.KotlinLogging
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
@@ -42,114 +42,114 @@ class Satori private constructor(val properties: SatoriProperties) {
     private val reaction = mutableListOf<ListenerContext<ReactionEvent>>()
     private val user = mutableListOf<ListenerContext<UserEvent>>()
 
-    fun onEvent(listener: Listener<Event>) = ListenerContext(listener) { event += this }
+    fun onEvent(listener: Listener<Event>) = ListenerContext(listener).apply { event += this }
 
-    fun onGuildAdded(listener: Listener<GuildEvent>) = ListenerContext(listener) {
+    fun onGuildAdded(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
         guild += this
         withFilter(eventTypeFilter(GuildEvents.ADDED))
     }
 
-    fun onGuildUpdated(listener: Listener<GuildEvent>) = ListenerContext(listener) {
+    fun onGuildUpdated(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
         guild += this
         withFilter(eventTypeFilter(GuildEvents.UPDATED))
     }
 
-    fun onGuildRemoved(listener: Listener<GuildEvent>) = ListenerContext(listener) {
+    fun onGuildRemoved(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
         guild += this
         withFilter(eventTypeFilter(GuildEvents.REMOVED))
     }
 
-    fun onGuildRequest(listener: Listener<GuildEvent>) = ListenerContext(listener) {
+    fun onGuildRequest(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
         guild += this
         withFilter(eventTypeFilter(GuildEvents.REQUEST))
     }
 
-    fun onGuildMemberAdded(listener: Listener<GuildMemberEvent>) = ListenerContext(listener) {
+    fun onGuildMemberAdded(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
         member += this
         withFilter(eventTypeFilter(GuildMemberEvents.ADDED))
     }
 
-    fun onGuildMemberUpdated(listener: Listener<GuildMemberEvent>) = ListenerContext(listener) {
+    fun onGuildMemberUpdated(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
         member += this
         withFilter(eventTypeFilter(GuildMemberEvents.UPDATED))
     }
 
-    fun onGuildMemberRemoved(listener: Listener<GuildMemberEvent>) = ListenerContext(listener) {
+    fun onGuildMemberRemoved(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
         member += this
         withFilter(eventTypeFilter(GuildMemberEvents.REMOVED))
     }
 
-    fun onGuildMemberRequest(listener: Listener<GuildMemberEvent>) = ListenerContext(listener) {
+    fun onGuildMemberRequest(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
         member += this
         withFilter(eventTypeFilter(GuildMemberEvents.REQUEST))
     }
 
-    fun onGuildRoleCreated(listener: Listener<GuildRoleEvent>) = ListenerContext(listener) {
+    fun onGuildRoleCreated(listener: Listener<GuildRoleEvent>) = ListenerContext(listener).apply {
         role += this
         withFilter(eventTypeFilter(GuildRoleEvents.CREATED))
     }
 
-    fun onGuildRoleUpdated(listener: Listener<GuildRoleEvent>) = ListenerContext(listener) {
+    fun onGuildRoleUpdated(listener: Listener<GuildRoleEvent>) = ListenerContext(listener).apply {
         role += this
         withFilter(eventTypeFilter(GuildRoleEvents.UPDATED))
     }
 
-    fun onGuildRoleDeleted(listener: Listener<GuildRoleEvent>) = ListenerContext(listener) {
+    fun onGuildRoleDeleted(listener: Listener<GuildRoleEvent>) = ListenerContext(listener).apply {
         role += this
         withFilter(eventTypeFilter(GuildRoleEvents.DELETED))
     }
 
-    fun onInteractionButton(listener: Listener<InteractionButtonEvent>) = ListenerContext(listener) {
+    fun onInteractionButton(listener: Listener<InteractionButtonEvent>) = ListenerContext(listener).apply {
         button += this
         withFilter(eventTypeFilter(InteractionEvents.BUTTON))
     }
 
-    fun onInteractionCommand(listener: Listener<InteractionCommandEvent>) = ListenerContext(listener) {
+    fun onInteractionCommand(listener: Listener<InteractionCommandEvent>) = ListenerContext(listener).apply {
         command += this
         withFilter(eventTypeFilter(InteractionEvents.COMMAND))
     }
 
-    fun onLoginAdded(listener: Listener<LoginEvent>) = ListenerContext(listener) {
+    fun onLoginAdded(listener: Listener<LoginEvent>) = ListenerContext(listener).apply {
         login += this
         withFilter(eventTypeFilter(LoginEvents.ADDED))
     }
 
-    fun onLoginRemoved(listener: Listener<LoginEvent>) = ListenerContext(listener) {
+    fun onLoginRemoved(listener: Listener<LoginEvent>) = ListenerContext(listener).apply {
         login += this
         withFilter(eventTypeFilter(LoginEvents.REMOVED))
     }
 
-    fun onLoginUpdated(listener: Listener<LoginEvent>) = ListenerContext(listener) {
+    fun onLoginUpdated(listener: Listener<LoginEvent>) = ListenerContext(listener).apply {
         login += this
         withFilter(eventTypeFilter(LoginEvents.UPDATED))
     }
 
-    fun onMessageCreated(listener: Listener<MessageEvent>) = ListenerContext(listener) {
+    fun onMessageCreated(listener: Listener<MessageEvent>) = ListenerContext(listener).apply {
         message += this
         withFilter(eventTypeFilter(MessageEvents.CREATED))
     }
 
-    fun onMessageUpdated(listener: Listener<MessageEvent>) = ListenerContext(listener) {
+    fun onMessageUpdated(listener: Listener<MessageEvent>) = ListenerContext(listener).apply {
         message += this
         withFilter(eventTypeFilter(MessageEvents.UPDATED))
     }
 
-    fun onMessageDeleted(listener: Listener<MessageEvent>) = ListenerContext(listener) {
+    fun onMessageDeleted(listener: Listener<MessageEvent>) = ListenerContext(listener).apply {
         message += this
         withFilter(eventTypeFilter(MessageEvents.DELETED))
     }
 
-    fun onReactionAdded(listener: Listener<ReactionEvent>) = ListenerContext(listener) {
+    fun onReactionAdded(listener: Listener<ReactionEvent>) = ListenerContext(listener).apply {
         reaction += this
         withFilter(eventTypeFilter(ReactionEvents.ADDED))
     }
 
-    fun onReactionRemoved(listener: Listener<ReactionEvent>) = ListenerContext(listener) {
+    fun onReactionRemoved(listener: Listener<ReactionEvent>) = ListenerContext(listener).apply {
         reaction += this
         withFilter(eventTypeFilter(ReactionEvents.REMOVED))
     }
 
-    fun onFriendRequest(listener: Listener<UserEvent>) = ListenerContext(listener) {
+    fun onFriendRequest(listener: Listener<UserEvent>) = ListenerContext(listener).apply {
         user += this
         withFilter(eventTypeFilter(UserEvents.FRIEND_REQUEST))
     }
@@ -160,7 +160,7 @@ class Satori private constructor(val properties: SatoriProperties) {
      */
     @JvmOverloads
     fun connect(name: String? = null) {
-        SatoriSocketClient(this, name).connect()
+        SatoriWebsocketClient(this, name).connect()
     }
 
     private fun parseEvent(event: Event) = when (event.type) {
@@ -213,17 +213,17 @@ class Satori private constructor(val properties: SatoriProperties) {
         inline fun of(properties: SatoriProperties, apply: Satori.() -> Unit) = of(properties).apply { apply() }
 
         @JvmSynthetic
-        inline fun of(address: String, token: String? = null, version: String = "v1", apply: Satori.() -> Unit) =
-            of(address, token, version).apply { apply() }
+        inline fun of(
+            address: String,
+            token: String? = null,
+            version: String = "v1",
+            apply: Satori.() -> Unit
+        ) = of(address, token, version).apply { apply() }
     }
 }
 
-class ListenerContext<T : Event>(private val listener: Listener<T>, init: (ListenerContext<T>.() -> Unit)) {
+class ListenerContext<T : Event>(private val listener: Listener<T>) {
     private val filters = mutableListOf<(Bot, Event) -> Boolean>()
-
-    init {
-        init()
-    }
 
     fun withFilter(filter: (Bot, Event) -> Boolean) = this.apply { filters += filter }
     fun run(bot: Bot, event: T) {
@@ -233,13 +233,13 @@ class ListenerContext<T : Event>(private val listener: Listener<T>, init: (Liste
 }
 
 
-@Slf4j
-class SatoriSocketClient @JvmOverloads constructor(
+class SatoriWebsocketClient @JvmOverloads constructor(
     private val client: Satori, private val name: String? = null
 ) : WebSocketClient(URI("ws://${client.properties.address}/${client.properties.version}/events"), Draft_6455()) {
     private var sequence: Number? = null
     private var heartbeat: ScheduledFuture<*>? = null
     private var reconnect: ScheduledFuture<*>? = null
+    private val log = KotlinLogging.logger { }
 
     override fun onOpen(handshake: ServerHandshake) {
         log.info("[$name]: 成功建立 WebSocket 连接")
