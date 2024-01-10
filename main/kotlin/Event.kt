@@ -46,27 +46,23 @@ class GuildEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (GuildEvent) -> Unit = {}): GuildEvent {
-            val newEvent = GuildEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel,
-                event.guild!!,
-                event.login,
-                event.member,
-                event.message,
-                event.operator,
-                event.role,
-                event.user
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = GuildEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel,
+            event.guild!!,
+            event.login,
+            event.member,
+            event.message,
+            event.operator,
+            event.role,
+            event.user
+        )
     }
 }
 
@@ -102,27 +98,23 @@ class GuildMemberEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (GuildMemberEvent) -> Unit = {}): GuildMemberEvent {
-            val newEvent = GuildMemberEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel,
-                event.guild!!,
-                event.login,
-                event.member!!,
-                event.message,
-                event.operator,
-                event.role,
-                event.user!!
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = GuildMemberEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel,
+            event.guild!!,
+            event.login,
+            event.member!!,
+            event.message,
+            event.operator,
+            event.role,
+            event.user!!
+        )
     }
 }
 
@@ -157,27 +149,23 @@ class GuildRoleEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (GuildRoleEvent) -> Unit = {}): GuildRoleEvent {
-            val newEvent = GuildRoleEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel,
-                event.guild!!,
-                event.login,
-                event.member,
-                event.message,
-                event.operator,
-                event.role!!,
-                event.user
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = GuildRoleEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel,
+            event.guild!!,
+            event.login,
+            event.member,
+            event.message,
+            event.operator,
+            event.role!!,
+            event.user
+        )
     }
 }
 
@@ -211,27 +199,23 @@ class InteractionButtonEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (InteractionButtonEvent) -> Unit = {}): InteractionButtonEvent {
-            val newEvent = InteractionButtonEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button!!,
-                event.channel,
-                event.guild,
-                event.login,
-                event.member,
-                event.message,
-                event.operator,
-                event.role,
-                event.user
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = InteractionButtonEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button!!,
+            event.channel,
+            event.guild,
+            event.login,
+            event.member,
+            event.message,
+            event.operator,
+            event.role,
+            event.user
+        )
     }
 }
 
@@ -257,27 +241,23 @@ class InteractionCommandEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (InteractionCommandEvent) -> Unit = {}): InteractionCommandEvent {
-            val newEvent = InteractionCommandEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel,
-                event.guild,
-                event.login,
-                event.member,
-                event.message,
-                event.operator,
-                event.role,
-                event.user
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = InteractionCommandEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel,
+            event.guild,
+            event.login,
+            event.member,
+            event.message,
+            event.operator,
+            event.role,
+            event.user
+        )
     }
 }
 
@@ -312,27 +292,23 @@ class LoginEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (LoginEvent) -> Unit = {}): LoginEvent {
-            val newEvent = LoginEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel,
-                event.guild,
-                event.login!!,
-                event.member,
-                event.message,
-                event.operator,
-                event.role,
-                event.user
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = LoginEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel,
+            event.guild,
+            event.login!!,
+            event.member,
+            event.message,
+            event.operator,
+            event.role,
+            event.user
+        )
     }
 }
 
@@ -367,27 +343,23 @@ class MessageEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (MessageEvent) -> Unit = {}): MessageEvent {
-            val newEvent = MessageEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel!!,
-                event.guild,
-                event.login,
-                event.member,
-                event.message!!,
-                event.operator,
-                event.role,
-                event.user!!
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = MessageEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel!!,
+            event.guild,
+            event.login,
+            event.member,
+            event.message!!,
+            event.operator,
+            event.role,
+            event.user!!
+        )
     }
 }
 
@@ -421,27 +393,23 @@ class ReactionEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (ReactionEvent) -> Unit = {}): ReactionEvent {
-            val newEvent = ReactionEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel,
-                event.guild,
-                event.login,
-                event.member,
-                event.message,
-                event.operator,
-                event.role,
-                event.user
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = ReactionEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel,
+            event.guild,
+            event.login,
+            event.member,
+            event.message,
+            event.operator,
+            event.role,
+            event.user
+        )
     }
 }
 
@@ -474,26 +442,22 @@ class UserEvent @JvmOverloads constructor(
 ) : Event(id, type, platform, selfId, timestamp, argv, button, channel, guild, login, member, message, operator, role, user) {
     companion object {
         @JvmStatic
-        fun parse(event: Event, apply: (UserEvent) -> Unit = {}): UserEvent {
-            val newEvent = UserEvent(
-                event.id,
-                event.type,
-                event.platform,
-                event.selfId,
-                event.timestamp,
-                event.argv,
-                event.button,
-                event.channel,
-                event.guild,
-                event.login,
-                event.member,
-                event.message,
-                event.operator,
-                event.role,
-                event.user!!
-            )
-            newEvent.let(apply)
-            return newEvent
-        }
+        fun parse(event: Event) = UserEvent(
+            event.id,
+            event.type,
+            event.platform,
+            event.selfId,
+            event.timestamp,
+            event.argv,
+            event.button,
+            event.channel,
+            event.guild,
+            event.login,
+            event.member,
+            event.message,
+            event.operator,
+            event.role,
+            event.user!!
+        )
     }
 }

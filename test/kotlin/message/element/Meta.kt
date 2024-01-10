@@ -1,7 +1,5 @@
-package io.github.nyayurn.yutori.element
+package io.github.nyayurn.yutori.message.element
 
-import io.github.nyayurn.yutori.message.element.Author
-import io.github.nyayurn.yutori.message.element.Quote
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 

@@ -1,8 +1,5 @@
-package io.github.nyayurn.yutori.element
+package io.github.nyayurn.yutori.message.element
 
-import io.github.nyayurn.yutori.message.element.Br
-import io.github.nyayurn.yutori.message.element.Message
-import io.github.nyayurn.yutori.message.element.Paragraph
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -11,7 +8,7 @@ class TypeTest {
     fun br() {
         Assertions.assertEquals(
             "<br/>",
-            Br().toString()
+            Br.toString()
         )
     }
 
@@ -27,7 +24,7 @@ class TypeTest {
     fun paragraph() {
         Assertions.assertEquals(
             "<p/>",
-            Paragraph().toString()
+            Paragraph.toString()
         )
     }
 }

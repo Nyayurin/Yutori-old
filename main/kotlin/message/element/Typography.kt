@@ -15,12 +15,12 @@ package io.github.nyayurn.yutori.message.element
 /**
  * 换行
  */
-class Br : NodeMessageElement("br")
+object Br : NodeMessageElement("br")
 
 /**
  * 段落
  */
-class Paragraph : NodeMessageElement("p")
+object Paragraph : NodeMessageElement("p")
 
 /**
  * 消息

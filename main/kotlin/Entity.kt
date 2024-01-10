@@ -16,9 +16,6 @@ import com.alibaba.fastjson2.annotation.JSONField
 import com.alibaba.fastjson2.parseObject
 import com.alibaba.fastjson2.to
 import com.alibaba.fastjson2.toList
-import io.github.nyayurn.yutori.message.Elements
-import io.github.nyayurn.yutori.message.element.MessageElement
-import org.jsoup.Jsoup
 
 /**
  * 频道, 参考 https://satori.chat/zh-CN/resources/channel.html#channel
@@ -376,15 +373,6 @@ open class Event @JvmOverloads constructor(
     open val role: GuildRole? = null,
     open val user: User? = null
 ) : Signaling.Body {
-    fun toMsgChain(): List<MessageElement> {
-        val msgChain = mutableListOf<MessageElement>()
-        val childNodes = Jsoup.parse(message!!.content).body().childNodes()
-        for (node in childNodes) {
-            msgChain.add(Elements.parseMessageElement(node) ?: throw IllegalStateException("unknown node: ${node.nodeName()}"))
-        }
-        return msgChain
-    }
-
     override fun toString(): String {
         return "Event(id=$id, type='$type', platform='$platform', selfId='$selfId', timestamp=$timestamp, argv=$argv, button=$button, channel=$channel, guild=$guild, login=$login, member=$member, message=$message, operator=$operator, role=$role, user=$user)"
     }
@@ -400,9 +388,7 @@ class PageResponse<T> @JvmOverloads constructor(
     val data: List<T>,
     val next: String? = null
 ) {
-    override fun toString(): String {
-        return "PageResponse(data=$data, next=$next)"
-    }
+    override fun toString() = "PageResponse(data=$data, next=$next)"
 }
 
 /**
@@ -410,36 +396,23 @@ class PageResponse<T> @JvmOverloads constructor(
  * @property address 连接地址
  * @property token Token
  * @property version 协议版本
- * @property sequence 序列号
- * @property listenSelfEvent 监听自身发送的消息(视聊天平台不同而不同, 参考 https://github.com/satorijs/satori/issues/203)
- * @property botDirect 注册事件时 Bot 参数是否重定向
  */
 interface SatoriProperties {
     val address: String
     val token: String?
     val version: String
-    var sequence: Number?
-    val listenSelfEvent: Boolean
-    val botDirect: () -> Bot?
 }
 
 /**
  * 简易 Satori 配置实现类
  * @property address 连接地址
  * @property token Token
- * @property sequence 序列号
- * @property listenSelfEvent 监听自身发送的消息
- * @property botDirect Bot 参数重定向
+ * @property version 协议版本
  */
 class SimpleSatoriProperties @JvmOverloads constructor(
     override val address: String,
     override val token: String? = null,
-    override val version: String = "v1",
-    override var sequence: Number? = null,
-    override val listenSelfEvent: Boolean = false,
-    override val botDirect: () -> Bot? = { null }
+    override val version: String = "v1"
 ) : SatoriProperties {
-    override fun toString(): String {
-        return "SimpleSatoriProperties(address='$address', token=$token, version='$version', sequence=$sequence, listenSelfEvent=$listenSelfEvent, botDirect=$botDirect)"
-    }
+    override fun toString() = "SimpleSatoriProperties(address='$address', token=$token, version='$version')"
 }

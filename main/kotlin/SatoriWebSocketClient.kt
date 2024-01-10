@@ -23,21 +23,16 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-/**
- * Satori Websocket 客户端
- * @property client Satori
- * @property name 客户端名称, 用于区分多个客户端
- * @property heartbeat 心跳
- * @property reconnect 重练
- */
 @Slf4j
-class SatoriSocketClient(private val client: Satori, private val name: String? = null) : WebSocketClient(
-    URI("ws://${client.properties.address}/${client.properties.version}/events"), Draft_6455()
-) {
+class SatoriSocketClient @JvmOverloads constructor(
+    private val client: Satori,
+    private val name: String? = null
+) : WebSocketClient(URI("ws://${client.properties.address}/${client.properties.version}/events"), Draft_6455()) {
+    private var sequence: Number? = null
     private var heartbeat: ScheduledFuture<*>? = null
     private var reconnect: ScheduledFuture<*>? = null
 
-    override fun onOpen(serverHandshake: ServerHandshake) {
+    override fun onOpen(handshake: ServerHandshake) {
         log.info("[$name]: 成功建立 WebSocket 连接")
         reconnect?.cancel(false)
         sendIdentify()
@@ -82,7 +77,6 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
     private fun sendIdentify() {
         val connection = Signaling(Signaling.IDENTIFY)
         val token = client.properties.token
-        val sequence = client.properties.sequence
         if (token != null || sequence != null) {
             val body = Identify()
             body.token = token
@@ -96,7 +90,7 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
         val body = signaling.body as Event
         log.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
         log.debug("[$name]: 事件详细信息: $body")
-        client.properties.sequence = body.id
+        sequence = body.id
         client.runEvent(body)
     }
 
@@ -105,11 +99,5 @@ class SatoriSocketClient(private val client: Satori, private val name: String? =
             log.info("[$name]: 尝试重新连接")
             connect()
         }, 3, 3, TimeUnit.SECONDS)
-    }
-
-    companion object {
-        @JvmStatic
-        @JvmOverloads
-        fun of(client: Satori, name: String? = null) = SatoriSocketClient(client, name)
     }
 }

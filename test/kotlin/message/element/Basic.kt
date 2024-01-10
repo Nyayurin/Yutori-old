@@ -1,9 +1,5 @@
-package io.github.nyayurn.yutori.element
+package io.github.nyayurn.yutori.message.element
 
-import io.github.nyayurn.yutori.message.element.At
-import io.github.nyayurn.yutori.message.element.Href
-import io.github.nyayurn.yutori.message.element.Sharp
-import io.github.nyayurn.yutori.message.element.Text
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
