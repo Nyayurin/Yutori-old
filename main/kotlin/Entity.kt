@@ -10,6 +10,8 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
+@file:Suppress("MemberVisibilityCanBePrivate", "unused", "UNUSED_PARAMETER")
+
 package io.github.nyayurn.yutori
 
 import com.alibaba.fastjson2.annotation.JSONField
@@ -111,33 +113,31 @@ class GuildRole(
 /**
  * 交互, 参考 https://satori.chat/zh-CN/resources/interaction.html
  */
-interface Interaction
-
-/**
- * Argv, 参考 https://satori.chat/zh-CN/resources/interaction.html#argv
- * @property name 指令名称
- * @property arguments 参数
- * @property options 选项
- */
-class Argv(
-    val name: String,
-    val arguments: List<Any>,
-    val options: Any
-) : Interaction {
-    override fun toString(): String {
-        return "Argv(name='$name', arguments=$arguments, options=$options)"
+interface Interaction {
+    /**
+     * Argv, 参考 https://satori.chat/zh-CN/resources/interaction.html#argv
+     * @property name 指令名称
+     * @property arguments 参数
+     * @property options 选项
+     */
+    class Argv(
+        val name: String,
+        val arguments: List<Any>,
+        val options: Any
+    ) : Interaction {
+        override fun toString(): String {
+            return "Argv(name='$name', arguments=$arguments, options=$options)"
+        }
     }
-}
 
-/**
- * Button, 参考 https://satori.chat/zh-CN/resources/interaction.html#button
- * @property id 按钮 ID
- */
-class Button(
-    val id: String
-) : Interaction {
-    override fun toString(): String {
-        return "Button(id='$id')"
+    /**
+     * Button, 参考 https://satori.chat/zh-CN/resources/interaction.html#button
+     * @property id 按钮 ID
+     */
+    class Button(val id: String) : Interaction {
+        override fun toString(): String {
+            return "Button(id='$id')"
+        }
     }
 }
 
@@ -263,8 +263,8 @@ class Signaling(val op: Int, var body: Body? = null) {
                         body["platform"] as String,
                         body["self_id"] as String,
                         body["timestamp"] as Number,
-                        body.getJSONObject("argv")?.to<Argv>(),
-                        body.getJSONObject("button")?.to<Button>(),
+                        body.getJSONObject("argv")?.to<Interaction.Argv>(),
+                        body.getJSONObject("button")?.to<Interaction.Button>(),
                         body.getJSONObject("channel")?.to<Channel>(),
                         body.getJSONObject("guild")?.to<Guild>(),
                         body.getJSONObject("login")?.to<Login>(),
@@ -362,8 +362,8 @@ open class Event @JvmOverloads constructor(
     val platform: String,
     @JSONField(name = "self_id") val selfId: String,
     val timestamp: Number,
-    open val argv: Argv? = null,
-    open val button: Button? = null,
+    open val argv: Interaction.Argv? = null,
+    open val button: Interaction.Button? = null,
     open val channel: Channel? = null,
     open val guild: Guild? = null,
     open val login: Login? = null,
@@ -384,7 +384,7 @@ open class Event @JvmOverloads constructor(
  * @property data 数据
  * @property next 下一页的令牌
  */
-class PageResponse<T> @JvmOverloads constructor(
+class PaginatedData<T> @JvmOverloads constructor(
     val data: List<T>,
     val next: String? = null
 ) {

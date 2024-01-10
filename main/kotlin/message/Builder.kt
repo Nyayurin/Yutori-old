@@ -10,6 +10,8 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package io.github.nyayurn.yutori.message
 
 import io.github.nyayurn.yutori.Slf4j

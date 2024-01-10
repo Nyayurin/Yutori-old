@@ -10,6 +10,8 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
+@file:Suppress("unused")
+
 package io.github.nyayurn.yutori
 
 import com.alibaba.fastjson2.JSONObject
@@ -31,13 +33,13 @@ import java.nio.charset.StandardCharsets
  * @property friend 好友 API
  */
 class Bot private constructor(
-    @JvmField val channel: ChannelApi,
-    @JvmField val guild: GuildApi,
-    @JvmField val login: LoginApi,
-    @JvmField val message: MessageApi,
-    @JvmField val reaction: ReactionApi,
-    @JvmField val user: UserApi,
-    @JvmField val friend: FriendApi
+    @JvmField val channel: ChannelResource,
+    @JvmField val guild: GuildResource,
+    @JvmField val login: LoginResource,
+    @JvmField val message: MessageResource,
+    @JvmField val reaction: ReactionResource,
+    @JvmField val user: UserResource,
+    @JvmField val friend: FriendResource
 ) {
     companion object {
         /**
@@ -49,10 +51,13 @@ class Bot private constructor(
          */
         @JvmStatic
         fun of(platform: String, selfId: String, properties: SatoriProperties) = Bot(
-            ChannelApi.of(platform, selfId, properties), GuildApi.of(platform, selfId, properties),
-            LoginApi.of(platform, selfId, properties), MessageApi.of(platform, selfId, properties),
-            ReactionApi.of(platform, selfId, properties), UserApi.of(platform, selfId, properties),
-            FriendApi.of(platform, selfId, properties)
+            ChannelResource.of(platform, selfId, properties),
+            GuildResource.of(platform, selfId, properties),
+            LoginResource.of(platform, selfId, properties),
+            MessageResource.of(platform, selfId, properties),
+            ReactionResource.of(platform, selfId, properties),
+            UserResource.of(platform, selfId, properties),
+            FriendResource.of(platform, selfId, properties)
         )
 
         /**
@@ -66,65 +71,65 @@ class Bot private constructor(
     }
 }
 
-class ChannelApi private constructor(private val sendMessage: SendMessage) {
+class ChannelResource private constructor(private val satoriAction: SatoriAction) {
     fun get(channelId: String): Channel {
-        return sendMessage.send("get") {
+        return satoriAction.send("get") {
             this["channel_id"] = channelId
         }.parseObject<Channel>()
     }
 
-    fun list(guildId: String, next: String? = null): List<PageResponse<Channel>> {
-        return sendMessage.send("list") {
+    fun list(guildId: String, next: String? = null): List<PaginatedData<Channel>> {
+        return satoriAction.send("list") {
             this["guild_id"] = guildId
             this["next"] = next
-        }.parseArray<PageResponse<Channel>>()
+        }.parseArray<PaginatedData<Channel>>()
     }
 
     fun create(guildId: String, data: Channel): Channel {
-        return sendMessage.send("create") {
+        return satoriAction.send("create") {
             this["guild_id"] = guildId
             this["data"] = data
         }.parseObject<Channel>()
     }
 
     fun update(channelId: String, data: Channel) {
-        sendMessage.send("update") {
+        satoriAction.send("update") {
             this["channel_id"] = channelId
             this["data"] = data
         }
     }
 
     fun delete(channelId: String) {
-        sendMessage.send("delete") {
+        satoriAction.send("delete") {
             this["channel_id"] = channelId
         }
     }
 
     companion object {
         fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            ChannelApi(SendMessage(platform, selfId, properties, "channel"))
+            ChannelResource(SatoriAction(platform, selfId, properties, "channel"))
     }
 }
 
-class GuildApi private constructor(
-    private val sendMessage: SendMessage,
-    @JvmField val member: Member,
-    @JvmField val role: Role
+class GuildResource private constructor(
+    private val satoriAction: SatoriAction,
+    @JvmField val member: MemberResource,
+    @JvmField val role: RoleResource
 ) {
     fun get(guildId: String): Guild {
-        return sendMessage.send("get") {
+        return satoriAction.send("get") {
             this["guild_id"] = guildId
         }.parseObject<Guild>()
     }
 
-    fun list(next: String? = null): List<PageResponse<Guild>> {
-        return sendMessage.send("list") {
+    fun list(next: String? = null): List<PaginatedData<Guild>> {
+        return satoriAction.send("list") {
             this["next"] = next
-        }.parseArray<PageResponse<Guild>>()
+        }.parseArray<PaginatedData<Guild>>()
     }
 
     fun approve(messageId: String, approve: Boolean, comment: String) {
-        sendMessage.send("approve") {
+        satoriAction.send("approve") {
             this["message_id"] = messageId
             this["approve"] = approve
             this["comment"] = comment
@@ -132,29 +137,29 @@ class GuildApi private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = GuildApi(
-            SendMessage(platform, selfId, properties, "guild"), Member.of(platform, selfId, properties),
-            Role.of(platform, selfId, properties)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = GuildResource(
+            SatoriAction(platform, selfId, properties, "guild"), MemberResource.of(platform, selfId, properties),
+            RoleResource.of(platform, selfId, properties)
         )
     }
 
-    class Member private constructor(private val sendMessage: SendMessage, @JvmField val role: Role) {
+    class MemberResource private constructor(private val satoriAction: SatoriAction, @JvmField val role: RoleResource) {
         fun get(guildId: String, userId: String): GuildMember {
-            return sendMessage.send("get") {
+            return satoriAction.send("get") {
                 this["guild_id"] = guildId
                 this["user_id"] = userId
             }.parseObject<GuildMember>()
         }
 
-        fun list(guildId: String, next: String? = null): List<PageResponse<GuildMember>> {
-            return sendMessage.send("list") {
+        fun list(guildId: String, next: String? = null): List<PaginatedData<GuildMember>> {
+            return satoriAction.send("list") {
                 this["guild_id"] = guildId
                 this["next"] = next
-            }.parseArray<PageResponse<GuildMember>>()
+            }.parseArray<PaginatedData<GuildMember>>()
         }
 
         fun kick(guildId: String, userId: String, permanent: Boolean? = null) {
-            sendMessage.send("kick") {
+            satoriAction.send("kick") {
                 this["guild_id"] = guildId
                 this["user_id"] = userId
                 this["permanent"] = permanent
@@ -162,7 +167,7 @@ class GuildApi private constructor(
         }
 
         fun approve(messageId: String, approve: Boolean, comment: String? = null) {
-            sendMessage.send("approve") {
+            satoriAction.send("approve") {
                 this["message_id"] = messageId
                 this["approve"] = approve
                 this["comment"] = comment
@@ -170,14 +175,14 @@ class GuildApi private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties) = Member(
-                SendMessage(platform, selfId, properties, "guild.member"), Role.of(platform, selfId, properties)
+            fun of(platform: String, selfId: String, properties: SatoriProperties) = MemberResource(
+                SatoriAction(platform, selfId, properties, "guild.member"), RoleResource.of(platform, selfId, properties)
             )
         }
 
-        class Role private constructor(private val sendMessage: SendMessage) {
+        class RoleResource private constructor(private val satoriAction: SatoriAction) {
             fun set(guildId: String, userId: String, roleId: String) {
-                sendMessage.send("set") {
+                satoriAction.send("set") {
                     this["guild_id"] = guildId
                     this["user_id"] = userId
                     this["role_id"] = roleId
@@ -185,7 +190,7 @@ class GuildApi private constructor(
             }
 
             fun unset(guildId: String, userId: String, roleId: String) {
-                sendMessage.send("unset") {
+                satoriAction.send("unset") {
                     this["guild_id"] = guildId
                     this["user_id"] = userId
                     this["role_id"] = roleId
@@ -193,29 +198,28 @@ class GuildApi private constructor(
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                    Role(SendMessage(platform, selfId, properties, "guild.member.role"))
+                fun of(platform: String, selfId: String, properties: SatoriProperties) = RoleResource(SatoriAction(platform, selfId, properties, "guild.member.role"))
             }
         }
     }
 
-    class Role private constructor(private val sendMessage: SendMessage) {
-        fun list(guildId: String, next: String? = null): List<PageResponse<GuildRole>> {
-            return sendMessage.send("list") {
+    class RoleResource private constructor(private val satoriAction: SatoriAction) {
+        fun list(guildId: String, next: String? = null): List<PaginatedData<GuildRole>> {
+            return satoriAction.send("list") {
                 this["guild_id"] = guildId
                 this["next"] = next
-            }.parseArray<PageResponse<GuildRole>>()
+            }.parseArray<PaginatedData<GuildRole>>()
         }
 
         fun create(guildId: String, role: GuildRole): GuildRole {
-            return sendMessage.send("create") {
+            return satoriAction.send("create") {
                 this["guild_id"] = guildId
                 this["role"] = role
             }.parseObject<GuildRole>()
         }
 
         fun update(guildId: String, roleId: String, role: GuildRole) {
-            sendMessage.send("update") {
+            satoriAction.send("update") {
                 this["guild_id"] = guildId
                 this["role_id"] = roleId
                 this["role"] = role
@@ -223,7 +227,7 @@ class GuildApi private constructor(
         }
 
         fun delete(guildId: String, roleId: String) {
-            sendMessage.send("delete") {
+            satoriAction.send("delete") {
                 this["guild_id"] = guildId
                 this["role_id"] = roleId
             }
@@ -231,23 +235,23 @@ class GuildApi private constructor(
 
         companion object {
             fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                Role(SendMessage(platform, selfId, properties, "guild.role"))
+                RoleResource(SatoriAction(platform, selfId, properties, "guild.role"))
         }
     }
 }
 
-class LoginApi private constructor(private val sendMessage: SendMessage) {
-    fun get(): Login = sendMessage.send("get").parseObject<Login>()
+class LoginResource private constructor(private val satoriAction: SatoriAction) {
+    fun get(): Login = satoriAction.send("get").parseObject<Login>()
 
     companion object {
         fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            LoginApi(SendMessage(platform, selfId, properties, "login"))
+            LoginResource(SatoriAction(platform, selfId, properties, "login"))
     }
 }
 
-class MessageApi private constructor(private val sendMessage: SendMessage) {
+class MessageResource private constructor(private val satoriAction: SatoriAction) {
     fun create(channelId: String, content: String): List<Message> {
-        return sendMessage.send("create") {
+        return satoriAction.send("create") {
             this["channel_id"] = channelId
             this["content"] = content
         }.parseArray<Message>()
@@ -258,21 +262,21 @@ class MessageApi private constructor(private val sendMessage: SendMessage) {
         create(channelId, MessageDSLBuilder().apply(dsl).build())
 
     fun get(channelId: String, messageId: String): Message {
-        return sendMessage.send("get") {
+        return satoriAction.send("get") {
             this["channel_id"] = channelId
             this["message_id"] = messageId
         }.parseObject<Message>()
     }
 
     fun delete(channelId: String, messageId: String) {
-        sendMessage.send("delete") {
+        satoriAction.send("delete") {
             this["channel_id"] = channelId
             this["message_id"] = messageId
         }
     }
 
     fun update(channelId: String, messageId: String, content: String) {
-        sendMessage.send("update") {
+        satoriAction.send("update") {
             this["channel_id"] = channelId
             this["message_id"] = messageId
             this["content"] = content
@@ -283,22 +287,22 @@ class MessageApi private constructor(private val sendMessage: SendMessage) {
     inline fun update(channelId: String, messageId: String, dsl: MessageDSLBuilder.() -> Unit) =
         update(channelId, messageId, MessageDSLBuilder().apply(dsl).build())
 
-    fun list(channelId: String, next: String? = null): List<PageResponse<Message>> {
-        return sendMessage.send("list") {
+    fun list(channelId: String, next: String? = null): List<PaginatedData<Message>> {
+        return satoriAction.send("list") {
             this["channel_id"] = channelId
             this["next"] = next
-        }.parseArray<PageResponse<Message>>()
+        }.parseArray<PaginatedData<Message>>()
     }
 
     companion object {
         fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            MessageApi(SendMessage(platform, selfId, properties, "message"))
+            MessageResource(SatoriAction(platform, selfId, properties, "message"))
     }
 }
 
-class ReactionApi private constructor(private val sendMessage: SendMessage) {
+class ReactionResource private constructor(private val satoriAction: SatoriAction) {
     fun create(channelId: String, messageId: String, emoji: String) {
-        sendMessage.send("create") {
+        satoriAction.send("create") {
             this["channel_id"] = channelId
             this["message_id"] = messageId
             this["emoji"] = emoji
@@ -306,7 +310,7 @@ class ReactionApi private constructor(private val sendMessage: SendMessage) {
     }
 
     fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null) {
-        sendMessage.send("delete") {
+        satoriAction.send("delete") {
             this["channel_id"] = channelId
             this["message_id"] = messageId
             this["emoji"] = emoji
@@ -315,65 +319,65 @@ class ReactionApi private constructor(private val sendMessage: SendMessage) {
     }
 
     fun clear(channelId: String, messageId: String, emoji: String? = null) {
-        sendMessage.send("clear") {
+        satoriAction.send("clear") {
             this["channel_id"] = channelId
             this["message_id"] = messageId
             this["emoji"] = emoji
         }
     }
 
-    fun list(channelId: String, messageId: String, emoji: String, next: String? = null): List<PageResponse<User>> {
-        return sendMessage.send("list") {
+    fun list(channelId: String, messageId: String, emoji: String, next: String? = null): List<PaginatedData<User>> {
+        return satoriAction.send("list") {
             this["channel_id"] = channelId
             this["message_id"] = messageId
             this["emoji"] = emoji
             this["next"] = next
-        }.parseArray<PageResponse<User>>()
+        }.parseArray<PaginatedData<User>>()
     }
 
     companion object {
         fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            ReactionApi(SendMessage(platform, selfId, properties, "reaction"))
+            ReactionResource(SatoriAction(platform, selfId, properties, "reaction"))
     }
 }
 
-class UserApi private constructor(private val sendMessage: SendMessage, @JvmField val channel: Channel) {
+class UserResource private constructor(private val satoriAction: SatoriAction, @JvmField val channel: ChannelResource) {
     fun get(userId: String): User {
-        return sendMessage.send("get") {
+        return satoriAction.send("get") {
             this["user_id"] = userId
         }.parseObject<User>()
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = UserApi(
-            SendMessage(platform, selfId, properties, "user"), Channel.of(platform, selfId, properties)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = UserResource(
+            SatoriAction(platform, selfId, properties, "user"), ChannelResource.of(platform, selfId, properties)
         )
     }
 
-    class Channel private constructor(private val sendMessage: SendMessage) {
-        fun create(userId: String, guildId: String?): io.github.nyayurn.yutori.Channel {
-            return sendMessage.send("create") {
+    class ChannelResource private constructor(private val satoriAction: SatoriAction) {
+        fun create(userId: String, guildId: String?): Channel {
+            return satoriAction.send("create") {
                 this["user_id"] = userId
                 this["guild_id"] = guildId
-            }.parseObject<io.github.nyayurn.yutori.Channel>()
+            }.parseObject<Channel>()
         }
 
         companion object {
             fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                Channel(SendMessage(platform, selfId, properties, "user.channel"))
+                ChannelResource(SatoriAction(platform, selfId, properties, "user.channel"))
         }
     }
 }
 
-class FriendApi private constructor(private val sendMessage: SendMessage) {
-    fun list(next: String? = null): List<PageResponse<User>> {
-        return sendMessage.send("list") {
+class FriendResource private constructor(private val satoriAction: SatoriAction) {
+    fun list(next: String? = null): List<PaginatedData<User>> {
+        return satoriAction.send("list") {
             this["next"] = next
-        }.parseArray<PageResponse<User>>()
+        }.parseArray<PaginatedData<User>>()
     }
 
     fun approve(messageId: String, approve: Boolean, comment: String? = null) {
-        sendMessage.send("approve") {
+        satoriAction.send("approve") {
             this["message_id"] = messageId
             this["approve"] = approve
             this["comment"] = comment
@@ -382,18 +386,18 @@ class FriendApi private constructor(private val sendMessage: SendMessage) {
 
     companion object {
         fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            FriendApi(SendMessage(platform, selfId, properties, "friend"))
+            FriendResource(SatoriAction(platform, selfId, properties, "friend"))
     }
 }
 
 /**
- * 实现 HTTP 交互的底层类
+ * Satori Action 实现
  * @property platform 平台
  * @property selfId 自身的 ID
  * @property properties 配置
  * @property resource 资源路径
  */
-class SendMessage @JvmOverloads constructor(
+class SatoriAction @JvmOverloads constructor(
     private val platform: String? = null,
     private val selfId: String? = null,
     private val properties: SatoriProperties,
