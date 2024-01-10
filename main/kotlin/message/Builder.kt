@@ -184,10 +184,10 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class AtBuilder {
-        private var id: String? = null
-        private var name: String? = null
-        private var role: String? = null
-        private var type: String? = null
+        var id: String? = null
+        var name: String? = null
+        var role: String? = null
+        var type: String? = null
 
         fun id(lambda: () -> String) {
             this.id = lambda()
@@ -210,8 +210,8 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class SharpBuilder {
-        private var id: String = ""
-        private var name: String? = null
+        var id: String = ""
+        var name: String? = null
 
         fun id(lambda: () -> String) {
             this.id = lambda()
@@ -226,11 +226,11 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class ImageBuilder {
-        private var src: String = ""
-        private var cache: Boolean? = null
-        private var timeout: String? = null
-        private var width: Number? = null
-        private var height: Number? = null
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
+        var width: Number? = null
+        var height: Number? = null
 
         fun src(lambda: () -> String) {
             this.src = lambda()
@@ -257,9 +257,9 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class AudioBuilder {
-        private var src: String = ""
-        private var cache: Boolean? = null
-        private var timeout: String? = null
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
 
         fun src(lambda: () -> String) {
             this.src = lambda()
@@ -278,9 +278,9 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class VideoBuilder {
-        private var src: String = ""
-        private var cache: Boolean? = null
-        private var timeout: String? = null
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
 
         fun src(lambda: () -> String) {
             this.src = lambda()
@@ -299,9 +299,9 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class FileBuilder {
-        private var src: String = ""
-        private var cache: Boolean? = null
-        private var timeout: String? = null
+        var src: String = ""
+        var cache: Boolean? = null
+        var timeout: String? = null
 
         fun src(lambda: () -> String) {
             this.src = lambda()
@@ -320,9 +320,9 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class MessageBuilder {
-        private var text: String? = null
-        private var id: String? = null
-        private var forward: Boolean? = null
+        var text: String? = null
+        var id: String? = null
+        var forward: Boolean? = null
         fun text(lambda: () -> String) {
             text = lambda()
         }
@@ -340,9 +340,9 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class AuthorBuilder {
-        private var id: String? = null
-        private var name: String? = null
-        private var avatar: String? = null
+        var id: String? = null
+        var name: String? = null
+        var avatar: String? = null
         fun id(lambda: () -> String) {
             id = lambda()
         }
@@ -360,11 +360,11 @@ class MessageDSLBuilder {
 
     @MessageDSL
     class ButtonBuilder {
-        private var id: String? = null
-        private var type: String? = null
-        private var href: String? = null
-        private var text: String? = null
-        private var theme: String? = null
+        var id: String? = null
+        var type: String? = null
+        var href: String? = null
+        var text: String? = null
+        var theme: String? = null
         fun id(lambda: () -> String) {
             id = lambda()
         }
