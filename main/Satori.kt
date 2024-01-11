@@ -21,10 +21,7 @@ import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
 import org.java_websocket.util.NamedThreadFactory
 import java.net.URI
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.ScheduledThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 
 fun interface Listener<T : Event> {
     operator fun invoke(bot: Bot, event: T)
@@ -41,6 +38,7 @@ class Satori private constructor(val properties: SatoriProperties) {
     private val message = mutableListOf<ListenerContext<MessageEvent>>()
     private val reaction = mutableListOf<ListenerContext<ReactionEvent>>()
     private val user = mutableListOf<ListenerContext<UserEvent>>()
+    private val threadPool = Executors.newCachedThreadPool()
 
     fun onEvent(listener: Listener<Event>) = ListenerContext(listener).apply { event += this }
 
@@ -197,7 +195,7 @@ class Satori private constructor(val properties: SatoriProperties) {
     }
 
     private fun <T : Event> runEvent(list: List<ListenerContext<T>>, bot: Bot, event: T) {
-        for (context in list) context.run(bot, event)
+        for (context in list) context.run(bot, event, threadPool)
     }
 
     companion object {
@@ -226,9 +224,9 @@ class ListenerContext<T : Event>(private val listener: Listener<T>) {
     private val filters = mutableListOf<(Bot, Event) -> Boolean>()
 
     fun withFilter(filter: (Bot, Event) -> Boolean) = this.apply { filters += filter }
-    fun run(bot: Bot, event: T) {
+    fun run(bot: Bot, event: T, threadPool: ExecutorService) {
         for (filter in filters) if (!filter(bot, event)) return
-        Executors.defaultThreadFactory().newThread { listener(bot, event) }.start()
+        threadPool.submit { listener(bot, event) }
     }
 }
 
