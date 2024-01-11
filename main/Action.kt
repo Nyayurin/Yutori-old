@@ -416,5 +416,5 @@ class SatoriAction @JvmOverloads constructor(
 
     @JvmSynthetic
     inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) =
-        send(method, JsonObjectDSLBuilder().apply(dsl).toString())
+        send(method, JsonObjectDSLBuilder().apply(dsl).build().toString())
 }
