@@ -10,7 +10,7 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package io.github.nyayurn.yutori
 
@@ -28,16 +28,16 @@ fun interface Listener<T : Event> {
 }
 
 class Satori private constructor(val properties: SatoriProperties) {
-    private val event = mutableListOf<ListenerContext<Event>>()
-    private val guild = mutableListOf<ListenerContext<GuildEvent>>()
-    private val member = mutableListOf<ListenerContext<GuildMemberEvent>>()
-    private val role = mutableListOf<ListenerContext<GuildRoleEvent>>()
-    private val button = mutableListOf<ListenerContext<InteractionButtonEvent>>()
-    private val command = mutableListOf<ListenerContext<InteractionCommandEvent>>()
-    private val login = mutableListOf<ListenerContext<LoginEvent>>()
-    private val message = mutableListOf<ListenerContext<MessageEvent>>()
-    private val reaction = mutableListOf<ListenerContext<ReactionEvent>>()
-    private val user = mutableListOf<ListenerContext<UserEvent>>()
+    val event = mutableListOf<ListenerContext<Event>>()
+    val guild = mutableListOf<ListenerContext<GuildEvent>>()
+    val member = mutableListOf<ListenerContext<GuildMemberEvent>>()
+    val role = mutableListOf<ListenerContext<GuildRoleEvent>>()
+    val button = mutableListOf<ListenerContext<InteractionButtonEvent>>()
+    val command = mutableListOf<ListenerContext<InteractionCommandEvent>>()
+    val login = mutableListOf<ListenerContext<LoginEvent>>()
+    val message = mutableListOf<ListenerContext<MessageEvent>>()
+    val reaction = mutableListOf<ListenerContext<ReactionEvent>>()
+    val user = mutableListOf<ListenerContext<UserEvent>>()
     private val threadPool = Executors.newCachedThreadPool()
 
     fun onEvent(listener: Listener<Event>) = ListenerContext(listener).apply { event += this }
@@ -157,9 +157,8 @@ class Satori private constructor(val properties: SatoriProperties) {
      * @param name Websocket 客户端的名称, 用于在日志打印时区分
      */
     @JvmOverloads
-    fun connect(name: String? = null) {
-        SatoriWebsocketClient(this, name).connect()
-    }
+    fun connect(name: String? = null): Future<SatoriWebsocketClient> =
+        threadPool.submit(Callable { SatoriWebsocketClient(this, name).apply { connect() } })
 
     private fun parseEvent(event: Event) = when (event.type) {
         GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
@@ -178,7 +177,7 @@ class Satori private constructor(val properties: SatoriProperties) {
     }
 
     fun runEvent(event: Event) {
-        val bot = Bot.of(event, properties)
+        val bot = Bot.of(event, properties, threadPool)
         val newEvent = parseEvent(event)
         runEvent(this.event, bot, newEvent)
         when (newEvent) {
