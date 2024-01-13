@@ -18,6 +18,8 @@ import com.alibaba.fastjson2.annotation.JSONField
 import com.alibaba.fastjson2.parseObject
 import com.alibaba.fastjson2.to
 import com.alibaba.fastjson2.toList
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * 频道, 参考 https://satori.chat/zh-CN/resources/channel.html#channel
@@ -401,6 +403,7 @@ interface SatoriProperties {
     val address: String
     val token: String?
     val version: String
+    val executorService: ExecutorService
 }
 
 /**
@@ -412,7 +415,8 @@ interface SatoriProperties {
 class SimpleSatoriProperties @JvmOverloads constructor(
     override val address: String,
     override val token: String? = null,
-    override val version: String = "v1"
+    override val version: String = "v1",
+    override val executorService: ExecutorService = Executors.newCachedThreadPool()
 ) : SatoriProperties {
     override fun toString() = "SimpleSatoriProperties(address='$address', token=$token, version='$version')"
 }

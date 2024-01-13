@@ -38,7 +38,6 @@ class Satori private constructor(val properties: SatoriProperties) {
     val message = mutableListOf<ListenerContext<MessageEvent>>()
     val reaction = mutableListOf<ListenerContext<ReactionEvent>>()
     val user = mutableListOf<ListenerContext<UserEvent>>()
-    private val threadPool = Executors.newCachedThreadPool()
 
     fun onEvent(listener: Listener<Event>) = ListenerContext(listener).apply { event += this }
 
@@ -158,7 +157,7 @@ class Satori private constructor(val properties: SatoriProperties) {
      */
     @JvmOverloads
     fun connect(name: String? = null): Future<SatoriWebsocketClient> =
-        threadPool.submit(Callable { SatoriWebsocketClient(this, name).apply { connect() } })
+        properties.executorService.submit(Callable { SatoriWebsocketClient(this, name).apply { connect() } })
 
     private fun parseEvent(event: Event) = when (event.type) {
         GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
@@ -177,7 +176,7 @@ class Satori private constructor(val properties: SatoriProperties) {
     }
 
     fun runEvent(event: Event) {
-        val bot = Bot.of(event, properties, threadPool)
+        val bot = Bot.of(event, properties)
         val newEvent = parseEvent(event)
         runEvent(this.event, bot, newEvent)
         when (newEvent) {
@@ -194,7 +193,7 @@ class Satori private constructor(val properties: SatoriProperties) {
     }
 
     private fun <T : Event> runEvent(list: List<ListenerContext<T>>, bot: Bot, event: T) {
-        for (context in list) context.run(bot, event, threadPool)
+        for (context in list) context.run(bot, event, properties.executorService)
     }
 
     companion object {
@@ -203,8 +202,12 @@ class Satori private constructor(val properties: SatoriProperties) {
 
         @JvmStatic
         @JvmOverloads
-        fun of(address: String, token: String? = null, version: String = "v1") =
-            Satori(SimpleSatoriProperties(address, token, version))
+        fun of(
+            address: String,
+            token: String? = null,
+            version: String = "v1",
+            executorService: ExecutorService = Executors.newCachedThreadPool()
+        ) = Satori(SimpleSatoriProperties(address, token, version, executorService))
 
         @JvmSynthetic
         inline fun of(properties: SatoriProperties, apply: Satori.() -> Unit) = of(properties).apply { apply() }
@@ -214,8 +217,9 @@ class Satori private constructor(val properties: SatoriProperties) {
             address: String,
             token: String? = null,
             version: String = "v1",
+            executorService: ExecutorService = Executors.newCachedThreadPool(),
             apply: Satori.() -> Unit
-        ) = of(address, token, version).apply { apply() }
+        ) = of(address, token, version, executorService).apply { apply() }
     }
 }
 

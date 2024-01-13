@@ -19,7 +19,6 @@ import com.alibaba.fastjson2.parseObject
 import org.apache.hc.client5.http.fluent.Request
 import org.apache.hc.core5.http.io.entity.StringEntity
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.ExecutorService
 
 /**
  * 封装所有 Action, 应通过本类对 Satori Server 发送事件
@@ -30,6 +29,7 @@ import java.util.concurrent.ExecutorService
  * @property reaction 表态 API
  * @property user 用户 API
  * @property friend 好友 API
+ * @property properties 配置信息, 供使用者获取
  */
 class Bot private constructor(
     @JvmField val channel: ChannelResource,
@@ -38,44 +38,43 @@ class Bot private constructor(
     @JvmField val message: MessageResource,
     @JvmField val reaction: ReactionResource,
     @JvmField val user: UserResource,
-    @JvmField val friend: FriendResource
+    @JvmField val friend: FriendResource,
+    val properties: SatoriProperties
 ) {
     companion object {
         /**
          * 工厂方法
          * @param platform 平台
-         * @param selfId 自身 ID
+         * @param selfId 自己 ID
          * @param properties 配置
-         * @param threadPool 线程池
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) = Bot(
-            ChannelResource.of(platform, selfId, properties, threadPool),
-            GuildResource.of(platform, selfId, properties, threadPool),
-            LoginResource.of(platform, selfId, properties, threadPool),
-            MessageResource.of(platform, selfId, properties, threadPool),
-            ReactionResource.of(platform, selfId, properties, threadPool),
-            UserResource.of(platform, selfId, properties, threadPool),
-            FriendResource.of(platform, selfId, properties, threadPool)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = Bot(
+            ChannelResource.of(platform, selfId, properties),
+            GuildResource.of(platform, selfId, properties),
+            LoginResource.of(platform, selfId, properties),
+            MessageResource.of(platform, selfId, properties),
+            ReactionResource.of(platform, selfId, properties),
+            UserResource.of(platform, selfId, properties),
+            FriendResource.of(platform, selfId, properties),
+            properties
         )
 
         /**
          * 工厂方法
          * @param event 事件
          * @param properties 配置
-         * @param threadPool 线程池
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(event: Event, properties: SatoriProperties, threadPool: ExecutorService) =
-            of(event.platform, event.selfId, properties, threadPool)
+        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
     }
 }
 
 class ChannelResource private constructor(
     private val satoriAction: SatoriAction,
-    private val threadPool: ExecutorService
+    private val properties: SatoriProperties
 ) {
     /**
      * 获取群组频道
@@ -84,7 +83,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun get(channelId: String, callback: (Channel) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("get") {
                 put("channel_id", channelId)
             }.parseObject<Channel>())
@@ -99,7 +98,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<Channel>>) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("list") {
                 put("guild_id", guildId)
                 put("next", next)
@@ -115,7 +114,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun create(guildId: String, data: Channel, callback: (Channel) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("create") {
                 put("guild_id", guildId)
                 put("data", data)
@@ -131,7 +130,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun update(channelId: String, data: Channel, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("update") {
                 put("channel_id", channelId)
                 put("data", data)
@@ -147,7 +146,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun delete(channelId: String, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("delete") {
                 put("channel_id", channelId)
             }
@@ -156,8 +155,8 @@ class ChannelResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-            ChannelResource(SatoriAction(platform, selfId, properties, "channel"), threadPool)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            ChannelResource(SatoriAction(platform, selfId, properties, "channel"), properties)
     }
 }
 
@@ -165,7 +164,7 @@ class GuildResource private constructor(
     @JvmField val member: MemberResource,
     @JvmField val role: RoleResource,
     private val satoriAction: SatoriAction,
-    private val threadPool: ExecutorService
+    private val properties: SatoriProperties
 ) {
     /**
      * 获取群组
@@ -173,7 +172,7 @@ class GuildResource private constructor(
      * @param callback 回调
      */
     fun get(guildId: String, callback: (Guild) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("get") {
                 put("guild_id", guildId)
             }.parseObject<Guild>())
@@ -187,7 +186,7 @@ class GuildResource private constructor(
      */
     @JvmOverloads
     fun list(next: String? = null, callback: (List<PaginatedData<Guild>>) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("list") {
                 put("next", next)
             }.parseArray<PaginatedData<Guild>>())
@@ -203,7 +202,7 @@ class GuildResource private constructor(
      */
     @JvmOverloads
     fun approve(messageId: String, approve: Boolean, comment: String, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("approve") {
                 put("message_id", messageId)
                 put("approve", approve)
@@ -214,18 +213,18 @@ class GuildResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-            GuildResource(
-                MemberResource.of(platform, selfId, properties, threadPool),
-                RoleResource.of(platform, selfId, properties, threadPool),
-                SatoriAction(platform, selfId, properties, "guild"), threadPool
-            )
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = GuildResource(
+            MemberResource.of(platform, selfId, properties),
+            RoleResource.of(platform, selfId, properties),
+            SatoriAction(platform, selfId, properties, "guild"),
+            properties
+        )
     }
 
     class MemberResource private constructor(
         @JvmField val role: RoleResource,
         private val satoriAction: SatoriAction,
-        private val threadPool: ExecutorService
+        private val properties: SatoriProperties
     ) {
         /**
          * 获取群组成员
@@ -234,7 +233,7 @@ class GuildResource private constructor(
          * @param callback 回调
          */
         fun get(guildId: String, userId: String, callback: (GuildMember) -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 callback(satoriAction.send("get") {
                     put("guild_id", guildId)
                     put("user_id", userId)
@@ -250,7 +249,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<GuildMember>>) -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 callback(satoriAction.send("list") {
                     put("guild_id", guildId)
                     put("next", next)
@@ -267,7 +266,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun kick(guildId: String, userId: String, permanent: Boolean? = null, callback: () -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 satoriAction.send("kick") {
                     put("guild_id", guildId)
                     put("user_id", userId)
@@ -286,7 +285,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun approve(messageId: String, approve: Boolean, comment: String? = null, callback: () -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 satoriAction.send("approve") {
                     put("message_id", messageId)
                     put("approve", approve)
@@ -297,16 +296,16 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-                MemberResource(
-                    RoleResource.of(platform, selfId, properties, threadPool),
-                    SatoriAction(platform, selfId, properties, "guild.member"), threadPool
-                )
+            fun of(platform: String, selfId: String, properties: SatoriProperties) = MemberResource(
+                RoleResource.of(platform, selfId, properties),
+                SatoriAction(platform, selfId, properties, "guild.member"),
+                properties
+            )
         }
 
         class RoleResource private constructor(
             private val satoriAction: SatoriAction,
-            private val threadPool: ExecutorService
+            private val properties: SatoriProperties
         ) {
             /**
              * 设置群组成员角色
@@ -317,7 +316,7 @@ class GuildResource private constructor(
              */
             @JvmOverloads
             fun set(guildId: String, userId: String, roleId: String, callback: () -> Unit = {}) {
-                threadPool.submit {
+                properties.executorService.submit {
                     satoriAction.send("set") {
                         put("guild_id", guildId)
                         put("user_id", userId)
@@ -336,7 +335,7 @@ class GuildResource private constructor(
              */
             @JvmOverloads
             fun unset(guildId: String, userId: String, roleId: String, callback: () -> Unit = {}) {
-                threadPool.submit {
+                properties.executorService.submit {
                     satoriAction.send("unset") {
                         put("guild_id", guildId)
                         put("user_id", userId)
@@ -347,15 +346,15 @@ class GuildResource private constructor(
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-                    RoleResource(SatoriAction(platform, selfId, properties, "guild.member.role"), threadPool)
+                fun of(platform: String, selfId: String, properties: SatoriProperties) =
+                    RoleResource(SatoriAction(platform, selfId, properties, "guild.member.role"), properties)
             }
         }
     }
 
     class RoleResource private constructor(
         private val satoriAction: SatoriAction,
-        private val threadPool: ExecutorService
+        private val properties: SatoriProperties
     ) {
         /**
          * 获取群组角色列表
@@ -365,7 +364,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<GuildRole>>) -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 callback(satoriAction.send("list") {
                     put("guild_id", guildId)
                     put("next", next)
@@ -381,7 +380,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun create(guildId: String, role: GuildRole, callback: (GuildRole) -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 callback(satoriAction.send("create") {
                     put("guild_id", guildId)
                     put("role", role)
@@ -398,7 +397,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun update(guildId: String, roleId: String, role: GuildRole, callback: () -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 satoriAction.send("update") {
                     put("guild_id", guildId)
                     put("role_id", roleId)
@@ -416,7 +415,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun delete(guildId: String, roleId: String, callback: () -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 satoriAction.send("delete") {
                     put("guild_id", guildId)
                     put("role_id", roleId)
@@ -426,15 +425,15 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-                RoleResource(SatoriAction(platform, selfId, properties, "guild.role"), threadPool)
+            fun of(platform: String, selfId: String, properties: SatoriProperties) =
+                RoleResource(SatoriAction(platform, selfId, properties, "guild.role"), properties)
         }
     }
 }
 
 class LoginResource private constructor(
     private val satoriAction: SatoriAction,
-    private val threadPool: ExecutorService
+    private val properties: SatoriProperties
 ) {
     /**
      * 获取登录信息
@@ -442,20 +441,20 @@ class LoginResource private constructor(
      */
     @JvmOverloads
     fun get(callback: (Login) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("get").parseObject<Login>())
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-            LoginResource(SatoriAction(platform, selfId, properties, "login"), threadPool)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            LoginResource(SatoriAction(platform, selfId, properties, "login"), properties)
     }
 }
 
 class MessageResource private constructor(
     private val satoriAction: SatoriAction,
-    private val threadPool: ExecutorService
+    private val properties: SatoriProperties
 ) {
     /**
      * 发送消息
@@ -465,7 +464,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun create(channelId: String, content: String, callback: (List<Message>) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("create") {
                 put("channel_id", channelId)
                 put("content", content)
@@ -481,7 +480,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun get(channelId: String, messageId: String, callback: (Message) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("get") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -497,7 +496,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun delete(channelId: String, messageId: String, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("delete") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -515,7 +514,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun update(channelId: String, messageId: String, content: String, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("update") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -533,7 +532,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun list(channelId: String, next: String? = null, callback: (List<PaginatedData<Message>>) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("list") {
                 put("channel_id", channelId)
                 put("next", next)
@@ -542,14 +541,14 @@ class MessageResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-            MessageResource(SatoriAction(platform, selfId, properties, "message"), threadPool)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            MessageResource(SatoriAction(platform, selfId, properties, "message"), properties)
     }
 }
 
 class ReactionResource private constructor(
     private val satoriAction: SatoriAction,
-    private val threadPool: ExecutorService
+    private val properties: SatoriProperties
 ) {
     /**
      * 添加表态
@@ -560,7 +559,7 @@ class ReactionResource private constructor(
      */
     @JvmOverloads
     fun create(channelId: String, messageId: String, emoji: String, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("create") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -580,7 +579,7 @@ class ReactionResource private constructor(
      */
     @JvmOverloads
     fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("delete") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -600,7 +599,7 @@ class ReactionResource private constructor(
      */
     @JvmOverloads
     fun clear(channelId: String, messageId: String, emoji: String? = null, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("clear") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -626,7 +625,7 @@ class ReactionResource private constructor(
         next: String? = null,
         callback: (List<PaginatedData<User>>) -> Unit = {}
     ) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("list") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -637,15 +636,15 @@ class ReactionResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-            ReactionResource(SatoriAction(platform, selfId, properties, "reaction"), threadPool)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            ReactionResource(SatoriAction(platform, selfId, properties, "reaction"), properties)
     }
 }
 
 class UserResource private constructor(
     @JvmField val channel: ChannelResource,
     private val satoriAction: SatoriAction,
-    private val threadPool: ExecutorService
+    private val properties: SatoriProperties
 ) {
     /**
      * 获取用户信息
@@ -654,7 +653,7 @@ class UserResource private constructor(
      */
     @JvmOverloads
     fun get(userId: String, callback: (User) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("get") {
                 put("user_id", userId)
             }.parseObject<User>())
@@ -662,17 +661,16 @@ class UserResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-            UserResource(
-                ChannelResource.of(platform, selfId, properties, threadPool),
-                SatoriAction(platform, selfId, properties, "user"),
-                threadPool
-            )
+        fun of(platform: String, selfId: String, properties: SatoriProperties) = UserResource(
+            ChannelResource.of(platform, selfId, properties),
+            SatoriAction(platform, selfId, properties, "user"),
+            properties
+        )
     }
 
     class ChannelResource private constructor(
         private val satoriAction: SatoriAction,
-        private val threadPool: ExecutorService
+        private val properties: SatoriProperties
     ) {
         /**
          * 创建私聊频道
@@ -682,7 +680,7 @@ class UserResource private constructor(
          */
         @JvmOverloads
         fun create(userId: String, guildId: String? = null, callback: (Channel) -> Unit = {}) {
-            threadPool.submit {
+            properties.executorService.submit {
                 callback(satoriAction.send("create") {
                     put("user_id", userId)
                     put("guild_id", guildId)
@@ -691,15 +689,15 @@ class UserResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-                ChannelResource(SatoriAction(platform, selfId, properties, "user.channel"), threadPool)
+            fun of(platform: String, selfId: String, properties: SatoriProperties) =
+                ChannelResource(SatoriAction(platform, selfId, properties, "user.channel"), properties)
         }
     }
 }
 
 class FriendResource private constructor(
     private val satoriAction: SatoriAction,
-    private val threadPool: ExecutorService
+    private val properties: SatoriProperties
 ) {
     /**
      * 获取好友列表
@@ -708,7 +706,7 @@ class FriendResource private constructor(
      */
     @JvmOverloads
     fun list(next: String? = null, callback: (List<PaginatedData<User>>) -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             callback(satoriAction.send("list") {
                 put("next", next)
             }.parseArray<PaginatedData<User>>())
@@ -724,7 +722,7 @@ class FriendResource private constructor(
      */
     @JvmOverloads
     fun approve(messageId: String, approve: Boolean, comment: String? = null, callback: () -> Unit = {}) {
-        threadPool.submit {
+        properties.executorService.submit {
             satoriAction.send("approve") {
                 put("message_id", messageId)
                 put("approve", approve)
@@ -735,8 +733,8 @@ class FriendResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, threadPool: ExecutorService) =
-            FriendResource(SatoriAction(platform, selfId, properties, "friend"), threadPool)
+        fun of(platform: String, selfId: String, properties: SatoriProperties) =
+            FriendResource(SatoriAction(platform, selfId, properties, "friend"), properties)
     }
 }
 
