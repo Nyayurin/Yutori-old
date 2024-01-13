@@ -34,10 +34,8 @@ tasks.test {
     useJUnitPlatform()
 }
 
-publishing.publications {
-    create<MavenPublication>("maven") {
-        from(components["java"])
-    }
+publishing.publications.create<MavenPublication>("maven") {
+    from(components["java"])
 }
 
 kotlin {
@@ -59,8 +57,4 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
-}
-
-tasks.withType<Wrapper> {
-    gradleVersion = "8.5"
 }
