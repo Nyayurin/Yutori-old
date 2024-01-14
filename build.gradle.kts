@@ -3,12 +3,14 @@ plugins {
     `maven-publish`
 }
 
+group = "com.github.Nyayurn"
+
 val httpclientVersion = "5.2.1"
-val websocketVersion = "1.5.4"
 val fastjsonVersion = "2.0.42"
 val loggingVersion = "3.0.5"
 val jsoupVersion = "1.17.1"
 val slf4jVersion = "1.7.2"
+val ktorVersion = "2.3.7"
 val junitVersion = "5.10.1"
 
 repositories {
@@ -17,11 +19,13 @@ repositories {
 
 dependencies {
     api("org.apache.httpcomponents.client5:httpclient5-fluent:$httpclientVersion")
-    api("org.java-websocket:Java-WebSocket:$websocketVersion")
     api("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
     api("io.github.microutils:kotlin-logging-jvm:$loggingVersion")
     api("org.jsoup:jsoup:$jsoupVersion")
     api("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }
 

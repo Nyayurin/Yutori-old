@@ -10,12 +10,14 @@ MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 See the Mulan PSL v2 for more details.
  */
 
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package io.github.nyayurn.yutori
 
 import com.alibaba.fastjson2.parseArray
 import com.alibaba.fastjson2.parseObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.apache.hc.client5.http.fluent.Request
 import org.apache.hc.core5.http.io.entity.StringEntity
 import java.nio.charset.StandardCharsets
@@ -39,7 +41,8 @@ class Bot private constructor(
     @JvmField val reaction: ReactionResource,
     @JvmField val user: UserResource,
     @JvmField val friend: FriendResource,
-    val properties: SatoriProperties
+    val properties: SatoriProperties,
+    val coroutineScope: CoroutineScope
 ) {
     companion object {
         /**
@@ -47,34 +50,38 @@ class Bot private constructor(
          * @param platform 平台
          * @param selfId 自己 ID
          * @param properties 配置
+         * @param coroutineScope 协程作用域
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = Bot(
-            ChannelResource.of(platform, selfId, properties),
-            GuildResource.of(platform, selfId, properties),
-            LoginResource.of(platform, selfId, properties),
-            MessageResource.of(platform, selfId, properties),
-            ReactionResource.of(platform, selfId, properties),
-            UserResource.of(platform, selfId, properties),
-            FriendResource.of(platform, selfId, properties),
-            properties
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) = Bot(
+            ChannelResource.of(platform, selfId, properties, coroutineScope),
+            GuildResource.of(platform, selfId, properties, coroutineScope),
+            LoginResource.of(platform, selfId, properties, coroutineScope),
+            MessageResource.of(platform, selfId, properties, coroutineScope),
+            ReactionResource.of(platform, selfId, properties, coroutineScope),
+            UserResource.of(platform, selfId, properties, coroutineScope),
+            FriendResource.of(platform, selfId, properties, coroutineScope),
+            properties,
+            coroutineScope
         )
 
         /**
          * 工厂方法
          * @param event 事件
          * @param properties 配置
+         * @param coroutineScope 协程作用域
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(event: Event, properties: SatoriProperties) = of(event.platform, event.selfId, properties)
+        fun of(event: Event, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            of(event.platform, event.selfId, properties, coroutineScope)
     }
 }
 
 class ChannelResource private constructor(
     private val satoriAction: SatoriAction,
-    private val properties: SatoriProperties
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 获取群组频道
@@ -83,7 +90,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun get(channelId: String, callback: (Channel) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("get") {
                 put("channel_id", channelId)
             }.parseObject<Channel>())
@@ -98,7 +105,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<Channel>>) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("list") {
                 put("guild_id", guildId)
                 put("next", next)
@@ -114,7 +121,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun create(guildId: String, data: Channel, callback: (Channel) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("create") {
                 put("guild_id", guildId)
                 put("data", data)
@@ -130,7 +137,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun update(channelId: String, data: Channel, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("update") {
                 put("channel_id", channelId)
                 put("data", data)
@@ -146,7 +153,7 @@ class ChannelResource private constructor(
      */
     @JvmOverloads
     fun delete(channelId: String, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("delete") {
                 put("channel_id", channelId)
             }
@@ -155,8 +162,8 @@ class ChannelResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            ChannelResource(SatoriAction(platform, selfId, properties, "channel"), properties)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            ChannelResource(SatoriAction(platform, selfId, properties, coroutineScope, "channel"), coroutineScope)
     }
 }
 
@@ -164,7 +171,7 @@ class GuildResource private constructor(
     @JvmField val member: MemberResource,
     @JvmField val role: RoleResource,
     private val satoriAction: SatoriAction,
-    private val properties: SatoriProperties
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 获取群组
@@ -172,7 +179,7 @@ class GuildResource private constructor(
      * @param callback 回调
      */
     fun get(guildId: String, callback: (Guild) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("get") {
                 put("guild_id", guildId)
             }.parseObject<Guild>())
@@ -186,7 +193,7 @@ class GuildResource private constructor(
      */
     @JvmOverloads
     fun list(next: String? = null, callback: (List<PaginatedData<Guild>>) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("list") {
                 put("next", next)
             }.parseArray<PaginatedData<Guild>>())
@@ -202,7 +209,7 @@ class GuildResource private constructor(
      */
     @JvmOverloads
     fun approve(messageId: String, approve: Boolean, comment: String, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("approve") {
                 put("message_id", messageId)
                 put("approve", approve)
@@ -213,18 +220,19 @@ class GuildResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = GuildResource(
-            MemberResource.of(platform, selfId, properties),
-            RoleResource.of(platform, selfId, properties),
-            SatoriAction(platform, selfId, properties, "guild"),
-            properties
-        )
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            GuildResource(
+                MemberResource.of(platform, selfId, properties, coroutineScope),
+                RoleResource.of(platform, selfId, properties, coroutineScope),
+                SatoriAction(platform, selfId, properties, coroutineScope, "guild"),
+                coroutineScope
+            )
     }
 
     class MemberResource private constructor(
         @JvmField val role: RoleResource,
         private val satoriAction: SatoriAction,
-        private val properties: SatoriProperties
+        private val coroutineScope: CoroutineScope
     ) {
         /**
          * 获取群组成员
@@ -233,7 +241,7 @@ class GuildResource private constructor(
          * @param callback 回调
          */
         fun get(guildId: String, userId: String, callback: (GuildMember) -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 callback(satoriAction.send("get") {
                     put("guild_id", guildId)
                     put("user_id", userId)
@@ -249,7 +257,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<GuildMember>>) -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 callback(satoriAction.send("list") {
                     put("guild_id", guildId)
                     put("next", next)
@@ -266,7 +274,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun kick(guildId: String, userId: String, permanent: Boolean? = null, callback: () -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 satoriAction.send("kick") {
                     put("guild_id", guildId)
                     put("user_id", userId)
@@ -285,7 +293,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun approve(messageId: String, approve: Boolean, comment: String? = null, callback: () -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 satoriAction.send("approve") {
                     put("message_id", messageId)
                     put("approve", approve)
@@ -296,16 +304,17 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties) = MemberResource(
-                RoleResource.of(platform, selfId, properties),
-                SatoriAction(platform, selfId, properties, "guild.member"),
-                properties
-            )
+            fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+                MemberResource(
+                    RoleResource.of(platform, selfId, properties, coroutineScope),
+                    SatoriAction(platform, selfId, properties, coroutineScope, "guild.member"),
+                    coroutineScope
+                )
         }
 
         class RoleResource private constructor(
             private val satoriAction: SatoriAction,
-            private val properties: SatoriProperties
+            private val coroutineScope: CoroutineScope
         ) {
             /**
              * 设置群组成员角色
@@ -316,7 +325,7 @@ class GuildResource private constructor(
              */
             @JvmOverloads
             fun set(guildId: String, userId: String, roleId: String, callback: () -> Unit = {}) {
-                properties.executorService.submit {
+                coroutineScope.launch {
                     satoriAction.send("set") {
                         put("guild_id", guildId)
                         put("user_id", userId)
@@ -335,7 +344,7 @@ class GuildResource private constructor(
              */
             @JvmOverloads
             fun unset(guildId: String, userId: String, roleId: String, callback: () -> Unit = {}) {
-                properties.executorService.submit {
+                coroutineScope.launch {
                     satoriAction.send("unset") {
                         put("guild_id", guildId)
                         put("user_id", userId)
@@ -346,15 +355,18 @@ class GuildResource private constructor(
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                    RoleResource(SatoriAction(platform, selfId, properties, "guild.member.role"), properties)
+                fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+                    RoleResource(
+                        SatoriAction(platform, selfId, properties, coroutineScope, "guild.member.role"),
+                        coroutineScope
+                    )
             }
         }
     }
 
     class RoleResource private constructor(
         private val satoriAction: SatoriAction,
-        private val properties: SatoriProperties
+        private val coroutineScope: CoroutineScope
     ) {
         /**
          * 获取群组角色列表
@@ -364,7 +376,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<GuildRole>>) -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 callback(satoriAction.send("list") {
                     put("guild_id", guildId)
                     put("next", next)
@@ -380,7 +392,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun create(guildId: String, role: GuildRole, callback: (GuildRole) -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 callback(satoriAction.send("create") {
                     put("guild_id", guildId)
                     put("role", role)
@@ -397,7 +409,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun update(guildId: String, roleId: String, role: GuildRole, callback: () -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 satoriAction.send("update") {
                     put("guild_id", guildId)
                     put("role_id", roleId)
@@ -415,7 +427,7 @@ class GuildResource private constructor(
          */
         @JvmOverloads
         fun delete(guildId: String, roleId: String, callback: () -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 satoriAction.send("delete") {
                     put("guild_id", guildId)
                     put("role_id", roleId)
@@ -425,15 +437,15 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                RoleResource(SatoriAction(platform, selfId, properties, "guild.role"), properties)
+            fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+                RoleResource(SatoriAction(platform, selfId, properties, coroutineScope, "guild.role"), coroutineScope)
         }
     }
 }
 
 class LoginResource private constructor(
     private val satoriAction: SatoriAction,
-    private val properties: SatoriProperties
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 获取登录信息
@@ -441,20 +453,20 @@ class LoginResource private constructor(
      */
     @JvmOverloads
     fun get(callback: (Login) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("get").parseObject<Login>())
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            LoginResource(SatoriAction(platform, selfId, properties, "login"), properties)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            LoginResource(SatoriAction(platform, selfId, properties, coroutineScope, "login"), coroutineScope)
     }
 }
 
 class MessageResource private constructor(
     private val satoriAction: SatoriAction,
-    private val properties: SatoriProperties
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 发送消息
@@ -464,7 +476,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun create(channelId: String, content: String, callback: (List<Message>) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("create") {
                 put("channel_id", channelId)
                 put("content", content)
@@ -480,7 +492,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun get(channelId: String, messageId: String, callback: (Message) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("get") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -496,7 +508,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun delete(channelId: String, messageId: String, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("delete") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -514,7 +526,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun update(channelId: String, messageId: String, content: String, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("update") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -532,7 +544,7 @@ class MessageResource private constructor(
      */
     @JvmOverloads
     fun list(channelId: String, next: String? = null, callback: (List<PaginatedData<Message>>) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("list") {
                 put("channel_id", channelId)
                 put("next", next)
@@ -541,14 +553,14 @@ class MessageResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            MessageResource(SatoriAction(platform, selfId, properties, "message"), properties)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            MessageResource(SatoriAction(platform, selfId, properties, coroutineScope, "message"), coroutineScope)
     }
 }
 
 class ReactionResource private constructor(
     private val satoriAction: SatoriAction,
-    private val properties: SatoriProperties
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 添加表态
@@ -559,7 +571,7 @@ class ReactionResource private constructor(
      */
     @JvmOverloads
     fun create(channelId: String, messageId: String, emoji: String, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("create") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -579,7 +591,7 @@ class ReactionResource private constructor(
      */
     @JvmOverloads
     fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("delete") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -599,7 +611,7 @@ class ReactionResource private constructor(
      */
     @JvmOverloads
     fun clear(channelId: String, messageId: String, emoji: String? = null, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("clear") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -625,7 +637,7 @@ class ReactionResource private constructor(
         next: String? = null,
         callback: (List<PaginatedData<User>>) -> Unit = {}
     ) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("list") {
                 put("channel_id", channelId)
                 put("message_id", messageId)
@@ -636,15 +648,15 @@ class ReactionResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            ReactionResource(SatoriAction(platform, selfId, properties, "reaction"), properties)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            ReactionResource(SatoriAction(platform, selfId, properties, coroutineScope, "reaction"), coroutineScope)
     }
 }
 
 class UserResource private constructor(
     @JvmField val channel: ChannelResource,
     private val satoriAction: SatoriAction,
-    private val properties: SatoriProperties
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 获取用户信息
@@ -653,7 +665,7 @@ class UserResource private constructor(
      */
     @JvmOverloads
     fun get(userId: String, callback: (User) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("get") {
                 put("user_id", userId)
             }.parseObject<User>())
@@ -661,16 +673,17 @@ class UserResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) = UserResource(
-            ChannelResource.of(platform, selfId, properties),
-            SatoriAction(platform, selfId, properties, "user"),
-            properties
-        )
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            UserResource(
+                ChannelResource.of(platform, selfId, properties, coroutineScope),
+                SatoriAction(platform, selfId, properties, coroutineScope, "user"),
+                coroutineScope
+            )
     }
 
     class ChannelResource private constructor(
         private val satoriAction: SatoriAction,
-        private val properties: SatoriProperties
+        private val coroutineScope: CoroutineScope
     ) {
         /**
          * 创建私聊频道
@@ -680,7 +693,7 @@ class UserResource private constructor(
          */
         @JvmOverloads
         fun create(userId: String, guildId: String? = null, callback: (Channel) -> Unit = {}) {
-            properties.executorService.submit {
+            coroutineScope.launch {
                 callback(satoriAction.send("create") {
                     put("user_id", userId)
                     put("guild_id", guildId)
@@ -689,15 +702,18 @@ class UserResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties) =
-                ChannelResource(SatoriAction(platform, selfId, properties, "user.channel"), properties)
+            fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+                ChannelResource(
+                    SatoriAction(platform, selfId, properties, coroutineScope, "user.channel"),
+                    coroutineScope
+                )
         }
     }
 }
 
 class FriendResource private constructor(
     private val satoriAction: SatoriAction,
-    private val properties: SatoriProperties
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 获取好友列表
@@ -706,7 +722,7 @@ class FriendResource private constructor(
      */
     @JvmOverloads
     fun list(next: String? = null, callback: (List<PaginatedData<User>>) -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             callback(satoriAction.send("list") {
                 put("next", next)
             }.parseArray<PaginatedData<User>>())
@@ -722,7 +738,7 @@ class FriendResource private constructor(
      */
     @JvmOverloads
     fun approve(messageId: String, approve: Boolean, comment: String? = null, callback: () -> Unit = {}) {
-        properties.executorService.submit {
+        coroutineScope.launch {
             satoriAction.send("approve") {
                 put("message_id", messageId)
                 put("approve", approve)
@@ -733,8 +749,8 @@ class FriendResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties) =
-            FriendResource(SatoriAction(platform, selfId, properties, "friend"), properties)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            FriendResource(SatoriAction(platform, selfId, properties, coroutineScope, "friend"), coroutineScope)
     }
 }
 
@@ -749,10 +765,11 @@ class SatoriAction @JvmOverloads constructor(
     private val platform: String? = null,
     private val selfId: String? = null,
     private val properties: SatoriProperties,
+    private val coroutineScope: CoroutineScope,
     private val resource: String
 ) {
     fun send(method: String, body: String? = null): String {
-        return Request.post("http://${properties.address}/${properties.version}/$resource.$method").apply {
+        return Request.post("http://${properties.host}/${properties.version}/$resource.$method").apply {
             body?.let { body(StringEntity(it, StandardCharsets.UTF_8)) }
             setHeader("Content-Type", "application/json")
             properties.token?.let { setHeader("Authorization", "Bearer $it") }

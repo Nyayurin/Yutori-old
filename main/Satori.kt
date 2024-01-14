@@ -15,13 +15,16 @@ See the Mulan PSL v2 for more details.
 package io.github.nyayurn.yutori
 
 import com.alibaba.fastjson2.JSONObject
+import io.ktor.client.*
+import io.ktor.client.plugins.websocket.*
+import io.ktor.http.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.java_websocket.client.WebSocketClient
-import org.java_websocket.drafts.Draft_6455
-import org.java_websocket.handshake.ServerHandshake
-import org.java_websocket.util.NamedThreadFactory
-import java.net.URI
-import java.util.concurrent.*
+import org.slf4j.Logger
 
 fun interface Listener<T : Event> {
     operator fun invoke(bot: Bot, event: T)
@@ -151,13 +154,16 @@ class Satori private constructor(val properties: SatoriProperties) {
         withFilter(eventTypeFilter(UserEvents.FRIEND_REQUEST))
     }
 
+
     /**
      * 与 Satori Server 建立 Websocket 连接
      * @param name Websocket 客户端的名称, 用于在日志打印时区分
      */
     @JvmOverloads
-    fun connect(name: String? = null): Future<SatoriWebsocketClient> =
-        properties.executorService.submit(Callable { SatoriWebsocketClient(this, name).apply { connect() } })
+    fun connect(
+        name: String? = null,
+        log: Logger = KotlinLogging.logger { },
+    ) = SatoriWebSocketClient(this@Satori, name, log).apply { run() }
 
     private fun parseEvent(event: Event) = when (event.type) {
         GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
@@ -175,8 +181,8 @@ class Satori private constructor(val properties: SatoriProperties) {
         else -> event
     }
 
-    fun runEvent(event: Event) {
-        val bot = Bot.of(event, properties)
+    fun runEvent(event: Event, coroutineScope: CoroutineScope) {
+        val bot = Bot.of(event, properties, coroutineScope)
         val newEvent = parseEvent(event)
         runEvent(this.event, bot, newEvent)
         when (newEvent) {
@@ -193,7 +199,7 @@ class Satori private constructor(val properties: SatoriProperties) {
     }
 
     private fun <T : Event> runEvent(list: List<ListenerContext<T>>, bot: Bot, event: T) {
-        for (context in list) context.run(bot, event, properties.executorService)
+        for (context in list) context.run(bot, event)
     }
 
     companion object {
@@ -203,23 +209,23 @@ class Satori private constructor(val properties: SatoriProperties) {
         @JvmStatic
         @JvmOverloads
         fun of(
-            address: String,
+            host: String = "127.0.0.1",
+            port: Int = 5500,
             token: String? = null,
-            version: String = "v1",
-            executorService: ExecutorService = Executors.newCachedThreadPool()
-        ) = Satori(SimpleSatoriProperties(address, token, version, executorService))
+            version: String = "v1"
+        ) = Satori(SimpleSatoriProperties(host, port, token, version))
 
         @JvmSynthetic
         inline fun of(properties: SatoriProperties, apply: Satori.() -> Unit) = of(properties).apply { apply() }
 
         @JvmSynthetic
         inline fun of(
-            address: String,
+            host: String = "127.0.0.1",
+            port: Int = 5500,
             token: String? = null,
             version: String = "v1",
-            executorService: ExecutorService = Executors.newCachedThreadPool(),
             apply: Satori.() -> Unit
-        ) = of(address, token, version, executorService).apply { apply() }
+        ) = of(host, port, token, version).apply { apply() }
     }
 }
 
@@ -227,97 +233,82 @@ class ListenerContext<T : Event>(private val listener: Listener<T>) {
     private val filters = mutableListOf<(Bot, Event) -> Boolean>()
 
     fun withFilter(filter: (Bot, Event) -> Boolean) = this.apply { filters += filter }
-    fun run(bot: Bot, event: T, threadPool: ExecutorService) {
+    fun run(bot: Bot, event: T) {
         for (filter in filters) if (!filter(bot, event)) return
-        threadPool.submit { listener(bot, event) }
+        listener(bot, event)
     }
 }
 
-
-class SatoriWebsocketClient @JvmOverloads constructor(
-    private val client: Satori, private val name: String? = null
-) : WebSocketClient(URI("ws://${client.properties.address}/${client.properties.version}/events"), Draft_6455()) {
+class SatoriWebSocketClient (
+    private val satori: Satori,
+    private val name: String? = null,
+    private val log: Logger
+) {
     private var sequence: Number? = null
-    private var heartbeat: ScheduledFuture<*>? = null
-    private var reconnect: ScheduledFuture<*>? = null
-    private val log = KotlinLogging.logger { }
-
-    override fun onOpen(handshake: ServerHandshake) {
-        log.info("[$name]: 成功建立 WebSocket 连接")
-        reconnect?.cancel(false)
-        sendIdentify()
+    private val client = HttpClient {
+        install(WebSockets)
     }
 
-    override fun onMessage(message: String) {
-        val signaling = Signaling.parse(message)
+    fun run() = runBlocking {
+        client.webSocket(
+            HttpMethod.Get,
+            satori.properties.host,
+            satori.properties.port,
+            "/${satori.properties.version}/events"
+        ) {
+            log.info("[$name]: 成功建立 WebSocket 连接")
+
+            val connection = Signaling(Signaling.Op.IDENTIFY)
+            val token = satori.properties.token
+            if (token != null || sequence != null) {
+                val body = Identify()
+                body.token = token
+                body.sequence = sequence
+                connection.body = body
+            }
+            send(JSONObject.toJSONString(connection))
+
+            while (true) {
+                val message = (incoming.receive() as? Frame.Text ?: continue).readText()
+                val signaling = Signaling.parse(message)
+                onEvent(signaling)
+            }
+        }
+    }
+
+    private fun DefaultClientWebSocketSession.onEvent(signaling: Signaling) {
         when (signaling.op) {
-            Signaling.READY -> {
+            Signaling.Op.READY -> {
                 val ready = signaling.body as Ready
                 log.info("[$name]: 成功建立事件推送(${ready.logins.size}): \n${
-                    ready.logins.joinToString("\n") { "{platform: ${it.platform}, selfId: ${it.selfId}}" }
+                    ready.logins.joinToString(
+                        "\n"
+                    ) { "{platform: ${it.platform}, selfId: ${it.selfId}}" }
                 }")
                 // 心跳
-                heartbeat?.cancel(false)
-                val sendSignaling = Signaling(Signaling.PING)
-                heartbeat = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Heart")).scheduleAtFixedRate(
-                    {
-                        if (this.isOpen) send(
-                            JSONObject.toJSONString(
-                                sendSignaling
-                            )
-                        )
-                    }, 10, 10, TimeUnit.SECONDS
-                )
+                val sendSignaling = Signaling(Signaling.Op.PING)
+                launch {
+                    while (true) {
+                        delay(10000) // 10 seconds delay
+                        send(JSONObject.toJSONString(sendSignaling))
+                    }
+                }
             }
 
-            Signaling.EVENT -> sendEvent(signaling)
-            Signaling.PONG -> log.debug("[$name]: 收到 PONG")
+            Signaling.Op.EVENT -> launch {
+                sendEvent(this, signaling)
+            }
+
+            Signaling.Op.PONG -> log.debug("[$name]: 收到 PONG")
             else -> log.error("Unsupported $signaling")
         }
     }
 
-    override fun onClose(code: Int, reason: String, remote: Boolean) {
-        log.info("[$name]: 断开连接, code: $code, reason: $reason, remote: $remote")
-        heartbeat?.cancel(false)
-        reconnect?.cancel(false)
-        setReconnect()
-    }
-
-    override fun onError(e: Exception) {
-        log.error("[$name]: 出现错误: $e")
-        heartbeat?.cancel(false)
-        reconnect?.cancel(false)
-        setReconnect()
-    }
-
-    private fun sendIdentify() {
-        val connection = Signaling(Signaling.IDENTIFY)
-        val token = client.properties.token
-        if (token != null || sequence != null) {
-            val body = Identify()
-            body.token = token
-            body.sequence = sequence
-            connection.body = body
-        }
-        this.send(JSONObject.toJSONString(connection))
-    }
-
-    private fun sendEvent(signaling: Signaling) {
+    private fun sendEvent(scope: CoroutineScope, signaling: Signaling) {
         val body = signaling.body as Event
         log.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
         log.debug("[$name]: 事件详细信息: $body")
         sequence = body.id
-        client.runEvent(body)
-    }
-
-    private fun setReconnect() {
-        reconnect = ScheduledThreadPoolExecutor(1, NamedThreadFactory("Reconnect")).scheduleAtFixedRate(
-            {
-                log.info(
-                    "[$name]: 尝试重新连接"
-                )
-                connect()
-            }, 3, 3, TimeUnit.SECONDS
-        )
+        satori.runEvent(body, scope)
     }
 }

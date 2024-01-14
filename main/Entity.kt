@@ -18,8 +18,6 @@ import com.alibaba.fastjson2.annotation.JSONField
 import com.alibaba.fastjson2.parseObject
 import com.alibaba.fastjson2.to
 import com.alibaba.fastjson2.toList
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 /**
  * 频道, 参考 https://satori.chat/zh-CN/resources/channel.html#channel
@@ -242,7 +240,7 @@ class User(
  * @property op 信令类型
  * @property body 信令数据
  */
-class Signaling(val op: Int, var body: Body? = null) {
+class Signaling(val op: Op, var body: Body? = null) {
     interface Body
 
     override fun toString(): String {
@@ -253,8 +251,8 @@ class Signaling(val op: Int, var body: Body? = null) {
         @JvmStatic
         fun parse(json: String?): Signaling {
             val jsonObject = json.parseObject()
-            return when (val op = jsonObject.getIntValue("op")) {
-                EVENT -> {
+            return when (val op = Op.entries[jsonObject.getIntValue("op")]) {
+                Op.EVENT -> {
                     val body = jsonObject.getJSONObject("body")
                     if (body["user"] != null && body.getJSONObject("user")["id"] == null) {
                         throw NullPointerException("event.user.id is null")
@@ -279,40 +277,38 @@ class Signaling(val op: Int, var body: Body? = null) {
                     Signaling(op, event)
                 }
 
-                READY -> {
+                Op.READY -> {
                     val body = Ready(jsonObject.getJSONObject("body").getJSONArray("logins").toList<Login>())
                     Signaling(op, body)
                 }
 
-                PONG -> Signaling(op)
+                Op.PONG -> Signaling(op)
                 else -> throw NoSuchElementException()
             }
         }
+    }
 
+    enum class Op(value: Int) {
         /**
          * 事件
          */
-        const val EVENT = 0
-
+        EVENT(0),
         /**
          * 心跳
          */
-        const val PING = 1
-
+        PING(1),
         /**
          * 心跳回复
          */
-        const val PONG = 2
-
+        PONG(2),
         /**
          * 鉴权
          */
-        const val IDENTIFY = 3
-
+        IDENTIFY(3),
         /**
          * 鉴权回复
          */
-        const val READY = 4
+        READY(4)
     }
 }
 
@@ -395,28 +391,30 @@ class PaginatedData<T> @JvmOverloads constructor(
 
 /**
  * Satori 配置
- * @property address 连接地址
+ * @property host 连接主机
+ * @property port 端口
  * @property token Token
  * @property version 协议版本
  */
 interface SatoriProperties {
-    val address: String
+    val host: String
+    val port: Int
     val token: String?
     val version: String
-    val executorService: ExecutorService
 }
 
 /**
  * 简易 Satori 配置实现类
- * @property address 连接地址
+ * @property host 连接主机
+ * @property port 端口
  * @property token Token
  * @property version 协议版本
  */
 class SimpleSatoriProperties @JvmOverloads constructor(
-    override val address: String,
+    override val host: String = "127.0.0.1",
+    override val port: Int = 5500,
     override val token: String? = null,
-    override val version: String = "v1",
-    override val executorService: ExecutorService = Executors.newCachedThreadPool()
+    override val version: String = "v1"
 ) : SatoriProperties {
-    override fun toString() = "SimpleSatoriProperties(address='$address', token=$token, version='$version')"
+    override fun toString() = "SimpleSatoriProperties(address='$host:$port', token=$token, version='$version')"
 }
