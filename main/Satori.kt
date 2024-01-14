@@ -24,7 +24,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.slf4j.Logger
+import java.util.logging.Logger
+import org.slf4j.LoggerFactory
 
 fun interface Listener<T : Event> {
     operator fun invoke(bot: Bot, event: T)
@@ -162,8 +163,8 @@ class Satori private constructor(val properties: SatoriProperties) {
     @JvmOverloads
     fun connect(
         name: String? = null,
-        log: Logger = KotlinLogging.logger { },
-    ) = SatoriWebSocketClient(this@Satori, name, log).apply { run() }
+        logger: Logger = Logger.getLogger(LoggerFactory.getLogger(KotlinLogging.logger{ }.javaClass).name),
+    ) = SatoriWebSocketClient(this@Satori, name, logger).apply { run() }
 
     private fun parseEvent(event: Event) = when (event.type) {
         GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
@@ -211,9 +212,10 @@ class Satori private constructor(val properties: SatoriProperties) {
         fun of(
             host: String = "127.0.0.1",
             port: Int = 5500,
+            path: String = "",
             token: String? = null,
             version: String = "v1"
-        ) = Satori(SimpleSatoriProperties(host, port, token, version))
+        ) = Satori(SimpleSatoriProperties(host, port, path, token, version))
 
         @JvmSynthetic
         inline fun of(properties: SatoriProperties, apply: Satori.() -> Unit) = of(properties).apply { apply() }
@@ -222,10 +224,11 @@ class Satori private constructor(val properties: SatoriProperties) {
         inline fun of(
             host: String = "127.0.0.1",
             port: Int = 5500,
+            path: String = "",
             token: String? = null,
             version: String = "v1",
             apply: Satori.() -> Unit
-        ) = of(host, port, token, version).apply { apply() }
+        ) = of(host, port, path, token, version).apply { apply() }
     }
 }
 
@@ -254,7 +257,7 @@ class SatoriWebSocketClient (
             HttpMethod.Get,
             satori.properties.host,
             satori.properties.port,
-            "/${satori.properties.version}/events"
+            "${satori.properties.path}/${satori.properties.version}/events"
         ) {
             log.info("[$name]: 成功建立 WebSocket 连接")
 
@@ -299,15 +302,15 @@ class SatoriWebSocketClient (
                 sendEvent(this, signaling)
             }
 
-            Signaling.Op.PONG -> log.debug("[$name]: 收到 PONG")
-            else -> log.error("Unsupported $signaling")
+            Signaling.Op.PONG -> log.fine("[$name]: 收到 PONG")
+            else -> log.severe("Unsupported $signaling")
         }
     }
 
     private fun sendEvent(scope: CoroutineScope, signaling: Signaling) {
         val body = signaling.body as Event
         log.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
-        log.debug("[$name]: 事件详细信息: $body")
+        log.fine("[$name]: 事件详细信息: $body")
         sequence = body.id
         satori.runEvent(body, scope)
     }

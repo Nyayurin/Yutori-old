@@ -393,12 +393,14 @@ class PaginatedData<T> @JvmOverloads constructor(
  * Satori 配置
  * @property host 连接主机
  * @property port 端口
+ * @property path 路径
  * @property token Token
  * @property version 协议版本
  */
 interface SatoriProperties {
     val host: String
     val port: Int
+    val path: String
     val token: String?
     val version: String
 }
@@ -407,12 +409,14 @@ interface SatoriProperties {
  * 简易 Satori 配置实现类
  * @property host 连接主机
  * @property port 端口
+ * @property path 路径
  * @property token Token
  * @property version 协议版本
  */
 class SimpleSatoriProperties @JvmOverloads constructor(
     override val host: String = "127.0.0.1",
     override val port: Int = 5500,
+    override val path: String = "",
     override val token: String? = null,
     override val version: String = "v1"
 ) : SatoriProperties {

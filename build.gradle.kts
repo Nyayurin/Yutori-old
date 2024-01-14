@@ -5,7 +5,6 @@ plugins {
 
 group = "com.github.Nyayurn"
 
-val httpclientVersion = "5.2.1"
 val fastjsonVersion = "2.0.42"
 val loggingVersion = "3.0.5"
 val jsoupVersion = "1.17.1"
@@ -18,14 +17,13 @@ repositories {
 }
 
 dependencies {
-    api("org.apache.httpcomponents.client5:httpclient5-fluent:$httpclientVersion")
     api("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
     api("io.github.microutils:kotlin-logging-jvm:$loggingVersion")
     api("org.jsoup:jsoup:$jsoupVersion")
     api("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-websockets:$ktorVersion")
+    api("io.ktor:ktor-client-core:$ktorVersion")
+    api("io.ktor:ktor-client-cio:$ktorVersion")
+    api("io.ktor:ktor-client-websockets:$ktorVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }
 

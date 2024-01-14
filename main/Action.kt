@@ -16,11 +16,13 @@ package io.github.nyayurn.yutori
 
 import com.alibaba.fastjson2.parseArray
 import com.alibaba.fastjson2.parseObject
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.apache.hc.client5.http.fluent.Request
-import org.apache.hc.core5.http.io.entity.StringEntity
-import java.nio.charset.StandardCharsets
 
 /**
  * 封装所有 Action, 应通过本类对 Satori Server 发送事件
@@ -759,6 +761,7 @@ class FriendResource private constructor(
  * @property platform 平台
  * @property selfId 自身的 ID
  * @property properties 配置
+ * @property coroutineScope 协程作用域
  * @property resource 资源路径
  */
 class SatoriAction @JvmOverloads constructor(
@@ -768,17 +771,28 @@ class SatoriAction @JvmOverloads constructor(
     private val coroutineScope: CoroutineScope,
     private val resource: String
 ) {
-    fun send(method: String, body: String? = null): String {
-        return Request.post("http://${properties.host}/${properties.version}/$resource.$method").apply {
-            body?.let { body(StringEntity(it, StandardCharsets.UTF_8)) }
-            setHeader("Content-Type", "application/json")
-            properties.token?.let { setHeader("Authorization", "Bearer $it") }
-            setHeader("X-Platform", platform)
-            setHeader("X-Self-ID", selfId)
-        }.execute().returnContent().asString()
+    suspend fun send(method: String, body: String? = null): String {
+        HttpClient(CIO).use { client ->
+            val response = client.post {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = properties.host
+                    port = properties.port
+                    appendPathSegments(properties.path, properties.version, "$resource.$method")
+                }
+                contentType(ContentType.Application.Json)
+                headers {
+                    properties.token?.let { append(HttpHeaders.Authorization, "Bearer $it") }
+                    platform?.let { append("X-Platform", it) }
+                    selfId?.let { append("X-Self-ID", selfId) }
+                }
+                body?.let { setBody(it) }
+            }
+            return response.body()
+        }
     }
 
     @JvmSynthetic
-    inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) =
+    suspend inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) =
         send(method, JsonObjectDSLBuilder().apply(dsl).build().toString())
 }
