@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2023 Yurn
-yutori is licensed under Mulan PSL v2.
+Yutori is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -23,6 +23,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import mu.KotlinLogging
 
 /**
  * 封装所有 Action, 应通过本类对 Satori Server 发送事件
@@ -43,8 +44,7 @@ class Bot private constructor(
     @JvmField val reaction: ReactionResource,
     @JvmField val user: UserResource,
     @JvmField val friend: FriendResource,
-    val properties: SatoriProperties,
-    val coroutineScope: CoroutineScope
+    val properties: SatoriProperties
 ) {
     companion object {
         /**
@@ -52,32 +52,31 @@ class Bot private constructor(
          * @param platform 平台
          * @param selfId 自己 ID
          * @param properties 配置
-         * @param coroutineScope 协程作用域
+         * @param scope 协程作用域
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) = Bot(
-            ChannelResource.of(platform, selfId, properties, coroutineScope),
-            GuildResource.of(platform, selfId, properties, coroutineScope),
-            LoginResource.of(platform, selfId, properties, coroutineScope),
-            MessageResource.of(platform, selfId, properties, coroutineScope),
-            ReactionResource.of(platform, selfId, properties, coroutineScope),
-            UserResource.of(platform, selfId, properties, coroutineScope),
-            FriendResource.of(platform, selfId, properties, coroutineScope),
-            properties,
-            coroutineScope
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) = Bot(
+            ChannelResource.of(platform, selfId, properties, scope),
+            GuildResource.of(platform, selfId, properties, scope),
+            LoginResource.of(platform, selfId, properties, scope),
+            MessageResource.of(platform, selfId, properties, scope),
+            ReactionResource.of(platform, selfId, properties, scope),
+            UserResource.of(platform, selfId, properties, scope),
+            FriendResource.of(platform, selfId, properties, scope),
+            properties
         )
 
         /**
          * 工厂方法
          * @param event 事件
          * @param properties 配置
-         * @param coroutineScope 协程作用域
+         * @param scope 协程作用域
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(event: Event, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-            of(event.platform, event.selfId, properties, coroutineScope)
+        fun of(event: Event, properties: SatoriProperties, scope: CoroutineScope) =
+            of(event.platform, event.selfId, properties, scope)
     }
 }
 
@@ -164,8 +163,8 @@ class ChannelResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-            ChannelResource(SatoriAction(platform, selfId, properties, coroutineScope, "channel"), coroutineScope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+            ChannelResource(SatoriAction(platform, selfId, properties, scope, "channel"), scope)
     }
 }
 
@@ -222,12 +221,12 @@ class GuildResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
             GuildResource(
-                MemberResource.of(platform, selfId, properties, coroutineScope),
-                RoleResource.of(platform, selfId, properties, coroutineScope),
-                SatoriAction(platform, selfId, properties, coroutineScope, "guild"),
-                coroutineScope
+                MemberResource.of(platform, selfId, properties, scope),
+                RoleResource.of(platform, selfId, properties, scope),
+                SatoriAction(platform, selfId, properties, scope, "guild"),
+                scope
             )
     }
 
@@ -306,11 +305,11 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+            fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
                 MemberResource(
-                    RoleResource.of(platform, selfId, properties, coroutineScope),
-                    SatoriAction(platform, selfId, properties, coroutineScope, "guild.member"),
-                    coroutineScope
+                    RoleResource.of(platform, selfId, properties, scope),
+                    SatoriAction(platform, selfId, properties, scope, "guild.member"),
+                    scope
                 )
         }
 
@@ -357,11 +356,8 @@ class GuildResource private constructor(
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-                    RoleResource(
-                        SatoriAction(platform, selfId, properties, coroutineScope, "guild.member.role"),
-                        coroutineScope
-                    )
+                fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+                    RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.member.role"), scope)
             }
         }
     }
@@ -439,8 +435,8 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-                RoleResource(SatoriAction(platform, selfId, properties, coroutineScope, "guild.role"), coroutineScope)
+            fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+                RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.role"), scope)
         }
     }
 }
@@ -461,8 +457,8 @@ class LoginResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-            LoginResource(SatoriAction(platform, selfId, properties, coroutineScope, "login"), coroutineScope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+            LoginResource(SatoriAction(platform, selfId, properties, scope, "login"), scope)
     }
 }
 
@@ -555,8 +551,8 @@ class MessageResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-            MessageResource(SatoriAction(platform, selfId, properties, coroutineScope, "message"), coroutineScope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+            MessageResource(SatoriAction(platform, selfId, properties, scope, "message"), scope)
     }
 }
 
@@ -650,8 +646,8 @@ class ReactionResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-            ReactionResource(SatoriAction(platform, selfId, properties, coroutineScope, "reaction"), coroutineScope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+            ReactionResource(SatoriAction(platform, selfId, properties, scope, "reaction"), scope)
     }
 }
 
@@ -675,11 +671,11 @@ class UserResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
             UserResource(
-                ChannelResource.of(platform, selfId, properties, coroutineScope),
-                SatoriAction(platform, selfId, properties, coroutineScope, "user"),
-                coroutineScope
+                ChannelResource.of(platform, selfId, properties, scope),
+                SatoriAction(platform, selfId, properties, scope, "user"),
+                scope
             )
     }
 
@@ -704,11 +700,8 @@ class UserResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-                ChannelResource(
-                    SatoriAction(platform, selfId, properties, coroutineScope, "user.channel"),
-                    coroutineScope
-                )
+            fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+                ChannelResource(SatoriAction(platform, selfId, properties, scope, "user.channel"), scope)
         }
     }
 }
@@ -751,8 +744,8 @@ class FriendResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, coroutineScope: CoroutineScope) =
-            FriendResource(SatoriAction(platform, selfId, properties, coroutineScope, "friend"), coroutineScope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+            FriendResource(SatoriAction(platform, selfId, properties, scope, "friend"), scope)
     }
 }
 
@@ -771,11 +764,11 @@ class SatoriAction @JvmOverloads constructor(
     private val coroutineScope: CoroutineScope,
     private val resource: String
 ) {
+    private val logger = KotlinLogging.logger {  }
     suspend fun send(method: String, body: String? = null): String {
         HttpClient(CIO).use { client ->
             val response = client.post {
                 url {
-                    protocol = URLProtocol.HTTPS
                     host = properties.host
                     port = properties.port
                     appendPathSegments(properties.path, properties.version, "$resource.$method")
@@ -787,7 +780,13 @@ class SatoriAction @JvmOverloads constructor(
                     selfId?.let { append("X-Self-ID", selfId) }
                 }
                 body?.let { setBody(it) }
+                logger.debug("""
+                    Satori Action: url: ${this.url},
+                        headers: ${this.headers.build()},
+                        body: ${this.body}
+                """.trimIndent())
             }
+            logger.debug("Satori Action Response: $response")
             return response.body()
         }
     }

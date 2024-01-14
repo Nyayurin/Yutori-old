@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2023 Yurn
-yutori is licensed under Mulan PSL v2.
+Yutori is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -24,147 +24,150 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.slf4j.LoggerFactory
-import java.util.logging.Logger
 
 fun interface Listener<T : Event> {
     operator fun invoke(bot: Bot, event: T)
 }
 
 class Satori private constructor(val properties: SatoriProperties) {
-    val event = mutableListOf<ListenerContext<Event>>()
-    val guild = mutableListOf<ListenerContext<GuildEvent>>()
-    val member = mutableListOf<ListenerContext<GuildMemberEvent>>()
-    val role = mutableListOf<ListenerContext<GuildRoleEvent>>()
-    val button = mutableListOf<ListenerContext<InteractionButtonEvent>>()
-    val command = mutableListOf<ListenerContext<InteractionCommandEvent>>()
-    val login = mutableListOf<ListenerContext<LoginEvent>>()
-    val message = mutableListOf<ListenerContext<MessageEvent>>()
-    val reaction = mutableListOf<ListenerContext<ReactionEvent>>()
-    val user = mutableListOf<ListenerContext<UserEvent>>()
+    val onEvent = mutableListOf<ListenerContext<Event>>()
+    val onGuild = mutableListOf<ListenerContext<GuildEvent>>()
+    val onMember = mutableListOf<ListenerContext<GuildMemberEvent>>()
+    val onRole = mutableListOf<ListenerContext<GuildRoleEvent>>()
+    val onButton = mutableListOf<ListenerContext<InteractionButtonEvent>>()
+    val onCommand = mutableListOf<ListenerContext<InteractionCommandEvent>>()
+    val onLogin = mutableListOf<ListenerContext<LoginEvent>>()
+    val onMessage = mutableListOf<ListenerContext<MessageEvent>>()
+    val onReaction = mutableListOf<ListenerContext<ReactionEvent>>()
+    val onUser = mutableListOf<ListenerContext<UserEvent>>()
+    private val logger = KotlinLogging.logger {}
 
-    fun onEvent(listener: Listener<Event>) = ListenerContext(listener).apply { event += this }
+    fun onEvent(listener: Listener<Event>) = ListenerContext(listener).apply { onEvent += this }
 
     fun onGuildAdded(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
-        guild += this
+        onGuild += this
         withFilter(eventTypeFilter(GuildEvents.ADDED))
     }
 
     fun onGuildUpdated(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
-        guild += this
+        onGuild += this
         withFilter(eventTypeFilter(GuildEvents.UPDATED))
     }
 
     fun onGuildRemoved(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
-        guild += this
+        onGuild += this
         withFilter(eventTypeFilter(GuildEvents.REMOVED))
     }
 
     fun onGuildRequest(listener: Listener<GuildEvent>) = ListenerContext(listener).apply {
-        guild += this
+        onGuild += this
         withFilter(eventTypeFilter(GuildEvents.REQUEST))
     }
 
     fun onGuildMemberAdded(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
-        member += this
+        onMember += this
         withFilter(eventTypeFilter(GuildMemberEvents.ADDED))
     }
 
     fun onGuildMemberUpdated(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
-        member += this
+        onMember += this
         withFilter(eventTypeFilter(GuildMemberEvents.UPDATED))
     }
 
     fun onGuildMemberRemoved(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
-        member += this
+        onMember += this
         withFilter(eventTypeFilter(GuildMemberEvents.REMOVED))
     }
 
     fun onGuildMemberRequest(listener: Listener<GuildMemberEvent>) = ListenerContext(listener).apply {
-        member += this
+        onMember += this
         withFilter(eventTypeFilter(GuildMemberEvents.REQUEST))
     }
 
     fun onGuildRoleCreated(listener: Listener<GuildRoleEvent>) = ListenerContext(listener).apply {
-        role += this
+        onRole += this
         withFilter(eventTypeFilter(GuildRoleEvents.CREATED))
     }
 
     fun onGuildRoleUpdated(listener: Listener<GuildRoleEvent>) = ListenerContext(listener).apply {
-        role += this
+        onRole += this
         withFilter(eventTypeFilter(GuildRoleEvents.UPDATED))
     }
 
     fun onGuildRoleDeleted(listener: Listener<GuildRoleEvent>) = ListenerContext(listener).apply {
-        role += this
+        onRole += this
         withFilter(eventTypeFilter(GuildRoleEvents.DELETED))
     }
 
     fun onInteractionButton(listener: Listener<InteractionButtonEvent>) = ListenerContext(listener).apply {
-        button += this
+        onButton += this
         withFilter(eventTypeFilter(InteractionEvents.BUTTON))
     }
 
     fun onInteractionCommand(listener: Listener<InteractionCommandEvent>) = ListenerContext(listener).apply {
-        command += this
+        onCommand += this
         withFilter(eventTypeFilter(InteractionEvents.COMMAND))
     }
 
     fun onLoginAdded(listener: Listener<LoginEvent>) = ListenerContext(listener).apply {
-        login += this
+        onLogin += this
         withFilter(eventTypeFilter(LoginEvents.ADDED))
     }
 
     fun onLoginRemoved(listener: Listener<LoginEvent>) = ListenerContext(listener).apply {
-        login += this
+        onLogin += this
         withFilter(eventTypeFilter(LoginEvents.REMOVED))
     }
 
     fun onLoginUpdated(listener: Listener<LoginEvent>) = ListenerContext(listener).apply {
-        login += this
+        onLogin += this
         withFilter(eventTypeFilter(LoginEvents.UPDATED))
     }
 
     fun onMessageCreated(listener: Listener<MessageEvent>) = ListenerContext(listener).apply {
-        message += this
+        onMessage += this
         withFilter(eventTypeFilter(MessageEvents.CREATED))
     }
 
     fun onMessageUpdated(listener: Listener<MessageEvent>) = ListenerContext(listener).apply {
-        message += this
+        onMessage += this
         withFilter(eventTypeFilter(MessageEvents.UPDATED))
     }
 
     fun onMessageDeleted(listener: Listener<MessageEvent>) = ListenerContext(listener).apply {
-        message += this
+        onMessage += this
         withFilter(eventTypeFilter(MessageEvents.DELETED))
     }
 
     fun onReactionAdded(listener: Listener<ReactionEvent>) = ListenerContext(listener).apply {
-        reaction += this
+        onReaction += this
         withFilter(eventTypeFilter(ReactionEvents.ADDED))
     }
 
     fun onReactionRemoved(listener: Listener<ReactionEvent>) = ListenerContext(listener).apply {
-        reaction += this
+        onReaction += this
         withFilter(eventTypeFilter(ReactionEvents.REMOVED))
     }
 
     fun onFriendRequest(listener: Listener<UserEvent>) = ListenerContext(listener).apply {
-        user += this
+        onUser += this
         withFilter(eventTypeFilter(UserEvents.FRIEND_REQUEST))
     }
-
 
     /**
      * 与 Satori Server 建立 Websocket 连接
      * @param name Websocket 客户端的名称, 用于在日志打印时区分
+     * @param scope 协程作用域
+     * @param onWebSocketException 连接异常时的回调函数
+     * @param onEventException 消息异常时的回调函数
      */
     @JvmOverloads
     fun connect(
         name: String? = null,
-        logger: Logger = Logger.getLogger(LoggerFactory.getLogger(KotlinLogging.logger { }.javaClass).name)
-    ) = SatoriWebSocketClient(this@Satori, name, logger).apply { connect() }
+        scope: CoroutineScope? = null,
+        onWebSocketException: (SatoriWebSocketClient.(Throwable) -> Unit) = {},
+        onEventException: (SatoriWebSocketClient.(Throwable) -> Unit) = {},
+    ) = SatoriWebSocketClient(this, name, onWebSocketException, onEventException).apply { connect(scope) }
 
     private fun parseEvent(event: Event) = when (event.type) {
         GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
@@ -182,20 +185,26 @@ class Satori private constructor(val properties: SatoriProperties) {
         else -> event
     }
 
-    fun runEvent(event: Event, coroutineScope: CoroutineScope) {
-        val bot = Bot.of(event, properties, coroutineScope)
-        val newEvent = parseEvent(event)
-        runEvent(this.event, bot, newEvent)
-        when (newEvent) {
-            is GuildEvent -> runEvent(this.guild, bot, newEvent)
-            is GuildMemberEvent -> runEvent(this.member, bot, newEvent)
-            is GuildRoleEvent -> runEvent(this.role, bot, newEvent)
-            is InteractionButtonEvent -> runEvent(this.button, bot, newEvent)
-            is InteractionCommandEvent -> runEvent(this.command, bot, newEvent)
-            is LoginEvent -> runEvent(this.login, bot, newEvent)
-            is MessageEvent -> runEvent(this.message, bot, newEvent)
-            is ReactionEvent -> runEvent(this.reaction, bot, newEvent)
-            is UserEvent -> runEvent(this.user, bot, newEvent)
+    fun runEvent(event: Event, scope: CoroutineScope) {
+        try {
+            val bot = Bot.of(event, properties, scope)
+            val newEvent = parseEvent(event)
+            scope.launch {
+                runEvent(onEvent, bot, newEvent)
+                when (newEvent) {
+                    is GuildEvent -> runEvent(onGuild, bot, newEvent)
+                    is GuildMemberEvent -> runEvent(onMember, bot, newEvent)
+                    is GuildRoleEvent -> runEvent(onRole, bot, newEvent)
+                    is InteractionButtonEvent -> runEvent(onButton, bot, newEvent)
+                    is InteractionCommandEvent -> runEvent(onCommand, bot, newEvent)
+                    is LoginEvent -> runEvent(onLogin, bot, newEvent)
+                    is MessageEvent -> runEvent(onMessage, bot, newEvent)
+                    is ReactionEvent -> runEvent(onReaction, bot, newEvent)
+                    is UserEvent -> runEvent(onUser, bot, newEvent)
+                }
+            }
+        } catch (e: Exception) {
+            logger.warn("Parse event exception: ${e.message}, event: $event")
         }
     }
 
@@ -245,53 +254,68 @@ class ListenerContext<T : Event>(private val listener: Listener<T>) {
 class SatoriWebSocketClient(
     private val satori: Satori,
     private val name: String? = null,
-    private val log: Logger
+    private val onWebSocketException: (SatoriWebSocketClient.(Throwable) -> Unit),
+    private val onEventException: (SatoriWebSocketClient.(Throwable) -> Unit)
 ) : AutoCloseable {
+    private val logger = KotlinLogging.logger { }
     private var sequence: Number? = null
     private val client = HttpClient {
         install(WebSockets)
     }
 
-    fun connect() = runBlocking {
+    fun connect(scope: CoroutineScope?) = scope?.launch { run() } ?: runBlocking { launch { run() } }
+
+    override fun close() = client.close()
+
+    private suspend fun run() = try {
         client.webSocket(
             HttpMethod.Get,
             satori.properties.host,
             satori.properties.port,
             "${satori.properties.path}/${satori.properties.version}/events"
         ) {
-            log.info("[$name]: 成功建立 WebSocket 连接")
-
-            val connection = Signaling(Signaling.Op.IDENTIFY)
-            val token = satori.properties.token
-            if (token != null || sequence != null) {
-                val body = Identify()
-                body.token = token
-                body.sequence = sequence
-                connection.body = body
-            }
-            send(JSONObject.toJSONString(connection))
-
-            while (true) {
-                val message = (incoming.receive() as? Frame.Text ?: continue).readText()
-                val signaling = Signaling.parse(message)
+            logger.info("[$name]: 成功建立 WebSocket 连接")
+            launch { sendIdentity(this@webSocket) }
+            for (frame in incoming) try {
+                frame as? Frame.Text ?: continue
+                val signaling = Signaling.parse(frame.readText())
                 onEvent(signaling)
+            } catch (e: Exception) {
+                logger.warn("[$name]: 处理事件时出错: ${e.localizedMessage}")
+                onEventException(e)
             }
         }
+    } catch (e: Exception) {
+        client.close()
+        logger.warn("[$name]: WebSocket 连接断开: ${e.localizedMessage}")
+        onWebSocketException(e)
     }
 
-    override fun close() = client.close()
+    private suspend fun sendIdentity(session: DefaultClientWebSocketSession) {
+        val connection = Signaling(Signaling.IDENTIFY)
+        val token = satori.properties.token
+        if (token != null || sequence != null) {
+            val body = Identify()
+            body.token = token
+            body.sequence = sequence
+            connection.body = body
+        }
+        val content = JSONObject.toJSONString(connection)
+        logger.info("[$name]: 发送身份验证: $content")
+        session.send(content)
+    }
 
     private fun DefaultClientWebSocketSession.onEvent(signaling: Signaling) {
         when (signaling.op) {
-            Signaling.Op.READY -> {
+            Signaling.READY -> {
                 val ready = signaling.body as Ready
-                log.info("[$name]: 成功建立事件推送(${ready.logins.size}): \n${
+                logger.info("[$name]: 成功建立事件推送(${ready.logins.size}): \n${
                     ready.logins.joinToString(
                         "\n"
                     ) { "{platform: ${it.platform}, selfId: ${it.selfId}}" }
                 }")
                 // 心跳
-                val sendSignaling = Signaling(Signaling.Op.PING)
+                val sendSignaling = Signaling(Signaling.PING)
                 launch {
                     while (true) {
                         delay(10000) // 10 seconds delay
@@ -300,19 +324,19 @@ class SatoriWebSocketClient(
                 }
             }
 
-            Signaling.Op.EVENT -> launch {
+            Signaling.EVENT -> launch {
                 sendEvent(this, signaling)
             }
 
-            Signaling.Op.PONG -> log.fine("[$name]: 收到 PONG")
-            else -> log.severe("Unsupported $signaling")
+            Signaling.PONG -> logger.debug("[$name]: 收到 PONG")
+            else -> logger.error("Unsupported $signaling")
         }
     }
 
     private fun sendEvent(scope: CoroutineScope, signaling: Signaling) {
         val body = signaling.body as Event
-        log.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
-        log.fine("[$name]: 事件详细信息: $body")
+        logger.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
+        logger.debug("[$name]: 事件详细信息: $body")
         sequence = body.id
         satori.runEvent(body, scope)
     }

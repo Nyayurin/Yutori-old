@@ -1,6 +1,6 @@
 /*
 Copyright (c) 2023 Yurn
-yutori is licensed under Mulan PSL v2.
+Yutori is licensed under Mulan PSL v2.
 You can use this software according to the terms and conditions of the Mulan PSL v2.
 You may obtain a copy of Mulan PSL v2 at:
          http://license.coscl.org.cn/MulanPSL2
@@ -240,7 +240,7 @@ class User(
  * @property op 信令类型
  * @property body 信令数据
  */
-class Signaling(val op: Op, var body: Body? = null) {
+class Signaling(val op: Int, var body: Body? = null) {
     interface Body
 
     override fun toString(): String {
@@ -251,8 +251,8 @@ class Signaling(val op: Op, var body: Body? = null) {
         @JvmStatic
         fun parse(json: String?): Signaling {
             val jsonObject = json.parseObject()
-            return when (val op = Op.entries[jsonObject.getIntValue("op")]) {
-                Op.EVENT -> {
+            return when (val op = jsonObject.getIntValue("op")) {
+                EVENT -> {
                     val body = jsonObject.getJSONObject("body")
                     if (body["user"] != null && body.getJSONObject("user")["id"] == null) {
                         throw NullPointerException("event.user.id is null")
@@ -277,38 +277,36 @@ class Signaling(val op: Op, var body: Body? = null) {
                     Signaling(op, event)
                 }
 
-                Op.READY -> {
+                READY -> {
                     val body = Ready(jsonObject.getJSONObject("body").getJSONArray("logins").toList<Login>())
                     Signaling(op, body)
                 }
 
-                Op.PONG -> Signaling(op)
+                PONG -> Signaling(op)
                 else -> throw NoSuchElementException()
             }
         }
-    }
 
-    enum class Op(value: Int) {
         /**
          * 事件
          */
-        EVENT(0),
+        const val EVENT = 0
         /**
          * 心跳
          */
-        PING(1),
+        const val PING = 1
         /**
          * 心跳回复
          */
-        PONG(2),
+        const val PONG = 2
         /**
          * 鉴权
          */
-        IDENTIFY(3),
+        const val IDENTIFY = 3
         /**
          * 鉴权回复
          */
-        READY(4)
+        const val READY = 4
     }
 }
 

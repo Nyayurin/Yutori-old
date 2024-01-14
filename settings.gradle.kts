@@ -1,1 +1,1 @@
-rootProject.name = "yutori"
+rootProject.name = "Yutori"
