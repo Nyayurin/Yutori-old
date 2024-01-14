@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.21"
     `maven-publish`
+    java
 }
 
 group = "com.github.Nyayurn"
@@ -34,6 +35,10 @@ sourceSets {
     test {
         java.srcDir("test")
     }
+}
+
+java {
+    withSourcesJar()
 }
 
 tasks.withType<JavaCompile> {
