@@ -24,8 +24,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import java.util.logging.Logger
 import org.slf4j.LoggerFactory
+import java.util.logging.Logger
 
 fun interface Listener<T : Event> {
     operator fun invoke(bot: Bot, event: T)
@@ -163,8 +163,8 @@ class Satori private constructor(val properties: SatoriProperties) {
     @JvmOverloads
     fun connect(
         name: String? = null,
-        logger: Logger = Logger.getLogger(LoggerFactory.getLogger(KotlinLogging.logger{ }.javaClass).name),
-    ) = SatoriWebSocketClient(this@Satori, name, logger).apply { run() }
+        logger: Logger = Logger.getLogger(LoggerFactory.getLogger(KotlinLogging.logger { }.javaClass).name)
+    ) = SatoriWebSocketClient(this@Satori, name, logger).apply { connect() }
 
     private fun parseEvent(event: Event) = when (event.type) {
         GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
@@ -242,17 +242,17 @@ class ListenerContext<T : Event>(private val listener: Listener<T>) {
     }
 }
 
-class SatoriWebSocketClient (
+class SatoriWebSocketClient(
     private val satori: Satori,
     private val name: String? = null,
     private val log: Logger
-) {
+) : AutoCloseable {
     private var sequence: Number? = null
     private val client = HttpClient {
         install(WebSockets)
     }
 
-    fun run() = runBlocking {
+    fun connect() = runBlocking {
         client.webSocket(
             HttpMethod.Get,
             satori.properties.host,
@@ -278,6 +278,8 @@ class SatoriWebSocketClient (
             }
         }
     }
+
+    override fun close() = client.close()
 
     private fun DefaultClientWebSocketSession.onEvent(signaling: Signaling) {
         when (signaling.op) {
