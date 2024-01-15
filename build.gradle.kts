@@ -19,10 +19,10 @@ repositories {
 dependencies {
     api("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
     api("org.jsoup:jsoup:$jsoupVersion")
-    api("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
     api("io.ktor:ktor-client-core:$ktorVersion")
     api("io.ktor:ktor-client-cio:$ktorVersion")
     api("io.ktor:ktor-client-websockets:$ktorVersion")
+    implementation("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 }
 
