@@ -167,42 +167,43 @@ class Satori private constructor(
         onEventException: (SatoriWebSocketClient.(Throwable) -> Unit) = {},
     ) = SatoriWebSocketClient(this, name, onWebSocketException, onEventException, logger).apply { connect(scope) }
 
-    private fun parseEvent(event: Event) = when (event.type) {
-        GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
-        GuildMemberEvents.ADDED, GuildMemberEvents.UPDATED, GuildMemberEvents.REMOVED, GuildMemberEvents.REQUEST -> GuildMemberEvent.parse(
-            event
-        )
+    private fun parseEvent(event: Event) = try {
+        when (event.type) {
+            GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
+            GuildMemberEvents.ADDED, GuildMemberEvents.UPDATED, GuildMemberEvents.REMOVED, GuildMemberEvents.REQUEST ->
+                GuildMemberEvent.parse(event)
 
-        GuildRoleEvents.CREATED, GuildRoleEvents.UPDATED, GuildRoleEvents.DELETED -> GuildRoleEvent.parse(event)
-        InteractionEvents.BUTTON -> InteractionButtonEvent.parse(event)
-        InteractionEvents.COMMAND -> InteractionCommandEvent.parse(event)
-        LoginEvents.ADDED, LoginEvents.REMOVED, LoginEvents.UPDATED -> LoginEvent.parse(event)
-        MessageEvents.CREATED, MessageEvents.UPDATED, MessageEvents.DELETED -> MessageEvent.parse(event)
-        ReactionEvents.ADDED, ReactionEvents.REMOVED -> ReactionEvent.parse(event)
-        UserEvents.FRIEND_REQUEST -> UserEvent.parse(event)
-        else -> event
+            GuildRoleEvents.CREATED, GuildRoleEvents.UPDATED, GuildRoleEvents.DELETED -> GuildRoleEvent.parse(event)
+            InteractionEvents.BUTTON -> InteractionButtonEvent.parse(event)
+            InteractionEvents.COMMAND -> InteractionCommandEvent.parse(event)
+            LoginEvents.ADDED, LoginEvents.REMOVED, LoginEvents.UPDATED -> LoginEvent.parse(event)
+            MessageEvents.CREATED, MessageEvents.UPDATED, MessageEvents.DELETED -> MessageEvent.parse(event)
+            ReactionEvents.ADDED, ReactionEvents.REMOVED -> ReactionEvent.parse(event)
+            UserEvents.FRIEND_REQUEST -> UserEvent.parse(event)
+            else -> event
+        }
+    } catch (e: Throwable) {
+        throw EventParsingException(e)
     }
 
-    fun runEvent(event: Event, scope: CoroutineScope) {
+    fun runEvent(event: Event) {
         try {
-            val bot = Bot.of(event, properties, scope, logger)
+            val bot = Bot.of(event, properties, logger)
             val newEvent = parseEvent(event)
-            scope.launch {
-                runEvent(onEvent, bot, newEvent)
-                when (newEvent) {
-                    is GuildEvent -> runEvent(onGuild, bot, newEvent)
-                    is GuildMemberEvent -> runEvent(onMember, bot, newEvent)
-                    is GuildRoleEvent -> runEvent(onRole, bot, newEvent)
-                    is InteractionButtonEvent -> runEvent(onButton, bot, newEvent)
-                    is InteractionCommandEvent -> runEvent(onCommand, bot, newEvent)
-                    is LoginEvent -> runEvent(onLogin, bot, newEvent)
-                    is MessageEvent -> runEvent(onMessage, bot, newEvent)
-                    is ReactionEvent -> runEvent(onReaction, bot, newEvent)
-                    is UserEvent -> runEvent(onUser, bot, newEvent)
-                }
+            runEvent(onEvent, bot, newEvent)
+            when (newEvent) {
+                is GuildEvent -> runEvent(onGuild, bot, newEvent)
+                is GuildMemberEvent -> runEvent(onMember, bot, newEvent)
+                is GuildRoleEvent -> runEvent(onRole, bot, newEvent)
+                is InteractionButtonEvent -> runEvent(onButton, bot, newEvent)
+                is InteractionCommandEvent -> runEvent(onCommand, bot, newEvent)
+                is LoginEvent -> runEvent(onLogin, bot, newEvent)
+                is MessageEvent -> runEvent(onMessage, bot, newEvent)
+                is ReactionEvent -> runEvent(onReaction, bot, newEvent)
+                is UserEvent -> runEvent(onUser, bot, newEvent)
             }
-        } catch (e: Exception) {
-            logger.warn("Parse event exception: ${e.message}, event: $event", this::class.java)
+        } catch (e: EventParsingException) {
+            logger.error("$e, event: $event", this::class.java)
         }
     }
 
@@ -338,16 +339,13 @@ class SatoriWebSocketClient(
                 }
             }
 
-            Signaling.EVENT -> launch {
-                sendEvent(this, signaling)
-            }
-
+            Signaling.EVENT -> launch { sendEvent(signaling) }
             Signaling.PONG -> logger.debug("[$name]: 收到 PONG", this::class.java)
             else -> logger.error("Unsupported $signaling", this::class.java)
         }
     }
 
-    private fun sendEvent(scope: CoroutineScope, signaling: Signaling) {
+    private fun sendEvent(signaling: Signaling) {
         val body = signaling.body as Event
         logger.info(
             "[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}",
@@ -355,6 +353,6 @@ class SatoriWebSocketClient(
         )
         logger.debug("[$name]: 事件详细信息: $body", this::class.java)
         sequence = body.id
-        satori.runEvent(body, scope)
+        satori.runEvent(body)
     }
 }

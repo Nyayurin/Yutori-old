@@ -16,13 +16,12 @@ package io.github.nyayurn.yutori
 
 import com.alibaba.fastjson2.parseArray
 import com.alibaba.fastjson2.parseObject
+import io.github.nyayurn.yutori.message.MessageDSLBuilder
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * 封装所有 Action, 应通过本类对 Satori Server 发送事件
@@ -36,13 +35,13 @@ import kotlinx.coroutines.launch
  * @property properties 配置信息, 供使用者获取
  */
 class Bot private constructor(
-    @JvmField val channel: ChannelResource,
-    @JvmField val guild: GuildResource,
-    @JvmField val login: LoginResource,
-    @JvmField val message: MessageResource,
-    @JvmField val reaction: ReactionResource,
-    @JvmField val user: UserResource,
-    @JvmField val friend: FriendResource,
+    @JvmField val channel: ChannelAction,
+    @JvmField val guild: GuildAction,
+    @JvmField val login: LoginAction,
+    @JvmField val message: MessageAction,
+    @JvmField val reaction: ReactionAction,
+    @JvmField val user: UserAction,
+    @JvmField val friend: FriendAction,
     val properties: SatoriProperties
 ) {
     companion object {
@@ -51,154 +50,120 @@ class Bot private constructor(
          * @param platform 平台
          * @param selfId 自己 ID
          * @param properties 配置
-         * @param scope 协程作用域
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            Bot(
-                ChannelResource.of(platform, selfId, properties, scope, logger),
-                GuildResource.of(platform, selfId, properties, scope, logger),
-                LoginResource.of(platform, selfId, properties, scope, logger),
-                MessageResource.of(platform, selfId, properties, scope, logger),
-                ReactionResource.of(platform, selfId, properties, scope, logger),
-                UserResource.of(platform, selfId, properties, scope, logger),
-                FriendResource.of(platform, selfId, properties, scope, logger),
-                properties
-            )
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = Bot(
+            ChannelAction.of(platform, selfId, properties, logger),
+            GuildAction.of(platform, selfId, properties, logger),
+            LoginAction.of(platform, selfId, properties, logger),
+            MessageAction.of(platform, selfId, properties, logger),
+            ReactionAction.of(platform, selfId, properties, logger),
+            UserAction.of(platform, selfId, properties, logger),
+            FriendAction.of(platform, selfId, properties, logger),
+            properties
+        )
 
         /**
          * 工厂方法
          * @param event 事件
          * @param properties 配置
-         * @param scope 协程作用域
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(event: Event, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            of(event.platform, event.selfId, properties, scope, logger)
+        fun of(event: Event, properties: SatoriProperties, logger: Logger) =
+            of(event.platform, event.selfId, properties, logger)
     }
 }
 
-class ChannelResource private constructor(
-    private val satoriAction: SatoriAction,
-    private val coroutineScope: CoroutineScope
-) {
+class ChannelAction private constructor(private val satoriAction: SatoriAction) {
     /**
      * 获取群组频道
      * @param channelId 频道 ID
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun get(channelId: String, callback: (Channel) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("get") {
-                put("channel_id", channelId)
-            }.parseObject<Channel>())
-        }
+    suspend fun get(channelId: String): Channel {
+        return satoriAction.send("get") {
+            put("channel_id", channelId)
+        }.parseObject<Channel>()
     }
 
     /**
      * 获取群组频道列表
      * @param guildId 群组 ID
      * @param next 分页令牌
-     * @param callback 回调
      */
     @JvmOverloads
-    fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<Channel>>) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("list") {
-                put("guild_id", guildId)
-                put("next", next)
-            }.parseArray<PaginatedData<Channel>>())
-        }
+    suspend fun list(guildId: String, next: String? = null): MutableList<PaginatedData<Channel>> {
+        return satoriAction.send("list") {
+            put("guild_id", guildId)
+            put("next", next)
+        }.parseArray<PaginatedData<Channel>>()
     }
 
     /**
      * 创建群组频道
      * @param guildId 群组 ID
      * @param data 频道数据
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun create(guildId: String, data: Channel, callback: (Channel) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("create") {
-                put("guild_id", guildId)
-                put("data", data)
-            }.parseObject<Channel>())
-        }
+    suspend fun create(guildId: String, data: Channel): Channel {
+        return satoriAction.send("create") {
+            put("guild_id", guildId)
+            put("data", data)
+        }.parseObject<Channel>()
     }
 
     /**
      * 修改群组频道
      * @param channelId 频道 ID
      * @param data 频道数据
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun update(channelId: String, data: Channel, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("update") {
-                put("channel_id", channelId)
-                put("data", data)
-            }
-            callback()
+    suspend fun update(channelId: String, data: Channel) {
+        satoriAction.send("update") {
+            put("channel_id", channelId)
+            put("data", data)
         }
     }
 
     /**
      * 删除群组频道
      * @param channelId 频道 ID
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun delete(channelId: String, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("delete") {
-                put("channel_id", channelId)
-            }
-            callback()
+    suspend fun delete(channelId: String) {
+        satoriAction.send("delete") {
+            put("channel_id", channelId)
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            ChannelResource(SatoriAction(platform, selfId, properties, scope, "channel", logger), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+            ChannelAction(SatoriAction(platform, selfId, properties, "channel", logger))
     }
 }
 
-class GuildResource private constructor(
-    @JvmField val member: MemberResource,
-    @JvmField val role: RoleResource,
-    private val satoriAction: SatoriAction,
-    private val coroutineScope: CoroutineScope
+class GuildAction private constructor(
+    @JvmField val member: MemberAction,
+    @JvmField val role: RoleAction,
+    private val satoriAction: SatoriAction
 ) {
     /**
      * 获取群组
      * @param guildId 群组 ID
-     * @param callback 回调
      */
-    fun get(guildId: String, callback: (Guild) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("get") {
-                put("guild_id", guildId)
-            }.parseObject<Guild>())
-        }
+    suspend fun get(guildId: String): Guild {
+        return satoriAction.send("get") {
+            put("guild_id", guildId)
+        }.parseObject<Guild>()
     }
 
     /**
      * 获取群组列表
      * @param next 分页令牌
-     * @param callback 回调
      */
     @JvmOverloads
-    fun list(next: String? = null, callback: (List<PaginatedData<Guild>>) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("list") {
-                put("next", next)
-            }.parseArray<PaginatedData<Guild>>())
-        }
+    suspend fun list(next: String? = null): MutableList<PaginatedData<Guild>> {
+        return satoriAction.send("list") {
+            put("next", next)
+        }.parseArray<PaginatedData<Guild>>()
     }
 
     /**
@@ -206,64 +171,50 @@ class GuildResource private constructor(
      * @param messageId 请求 ID
      * @param approve 是否通过请求
      * @param comment 备注信息
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun approve(messageId: String, approve: Boolean, comment: String, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("approve") {
-                put("message_id", messageId)
-                put("approve", approve)
-                put("comment", comment)
-            }
-            callback()
+    suspend fun approve(messageId: String, approve: Boolean, comment: String) {
+        satoriAction.send("approve") {
+            put("message_id", messageId)
+            put("approve", approve)
+            put("comment", comment)
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            GuildResource(
-                MemberResource.of(platform, selfId, properties, scope, logger),
-                RoleResource.of(platform, selfId, properties, scope, logger),
-                SatoriAction(platform, selfId, properties, scope, "guild", logger),
-                scope
-            )
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = GuildAction(
+            MemberAction.of(platform, selfId, properties, logger),
+            RoleAction.of(platform, selfId, properties, logger),
+            SatoriAction(platform, selfId, properties, "guild", logger)
+        )
     }
 
-    class MemberResource private constructor(
-        @JvmField val role: RoleResource,
-        private val satoriAction: SatoriAction,
-        private val coroutineScope: CoroutineScope
+    class MemberAction private constructor(
+        @JvmField val role: RoleAction,
+        private val satoriAction: SatoriAction
     ) {
         /**
          * 获取群组成员
          * @param guildId 群组 ID
          * @param userId 用户 ID
-         * @param callback 回调
          */
-        fun get(guildId: String, userId: String, callback: (GuildMember) -> Unit = {}) {
-            coroutineScope.launch {
-                callback(satoriAction.send("get") {
-                    put("guild_id", guildId)
-                    put("user_id", userId)
-                }.parseObject<GuildMember>())
-            }
+        suspend fun get(guildId: String, userId: String): GuildMember {
+            return satoriAction.send("get") {
+                put("guild_id", guildId)
+                put("user_id", userId)
+            }.parseObject<GuildMember>()
         }
 
         /**
          * 获取群组成员列表
          * @param guildId 群组 ID
          * @param next 分页令牌
-         * @param callback 回调
          */
         @JvmOverloads
-        fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<GuildMember>>) -> Unit = {}) {
-            coroutineScope.launch {
-                callback(satoriAction.send("list") {
-                    put("guild_id", guildId)
-                    put("next", next)
-                }.parseArray<PaginatedData<GuildMember>>())
-            }
+        suspend fun list(guildId: String, next: String? = null): MutableList<PaginatedData<GuildMember>> {
+            return satoriAction.send("list") {
+                put("guild_id", guildId)
+                put("next", next)
+            }.parseArray<PaginatedData<GuildMember>>()
         }
 
         /**
@@ -271,17 +222,13 @@ class GuildResource private constructor(
          * @param guildId 群组 ID
          * @param userId 用户 ID
          * @param permanent 是否永久踢出 (无法再次加入群组)
-         * @param callback 回调
          */
         @JvmOverloads
-        fun kick(guildId: String, userId: String, permanent: Boolean? = null, callback: () -> Unit = {}) {
-            coroutineScope.launch {
-                satoriAction.send("kick") {
-                    put("guild_id", guildId)
-                    put("user_id", userId)
-                    put("permanent", permanent)
-                }
-                callback()
+        suspend fun kick(guildId: String, userId: String, permanent: Boolean? = null) {
+            satoriAction.send("kick") {
+                put("guild_id", guildId)
+                put("user_id", userId)
+                put("permanent", permanent)
             }
         }
 
@@ -290,54 +237,35 @@ class GuildResource private constructor(
          * @param messageId 请求 ID
          * @param approve 是否通过请求
          * @param comment 备注信息
-         * @param callback 回调
          */
         @JvmOverloads
-        fun approve(messageId: String, approve: Boolean, comment: String? = null, callback: () -> Unit = {}) {
-            coroutineScope.launch {
-                satoriAction.send("approve") {
-                    put("message_id", messageId)
-                    put("approve", approve)
-                    put("comment", comment)
-                }
-                callback()
+        suspend fun approve(messageId: String, approve: Boolean, comment: String? = null) {
+            satoriAction.send("approve") {
+                put("message_id", messageId)
+                put("approve", approve)
+                put("comment", comment)
             }
         }
 
         companion object {
-            fun of(
-                platform: String,
-                selfId: String,
-                properties: SatoriProperties,
-                scope: CoroutineScope,
-                logger: Logger
-            ) = MemberResource(
-                RoleResource.of(platform, selfId, properties, scope, logger),
-                SatoriAction(platform, selfId, properties, scope, "guild.member", logger),
-                scope
+            fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = MemberAction(
+                RoleAction.of(platform, selfId, properties, logger),
+                SatoriAction(platform, selfId, properties, "guild.member", logger)
             )
         }
 
-        class RoleResource private constructor(
-            private val satoriAction: SatoriAction,
-            private val coroutineScope: CoroutineScope
-        ) {
+        class RoleAction private constructor(private val satoriAction: SatoriAction) {
             /**
              * 设置群组成员角色
              * @param guildId 群组 ID
              * @param userId 用户 ID
              * @param roleId 角色 ID
-             * @param callback 回调
              */
-            @JvmOverloads
-            fun set(guildId: String, userId: String, roleId: String, callback: () -> Unit = {}) {
-                coroutineScope.launch {
-                    satoriAction.send("set") {
-                        put("guild_id", guildId)
-                        put("user_id", userId)
-                        put("role_id", roleId)
-                    }
-                    callback()
+            suspend fun set(guildId: String, userId: String, roleId: String) {
+                satoriAction.send("set") {
+                    put("guild_id", guildId)
+                    put("user_id", userId)
+                    put("role_id", roleId)
                 }
             }
 
@@ -346,66 +274,45 @@ class GuildResource private constructor(
              * @param guildId 群组 ID
              * @param userId 用户 ID
              * @param roleId 角色 ID
-             * @param callback 回调
              */
-            @JvmOverloads
-            fun unset(guildId: String, userId: String, roleId: String, callback: () -> Unit = {}) {
-                coroutineScope.launch {
-                    satoriAction.send("unset") {
-                        put("guild_id", guildId)
-                        put("user_id", userId)
-                        put("role_id", roleId)
-                    }
-                    callback()
+            suspend fun unset(guildId: String, userId: String, roleId: String) {
+                satoriAction.send("unset") {
+                    put("guild_id", guildId)
+                    put("user_id", userId)
+                    put("role_id", roleId)
                 }
             }
 
             companion object {
-                fun of(
-                    platform: String,
-                    selfId: String,
-                    properties: SatoriProperties,
-                    scope: CoroutineScope,
-                    logger: Logger
-                ) = RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.member.role", logger), scope)
+                fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = RoleAction(SatoriAction(platform, selfId, properties, "guild.member.role", logger))
             }
         }
     }
 
-    class RoleResource private constructor(
-        private val satoriAction: SatoriAction,
-        private val coroutineScope: CoroutineScope
-    ) {
+    class RoleAction private constructor(private val satoriAction: SatoriAction) {
         /**
          * 获取群组角色列表
          * @param guildId 群组 ID
          * @param next 分页令牌
-         * @param callback 回调
          */
         @JvmOverloads
-        fun list(guildId: String, next: String? = null, callback: (List<PaginatedData<GuildRole>>) -> Unit = {}) {
-            coroutineScope.launch {
-                callback(satoriAction.send("list") {
-                    put("guild_id", guildId)
-                    put("next", next)
-                }.parseArray<PaginatedData<GuildRole>>())
-            }
+        suspend fun list(guildId: String, next: String? = null): MutableList<PaginatedData<GuildRole>> {
+            return satoriAction.send("list") {
+                put("guild_id", guildId)
+                put("next", next)
+            }.parseArray<PaginatedData<GuildRole>>()
         }
 
         /**
          * 创建群组角色
          * @param guildId 群组 ID
          * @param role 角色数据
-         * @param callback 回调
          */
-        @JvmOverloads
-        fun create(guildId: String, role: GuildRole, callback: (GuildRole) -> Unit = {}) {
-            coroutineScope.launch {
-                callback(satoriAction.send("create") {
-                    put("guild_id", guildId)
-                    put("role", role)
-                }.parseObject<GuildRole>())
-            }
+        suspend fun create(guildId: String, role: GuildRole): GuildRole {
+            return satoriAction.send("create") {
+                put("guild_id", guildId)
+                put("role", role)
+            }.parseObject<GuildRole>()
         }
 
         /**
@@ -413,17 +320,12 @@ class GuildResource private constructor(
          * @param guildId 群组 ID
          * @param roleId 角色 ID
          * @param role 角色数据
-         * @param callback 回调
          */
-        @JvmOverloads
-        fun update(guildId: String, roleId: String, role: GuildRole, callback: () -> Unit = {}) {
-            coroutineScope.launch {
-                satoriAction.send("update") {
-                    put("guild_id", guildId)
-                    put("role_id", roleId)
-                    put("role", role)
-                }
-                callback()
+        suspend fun update(guildId: String, roleId: String, role: GuildRole) {
+            satoriAction.send("update") {
+                put("guild_id", guildId)
+                put("role_id", roleId)
+                put("role", role)
             }
         }
 
@@ -431,102 +333,75 @@ class GuildResource private constructor(
          * 删除群组角色
          * @param guildId 群组 ID
          * @param roleId 角色 ID
-         * @param callback 回调
          */
-        @JvmOverloads
-        fun delete(guildId: String, roleId: String, callback: () -> Unit = {}) {
-            coroutineScope.launch {
-                satoriAction.send("delete") {
-                    put("guild_id", guildId)
-                    put("role_id", roleId)
-                }
-                callback()
+        suspend fun delete(guildId: String, roleId: String) {
+            satoriAction.send("delete") {
+                put("guild_id", guildId)
+                put("role_id", roleId)
             }
         }
 
         companion object {
-            fun of(
-                platform: String,
-                selfId: String,
-                properties: SatoriProperties,
-                scope: CoroutineScope,
-                logger: Logger
-            ) = RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.role", logger), scope)
+            fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+                RoleAction(SatoriAction(platform, selfId, properties, "guild.role", logger))
         }
     }
 }
 
-class LoginResource private constructor(
-    private val satoriAction: SatoriAction,
-    private val coroutineScope: CoroutineScope
-) {
+class LoginAction private constructor(private val satoriAction: SatoriAction) {
     /**
      * 获取登录信息
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun get(callback: (Login) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("get").parseObject<Login>())
-        }
-    }
+    suspend fun get(): Login = satoriAction.send("get").parseObject<Login>()
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            LoginResource(SatoriAction(platform, selfId, properties, scope, "login", logger), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+            LoginAction(SatoriAction(platform, selfId, properties, "login", logger))
     }
 }
 
-class MessageResource private constructor(
-    private val satoriAction: SatoriAction,
-    private val coroutineScope: CoroutineScope
-) {
+class MessageAction private constructor(private val satoriAction: SatoriAction) {
     /**
      * 发送消息
      * @param channelId 频道 ID
      * @param content 消息内容
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun create(channelId: String, content: String, callback: (List<Message>) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("create") {
-                put("channel_id", channelId)
-                put("content", content)
-            }.parseArray<Message>())
-        }
+    suspend fun create(channelId: String, content: String): MutableList<Message> {
+        return satoriAction.send("create") {
+            put("channel_id", channelId)
+            put("content", content)
+        }.parseArray<Message>()
     }
+
+    /**
+     * 使用 DSL 发送消息
+     * @param channelId 频道 ID
+     * @param dsl 消息内容 DSL
+     */
+    suspend inline fun create(channelId: String, dsl: MessageDSLBuilder.() -> Unit) =
+        create(channelId, MessageDSLBuilder().apply(dsl).build())
 
     /**
      * 获取消息
      * @param channelId 频道 ID
      * @param messageId 消息 ID
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun get(channelId: String, messageId: String, callback: (Message) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("get") {
-                put("channel_id", channelId)
-                put("message_id", messageId)
-            }.parseObject<Message>())
-        }
+    suspend fun get(channelId: String, messageId: String): Message {
+        return satoriAction.send("get") {
+            put("channel_id", channelId)
+            put("message_id", messageId)
+        }.parseObject<Message>()
     }
 
     /**
      * 撤回消息
      * @param channelId 频道 ID
      * @param messageId 消息 ID
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun delete(channelId: String, messageId: String, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("delete") {
-                put("channel_id", channelId)
-                put("message_id", messageId)
-            }
-            callback()
+    suspend fun delete(channelId: String, messageId: String) {
+        satoriAction.send("delete") {
+            put("channel_id", channelId)
+            put("message_id", messageId)
         }
     }
 
@@ -535,62 +410,55 @@ class MessageResource private constructor(
      * @param channelId 频道 ID
      * @param messageId 消息 ID
      * @param content 消息内容
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun update(channelId: String, messageId: String, content: String, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("update") {
-                put("channel_id", channelId)
-                put("message_id", messageId)
-                put("content", content)
-            }
-            callback()
+    suspend fun update(channelId: String, messageId: String, content: String) {
+        satoriAction.send("update") {
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("content", content)
         }
     }
+
+    /**
+     * 使用 DSL 编辑消息
+     * @param channelId 频道 ID
+     * @param messageId 消息 ID
+     * @param dsl 消息内容 DSL
+     */
+    suspend inline fun update(channelId: String, messageId: String, dsl: MessageDSLBuilder.() -> Unit) =
+        update(channelId, messageId, MessageDSLBuilder().apply(dsl).build())
 
     /**
      * 获取消息列表
      * @param channelId 频道 ID
      * @param next 分页令牌
-     * @param callback 回调
      */
     @JvmOverloads
-    fun list(channelId: String, next: String? = null, callback: (List<PaginatedData<Message>>) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("list") {
-                put("channel_id", channelId)
-                put("next", next)
-            }.parseArray<PaginatedData<Message>>())
-        }
+    suspend fun list(channelId: String, next: String? = null): MutableList<PaginatedData<Message>> {
+        return satoriAction.send("list") {
+            put("channel_id", channelId)
+            put("next", next)
+        }.parseArray<PaginatedData<Message>>()
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            MessageResource(SatoriAction(platform, selfId, properties, scope, "message", logger), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+            MessageAction(SatoriAction(platform, selfId, properties, "message", logger))
     }
 }
 
-class ReactionResource private constructor(
-    private val satoriAction: SatoriAction,
-    private val coroutineScope: CoroutineScope
-) {
+class ReactionAction private constructor(private val satoriAction: SatoriAction) {
     /**
      * 添加表态
      * @param channelId 频道 ID
      * @param messageId 消息 ID
      * @param emoji 表态名称
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun create(channelId: String, messageId: String, emoji: String, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("create") {
-                put("channel_id", channelId)
-                put("message_id", messageId)
-                put("emoji", emoji)
-            }
-            callback()
+    suspend fun create(channelId: String, messageId: String, emoji: String) {
+        satoriAction.send("create") {
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
         }
     }
 
@@ -600,18 +468,14 @@ class ReactionResource private constructor(
      * @param messageId 消息 ID
      * @param emoji 表态名称
      * @param userId 用户 ID
-     * @param callback 回调
      */
     @JvmOverloads
-    fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("delete") {
-                put("channel_id", channelId)
-                put("message_id", messageId)
-                put("emoji", emoji)
-                put("user_id", userId)
-            }
-            callback()
+    suspend fun delete(channelId: String, messageId: String, emoji: String, userId: String? = null) {
+        satoriAction.send("delete") {
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
+            put("user_id", userId)
         }
     }
 
@@ -620,17 +484,13 @@ class ReactionResource private constructor(
      * @param channelId 频道 ID
      * @param messageId 消息 ID
      * @param emoji 表态名称
-     * @param callback 回调
      */
     @JvmOverloads
-    fun clear(channelId: String, messageId: String, emoji: String? = null, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("clear") {
-                put("channel_id", channelId)
-                put("message_id", messageId)
-                put("emoji", emoji)
-            }
-            callback()
+    suspend fun clear(channelId: String, messageId: String, emoji: String? = null) {
+        satoriAction.send("clear") {
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
         }
     }
 
@@ -640,104 +500,79 @@ class ReactionResource private constructor(
      * @param messageId 消息 ID
      * @param emoji 表态名称
      * @param next 分页令牌
-     * @param callback 回调
      */
     @JvmOverloads
-    fun list(
+    suspend fun list(
         channelId: String,
         messageId: String,
         emoji: String,
-        next: String? = null,
-        callback: (List<PaginatedData<User>>) -> Unit = {}
-    ) {
-        coroutineScope.launch {
-            callback(satoriAction.send("list") {
-                put("channel_id", channelId)
-                put("message_id", messageId)
-                put("emoji", emoji)
-                put("next", next)
-            }.parseArray<PaginatedData<User>>())
-        }
+        next: String? = null
+    ): MutableList<PaginatedData<User>> {
+        return satoriAction.send("list") {
+            put("channel_id", channelId)
+            put("message_id", messageId)
+            put("emoji", emoji)
+            put("next", next)
+        }.parseArray<PaginatedData<User>>()
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            ReactionResource(SatoriAction(platform, selfId, properties, scope, "reaction", logger), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+            ReactionAction(SatoriAction(platform, selfId, properties, "reaction", logger))
     }
 }
 
-class UserResource private constructor(
-    @JvmField val channel: ChannelResource,
-    private val satoriAction: SatoriAction,
-    private val coroutineScope: CoroutineScope
+class UserAction private constructor(
+    @JvmField val channel: ChannelAction,
+    private val satoriAction: SatoriAction
 ) {
     /**
      * 获取用户信息
      * @param userId 用户 ID
-     * @param callback 回调
      */
-    @JvmOverloads
-    fun get(userId: String, callback: (User) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("get") {
-                put("user_id", userId)
-            }.parseObject<User>())
-        }
+    suspend fun get(userId: String): User {
+        return satoriAction.send("get") {
+            put("user_id", userId)
+        }.parseObject<User>()
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            UserResource(
-                ChannelResource.of(platform, selfId, properties, scope, logger),
-                SatoriAction(platform, selfId, properties, scope, "user", logger),
-                scope
-            )
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = UserAction(
+            ChannelAction.of(platform, selfId, properties, logger),
+            SatoriAction(platform, selfId, properties, "user", logger)
+        )
     }
 
-    class ChannelResource private constructor(
-        private val satoriAction: SatoriAction,
-        private val coroutineScope: CoroutineScope
-    ) {
+    class ChannelAction private constructor(private val satoriAction: SatoriAction) {
         /**
          * 创建私聊频道
          * @param userId 用户 ID
          * @param guildId 群组 ID
-         * @param callback 回调
          */
         @JvmOverloads
-        fun create(userId: String, guildId: String? = null, callback: (Channel) -> Unit = {}) {
-            coroutineScope.launch {
-                callback(satoriAction.send("create") {
-                    put("user_id", userId)
-                    put("guild_id", guildId)
-                }.parseObject<Channel>())
-            }
+        suspend fun create(userId: String, guildId: String? = null): Channel {
+            return satoriAction.send("create") {
+                put("user_id", userId)
+                put("guild_id", guildId)
+            }.parseObject<Channel>()
         }
 
         companion object {
-            fun of(
-                platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger
-            ) = ChannelResource(SatoriAction(platform, selfId, properties, scope, "user.channel", logger), scope)
+            fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = ChannelAction(SatoriAction(platform, selfId, properties, "user.channel", logger))
         }
     }
 }
 
-class FriendResource private constructor(
-    private val satoriAction: SatoriAction,
-    private val coroutineScope: CoroutineScope
-) {
+class FriendAction private constructor(private val satoriAction: SatoriAction) {
     /**
      * 获取好友列表
      * @param next 分页令牌
-     * @param callback 回调
      */
     @JvmOverloads
-    fun list(next: String? = null, callback: (List<PaginatedData<User>>) -> Unit = {}) {
-        coroutineScope.launch {
-            callback(satoriAction.send("list") {
-                put("next", next)
-            }.parseArray<PaginatedData<User>>())
-        }
+    suspend fun list(next: String? = null): MutableList<PaginatedData<User>> {
+        return satoriAction.send("list") {
+            put("next", next)
+        }.parseArray<PaginatedData<User>>()
     }
 
     /**
@@ -745,23 +580,19 @@ class FriendResource private constructor(
      * @param messageId 请求 ID
      * @param approve 是否通过请求
      * @param comment 备注信息
-     * @param callback 回调
      */
     @JvmOverloads
-    fun approve(messageId: String, approve: Boolean, comment: String? = null, callback: () -> Unit = {}) {
-        coroutineScope.launch {
-            satoriAction.send("approve") {
-                put("message_id", messageId)
-                put("approve", approve)
-                put("comment", comment)
-            }
-            callback()
+    suspend fun approve(messageId: String, approve: Boolean, comment: String? = null) {
+        satoriAction.send("approve") {
+            put("message_id", messageId)
+            put("approve", approve)
+            put("comment", comment)
         }
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
-            FriendResource(SatoriAction(platform, selfId, properties, scope, "friend", logger), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+            FriendAction(SatoriAction(platform, selfId, properties, "friend", logger))
     }
 }
 
@@ -770,14 +601,13 @@ class FriendResource private constructor(
  * @property platform 平台
  * @property selfId 自身的 ID
  * @property properties 配置
- * @property coroutineScope 协程作用域
  * @property resource 资源路径
+ * @property logger 日志接口
  */
 class SatoriAction @JvmOverloads constructor(
     private val platform: String? = null,
     private val selfId: String? = null,
     private val properties: SatoriProperties,
-    private val coroutineScope: CoroutineScope,
     private val resource: String,
     private val logger: Logger
 ) {
@@ -797,11 +627,11 @@ class SatoriAction @JvmOverloads constructor(
                 }
                 body?.let { setBody(it) }
                 logger.debug(
-                """
-                Satori Action: url: ${this.url},
-                    headers: ${this.headers.build()},
-                    body: ${this.body}
-                """.trimIndent(), this::class.java
+                    """
+                    Satori Action: url: ${this.url},
+                        headers: ${this.headers.build()},
+                        body: ${this.body}
+                    """.trimIndent(), this::class.java
                 )
             }
             logger.debug("Satori Action Response: $response", this::class.java)
