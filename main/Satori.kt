@@ -19,10 +19,7 @@ import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import mu.KotlinLogging
 
 fun interface Listener<T : Event> {
@@ -259,13 +256,23 @@ class SatoriWebSocketClient(
 ) : AutoCloseable {
     private val logger = KotlinLogging.logger { }
     private var sequence: Number? = null
+    private lateinit var coroutineScope: CoroutineScope
     private val client = HttpClient {
         install(WebSockets)
     }
 
-    fun connect(scope: CoroutineScope?) = scope?.launch { run() } ?: runBlocking { launch { run() } }
+    fun connect(scope: CoroutineScope?) = scope?.async {
+        coroutineScope = this
+        launch { run() }
+    } ?: runBlocking {
+        coroutineScope = this
+        launch { run() }
+    }
 
-    override fun close() = client.close()
+    override fun close() {
+        client.close()
+        coroutineScope.cancel()
+    }
 
     private suspend fun run() = try {
         client.webSocket(
