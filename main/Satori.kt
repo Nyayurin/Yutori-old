@@ -20,13 +20,15 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
-import mu.KotlinLogging
 
 fun interface Listener<T : Event> {
     operator fun invoke(bot: Bot, event: T)
 }
 
-class Satori private constructor(val properties: SatoriProperties) {
+class Satori private constructor(
+    val properties: SatoriProperties,
+    private val logger: Logger
+) {
     val onEvent = mutableListOf<ListenerContext<Event>>()
     val onGuild = mutableListOf<ListenerContext<GuildEvent>>()
     val onMember = mutableListOf<ListenerContext<GuildMemberEvent>>()
@@ -37,7 +39,6 @@ class Satori private constructor(val properties: SatoriProperties) {
     val onMessage = mutableListOf<ListenerContext<MessageEvent>>()
     val onReaction = mutableListOf<ListenerContext<ReactionEvent>>()
     val onUser = mutableListOf<ListenerContext<UserEvent>>()
-    private val logger = KotlinLogging.logger {}
 
     fun onEvent(listener: Listener<Event>) = ListenerContext(listener).apply { onEvent += this }
 
@@ -164,7 +165,7 @@ class Satori private constructor(val properties: SatoriProperties) {
         scope: CoroutineScope? = null,
         onWebSocketException: (SatoriWebSocketClient.(Throwable) -> Unit) = {},
         onEventException: (SatoriWebSocketClient.(Throwable) -> Unit) = {},
-    ) = SatoriWebSocketClient(this, name, onWebSocketException, onEventException).apply { connect(scope) }
+    ) = SatoriWebSocketClient(this, name, onWebSocketException, onEventException, logger).apply { connect(scope) }
 
     private fun parseEvent(event: Event) = when (event.type) {
         GuildEvents.ADDED, GuildEvents.UPDATED, GuildEvents.REMOVED, GuildEvents.REQUEST -> GuildEvent.parse(event)
@@ -184,7 +185,7 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     fun runEvent(event: Event, scope: CoroutineScope) {
         try {
-            val bot = Bot.of(event, properties, scope)
+            val bot = Bot.of(event, properties, scope, logger)
             val newEvent = parseEvent(event)
             scope.launch {
                 runEvent(onEvent, bot, newEvent)
@@ -201,7 +202,7 @@ class Satori private constructor(val properties: SatoriProperties) {
                 }
             }
         } catch (e: Exception) {
-            logger.warn("Parse event exception: ${e.message}, event: $event")
+            logger.warn("Parse event exception: ${e.message}, event: $event", this::class.java)
         }
     }
 
@@ -211,7 +212,8 @@ class Satori private constructor(val properties: SatoriProperties) {
 
     companion object {
         @JvmStatic
-        fun of(properties: SatoriProperties) = Satori(properties)
+        @JvmOverloads
+        fun of(properties: SatoriProperties, logger: Logger = Slf4jLogger()) = Satori(properties, logger)
 
         @JvmStatic
         @JvmOverloads
@@ -220,21 +222,26 @@ class Satori private constructor(val properties: SatoriProperties) {
             port: Int = 5500,
             path: String = "",
             token: String? = null,
-            version: String = "v1"
-        ) = Satori(SimpleSatoriProperties(host, port, path, token, version))
+            version: String = "v1",
+            logger: Logger = Slf4jLogger()
+        ) = Satori(SimpleSatoriProperties(host, port, path, token, version), logger)
 
         @JvmSynthetic
-        inline fun of(properties: SatoriProperties, apply: Satori.() -> Unit) = of(properties).apply { apply() }
+        @JvmOverloads
+        inline fun of(properties: SatoriProperties, logger: Logger = Slf4jLogger(), apply: Satori.() -> Unit) =
+            of(properties, logger).apply { apply() }
 
         @JvmSynthetic
+        @JvmOverloads
         inline fun of(
             host: String = "127.0.0.1",
             port: Int = 5500,
             path: String = "",
             token: String? = null,
             version: String = "v1",
+            logger: Logger = Slf4jLogger(),
             apply: Satori.() -> Unit
-        ) = of(host, port, path, token, version).apply { apply() }
+        ) = of(host, port, path, token, version, logger).apply { apply() }
     }
 }
 
@@ -252,9 +259,9 @@ class SatoriWebSocketClient(
     private val satori: Satori,
     private val name: String,
     private val onWebSocketException: (SatoriWebSocketClient.(Throwable) -> Unit),
-    private val onEventException: (SatoriWebSocketClient.(Throwable) -> Unit)
+    private val onEventException: (SatoriWebSocketClient.(Throwable) -> Unit),
+    private val logger: Logger
 ) : AutoCloseable {
-    private val logger = KotlinLogging.logger { }
     private var sequence: Number? = null
     private lateinit var coroutineScope: CoroutineScope
     private val client = HttpClient {
@@ -263,14 +270,15 @@ class SatoriWebSocketClient(
 
     @OptIn(DelicateCoroutinesApi::class)
     fun connect(scope: CoroutineScope?) {
-        coroutineScope = scope ?: GlobalScope
-        coroutineScope.launch { run() }
+        (scope ?: GlobalScope).launch {
+            coroutineScope = this
+            run()
+        }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun close() {
         client.close()
-        if (coroutineScope != GlobalScope) coroutineScope.cancel()
+        coroutineScope.cancel()
     }
 
     private suspend fun run() = try {
@@ -280,20 +288,20 @@ class SatoriWebSocketClient(
             satori.properties.port,
             "${satori.properties.path}/${satori.properties.version}/events"
         ) {
-            logger.info("[$name]: 成功建立 WebSocket 连接")
+            logger.info("[$name]: 成功建立 WebSocket 连接", this::class.java)
             launch { sendIdentity(this@webSocket) }
             for (frame in incoming) try {
                 frame as? Frame.Text ?: continue
                 val signaling = Signaling.parse(frame.readText())
                 onEvent(signaling)
             } catch (e: Exception) {
-                logger.warn("[$name]: 处理事件时出错: ${e.localizedMessage}")
+                logger.warn("[$name]: 处理事件时出错: ${e.localizedMessage}", this::class.java)
                 onEventException(e)
             }
         }
     } catch (e: Exception) {
         client.close()
-        logger.warn("[$name]: WebSocket 连接断开: ${e.localizedMessage}")
+        logger.warn("[$name]: WebSocket 连接断开: ${e.localizedMessage}", this::class.java)
         onWebSocketException(e)
     }
 
@@ -307,7 +315,7 @@ class SatoriWebSocketClient(
             connection.body = body
         }
         val content = JSONObject.toJSONString(connection)
-        logger.info("[$name]: 发送身份验证: $content")
+        logger.info("[$name]: 发送身份验证: $content", this::class.java)
         session.send(content)
     }
 
@@ -319,12 +327,12 @@ class SatoriWebSocketClient(
                     ready.logins.joinToString(
                         "\n"
                     ) { "{platform: ${it.platform}, selfId: ${it.selfId}}" }
-                }")
+                }", this::class.java)
                 // 心跳
                 val sendSignaling = Signaling(Signaling.PING)
                 launch {
                     while (true) {
-                        delay(10000) // 10 seconds delay
+                        delay(10000)
                         send(JSONObject.toJSONString(sendSignaling))
                     }
                 }
@@ -334,15 +342,18 @@ class SatoriWebSocketClient(
                 sendEvent(this, signaling)
             }
 
-            Signaling.PONG -> logger.debug("[$name]: 收到 PONG")
-            else -> logger.error("Unsupported $signaling")
+            Signaling.PONG -> logger.debug("[$name]: 收到 PONG", this::class.java)
+            else -> logger.error("Unsupported $signaling", this::class.java)
         }
     }
 
     private fun sendEvent(scope: CoroutineScope, signaling: Signaling) {
         val body = signaling.body as Event
-        logger.info("[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}")
-        logger.debug("[$name]: 事件详细信息: $body")
+        logger.info(
+            "[$name]: 接收事件: platform: ${body.platform}, selfId: ${body.selfId}, type: ${body.type}",
+            this::class.java
+        )
+        logger.debug("[$name]: 事件详细信息: $body", this::class.java)
         sequence = body.id
         satori.runEvent(body, scope)
     }

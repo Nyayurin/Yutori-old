@@ -23,7 +23,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 
 /**
  * 封装所有 Action, 应通过本类对 Satori Server 发送事件
@@ -56,16 +55,17 @@ class Bot private constructor(
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) = Bot(
-            ChannelResource.of(platform, selfId, properties, scope),
-            GuildResource.of(platform, selfId, properties, scope),
-            LoginResource.of(platform, selfId, properties, scope),
-            MessageResource.of(platform, selfId, properties, scope),
-            ReactionResource.of(platform, selfId, properties, scope),
-            UserResource.of(platform, selfId, properties, scope),
-            FriendResource.of(platform, selfId, properties, scope),
-            properties
-        )
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
+            Bot(
+                ChannelResource.of(platform, selfId, properties, scope, logger),
+                GuildResource.of(platform, selfId, properties, scope, logger),
+                LoginResource.of(platform, selfId, properties, scope, logger),
+                MessageResource.of(platform, selfId, properties, scope, logger),
+                ReactionResource.of(platform, selfId, properties, scope, logger),
+                UserResource.of(platform, selfId, properties, scope, logger),
+                FriendResource.of(platform, selfId, properties, scope, logger),
+                properties
+            )
 
         /**
          * 工厂方法
@@ -75,8 +75,8 @@ class Bot private constructor(
          * @return Bot 实例
          */
         @JvmStatic
-        fun of(event: Event, properties: SatoriProperties, scope: CoroutineScope) =
-            of(event.platform, event.selfId, properties, scope)
+        fun of(event: Event, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
+            of(event.platform, event.selfId, properties, scope, logger)
     }
 }
 
@@ -163,8 +163,8 @@ class ChannelResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-            ChannelResource(SatoriAction(platform, selfId, properties, scope, "channel"), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
+            ChannelResource(SatoriAction(platform, selfId, properties, scope, "channel", logger), scope)
     }
 }
 
@@ -221,11 +221,11 @@ class GuildResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
             GuildResource(
-                MemberResource.of(platform, selfId, properties, scope),
-                RoleResource.of(platform, selfId, properties, scope),
-                SatoriAction(platform, selfId, properties, scope, "guild"),
+                MemberResource.of(platform, selfId, properties, scope, logger),
+                RoleResource.of(platform, selfId, properties, scope, logger),
+                SatoriAction(platform, selfId, properties, scope, "guild", logger),
                 scope
             )
     }
@@ -305,12 +305,17 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-                MemberResource(
-                    RoleResource.of(platform, selfId, properties, scope),
-                    SatoriAction(platform, selfId, properties, scope, "guild.member"),
-                    scope
-                )
+            fun of(
+                platform: String,
+                selfId: String,
+                properties: SatoriProperties,
+                scope: CoroutineScope,
+                logger: Logger
+            ) = MemberResource(
+                RoleResource.of(platform, selfId, properties, scope, logger),
+                SatoriAction(platform, selfId, properties, scope, "guild.member", logger),
+                scope
+            )
         }
 
         class RoleResource private constructor(
@@ -356,8 +361,13 @@ class GuildResource private constructor(
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-                    RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.member.role"), scope)
+                fun of(
+                    platform: String,
+                    selfId: String,
+                    properties: SatoriProperties,
+                    scope: CoroutineScope,
+                    logger: Logger
+                ) = RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.member.role", logger), scope)
             }
         }
     }
@@ -435,8 +445,13 @@ class GuildResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-                RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.role"), scope)
+            fun of(
+                platform: String,
+                selfId: String,
+                properties: SatoriProperties,
+                scope: CoroutineScope,
+                logger: Logger
+            ) = RoleResource(SatoriAction(platform, selfId, properties, scope, "guild.role", logger), scope)
         }
     }
 }
@@ -457,8 +472,8 @@ class LoginResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-            LoginResource(SatoriAction(platform, selfId, properties, scope, "login"), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
+            LoginResource(SatoriAction(platform, selfId, properties, scope, "login", logger), scope)
     }
 }
 
@@ -551,8 +566,8 @@ class MessageResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-            MessageResource(SatoriAction(platform, selfId, properties, scope, "message"), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
+            MessageResource(SatoriAction(platform, selfId, properties, scope, "message", logger), scope)
     }
 }
 
@@ -646,8 +661,8 @@ class ReactionResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-            ReactionResource(SatoriAction(platform, selfId, properties, scope, "reaction"), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
+            ReactionResource(SatoriAction(platform, selfId, properties, scope, "reaction", logger), scope)
     }
 }
 
@@ -671,10 +686,10 @@ class UserResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
             UserResource(
-                ChannelResource.of(platform, selfId, properties, scope),
-                SatoriAction(platform, selfId, properties, scope, "user"),
+                ChannelResource.of(platform, selfId, properties, scope, logger),
+                SatoriAction(platform, selfId, properties, scope, "user", logger),
                 scope
             )
     }
@@ -700,8 +715,9 @@ class UserResource private constructor(
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-                ChannelResource(SatoriAction(platform, selfId, properties, scope, "user.channel"), scope)
+            fun of(
+                platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger
+            ) = ChannelResource(SatoriAction(platform, selfId, properties, scope, "user.channel", logger), scope)
         }
     }
 }
@@ -744,8 +760,8 @@ class FriendResource private constructor(
     }
 
     companion object {
-        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope) =
-            FriendResource(SatoriAction(platform, selfId, properties, scope, "friend"), scope)
+        fun of(platform: String, selfId: String, properties: SatoriProperties, scope: CoroutineScope, logger: Logger) =
+            FriendResource(SatoriAction(platform, selfId, properties, scope, "friend", logger), scope)
     }
 }
 
@@ -762,9 +778,9 @@ class SatoriAction @JvmOverloads constructor(
     private val selfId: String? = null,
     private val properties: SatoriProperties,
     private val coroutineScope: CoroutineScope,
-    private val resource: String
+    private val resource: String,
+    private val logger: Logger
 ) {
-    private val logger = KotlinLogging.logger {  }
     suspend fun send(method: String, body: String? = null): String {
         HttpClient(CIO).use { client ->
             val response = client.post {
@@ -780,13 +796,15 @@ class SatoriAction @JvmOverloads constructor(
                     selfId?.let { append("X-Self-ID", selfId) }
                 }
                 body?.let { setBody(it) }
-                logger.debug("""
-                    Satori Action: url: ${this.url},
-                        headers: ${this.headers.build()},
-                        body: ${this.body}
-                """.trimIndent())
+                logger.debug(
+                """
+                Satori Action: url: ${this.url},
+                    headers: ${this.headers.build()},
+                    body: ${this.body}
+                """.trimIndent(), this::class.java
+                )
             }
-            logger.debug("Satori Action Response: $response")
+            logger.debug("Satori Action Response: $response", this::class.java)
             return response.body()
         }
     }

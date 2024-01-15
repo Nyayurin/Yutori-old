@@ -7,7 +7,6 @@ plugins {
 group = "com.github.Nyayurn"
 
 val fastjsonVersion = "2.0.42"
-val loggingVersion = "3.0.5"
 val jsoupVersion = "1.17.1"
 val slf4jVersion = "1.7.2"
 val ktorVersion = "2.3.7"
@@ -19,7 +18,6 @@ repositories {
 
 dependencies {
     api("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
-    api("io.github.microutils:kotlin-logging-jvm:$loggingVersion")
     api("org.jsoup:jsoup:$jsoupVersion")
     api("org.apache.directory.studio:org.slf4j.api:$slf4jVersion")
     api("io.ktor:ktor-client-core:$ktorVersion")
