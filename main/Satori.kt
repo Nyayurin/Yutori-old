@@ -160,7 +160,7 @@ class Satori private constructor(val properties: SatoriProperties) {
      */
     @JvmOverloads
     fun connect(
-        name: String? = null,
+        name: String = "Satori",
         scope: CoroutineScope? = null,
         onWebSocketException: (SatoriWebSocketClient.(Throwable) -> Unit) = {},
         onEventException: (SatoriWebSocketClient.(Throwable) -> Unit) = {},
@@ -250,7 +250,7 @@ class ListenerContext<T : Event>(private val listener: Listener<T>) {
 
 class SatoriWebSocketClient(
     private val satori: Satori,
-    private val name: String? = null,
+    private val name: String,
     private val onWebSocketException: (SatoriWebSocketClient.(Throwable) -> Unit),
     private val onEventException: (SatoriWebSocketClient.(Throwable) -> Unit)
 ) : AutoCloseable {
@@ -261,17 +261,16 @@ class SatoriWebSocketClient(
         install(WebSockets)
     }
 
-    fun connect(scope: CoroutineScope?) = scope?.async {
-        coroutineScope = this
-        launch { run() }
-    } ?: runBlocking {
-        coroutineScope = this
-        launch { run() }
+    @OptIn(DelicateCoroutinesApi::class)
+    fun connect(scope: CoroutineScope?) {
+        coroutineScope = scope ?: GlobalScope
+        coroutineScope.launch { run() }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun close() {
         client.close()
-        coroutineScope.cancel()
+        if (coroutineScope != GlobalScope) coroutineScope.cancel()
     }
 
     private suspend fun run() = try {
