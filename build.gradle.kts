@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     kotlin("jvm") version "1.9.21"
     `maven-publish`
@@ -6,18 +8,19 @@ plugins {
 
 group = "com.github.Nyayurn"
 
-val fastjsonVersion = "2.0.42"
+val jacksonVersion = "2.16.0"
 val jsoupVersion = "1.17.1"
-val slf4jVersion = "1.7.2"
 val ktorVersion = "2.3.7"
+val slf4jVersion = "1.7.2"
 val junitVersion = "5.10.1"
 
 repositories {
+    maven { url = URI("https://repo.huaweicloud.com/repository/maven/") }
     mavenCentral()
 }
 
 dependencies {
-    api("com.alibaba.fastjson2:fastjson2-kotlin:$fastjsonVersion")
+    api("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     api("org.jsoup:jsoup:$jsoupVersion")
     api("io.ktor:ktor-client-core:$ktorVersion")
     api("io.ktor:ktor-client-cio:$ktorVersion")

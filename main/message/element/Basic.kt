@@ -14,23 +14,13 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori.message.element
 
+import io.github.nyayurn.yutori.MessageUtil.encode
+
 /**
  * 消息元素
  */
-interface MessageElement {
+fun interface MessageElement {
     override fun toString(): String
-
-    /**
-     * 转义字符串
-     * @param str 需要转义的字符串
-     * @return 转以后的字符串
-     */
-    fun encode(str: String) = str.apply {
-        replace("&", "&amp;")
-        replace("\"", "&quot;")
-        replace("<", "&lt;")
-        replace(">", "&gt;")
-    }
 }
 
 /**
@@ -85,27 +75,27 @@ abstract class NodeMessageElement(
         children.add(element)
     }
 
-    override fun toString(): String {
-        var result = "<$nodeName"
+    override fun toString() = buildString {
+        append("<$nodeName")
         for (item in properties) {
             val key = item.key
             val value = item.value ?: continue
-            result += " "
-            result += when (value) {
-                is String -> "${key}=\"${encode(value)}\""
-                is Number -> "${key}=${value}"
-                is Boolean -> if (value) key else ""
-                else -> throw Exception("Invalid type")
-            }
+            append(" ")
+            append(
+                when (value) {
+                    is String -> "${key}=\"${value.encode()}\""
+                    is Number -> "${key}=${value}"
+                    is Boolean -> if (value) key else ""
+                    else -> throw Exception("Invalid type")
+                }
+            )
         }
-        return if (children.isEmpty()) {
-            "$result/>"
+        if (children.isEmpty()) {
+            append("/>")
         } else {
-            result += ">"
-            for (item in children) {
-                result += item.toString()
-            }
-            "$result</$nodeName>"
+            append(">")
+            for (item in children) append(item)
+            append("</$nodeName>")
         }
     }
 }
@@ -123,7 +113,7 @@ class Custom(var text: String) : MessageElement {
  * @property text 内容
  */
 class Text(var text: String) : MessageElement {
-    override fun toString() = encode(text)
+    override fun toString() = text.encode()
 }
 
 /**

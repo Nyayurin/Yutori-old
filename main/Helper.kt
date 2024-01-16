@@ -14,73 +14,96 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori
 
-import com.alibaba.fastjson2.JSONArray
-import com.alibaba.fastjson2.JSONObject
 import io.github.nyayurn.yutori.message.element.*
-import io.github.nyayurn.yutori.message.element.Message
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import org.jsoup.nodes.TextNode
 
 /**
- * JSONObject DSL 辅助构建器
+ * JsonObject 字符串 DSL 构建器
  */
 @JvmSynthetic
-fun jsonObj(dsl: JsonObjectDSLBuilder.() -> Unit) = JsonObjectDSLBuilder().apply(dsl).build()
+inline fun jsonObj(dsl: JsonObjectDSLBuilder.() -> Unit) = JsonObjectDSLBuilder().apply(dsl).toString()
 
 /**
- * JSONArray DSL 辅助构建器
+ * JsonArray 字符串 DSL 构建器
  */
 @JvmSynthetic
-fun jsonArr(dsl: JsonArrayDSLBuilder.() -> Unit) = JsonArrayDSLBuilder().apply(dsl).build()
+inline fun jsonArr(dsl: JsonArrayDSLBuilder.() -> Unit) = JsonArrayDSLBuilder().apply(dsl).toString()
 
 class JsonObjectDSLBuilder {
-    private val jsonObject = JSONObject()
+    private val map = mutableMapOf<String, Any>()
     fun put(key: String, value: Any?) {
-        jsonObject[key] = value
+        value?.let { map[key] = it }
     }
 
     fun put(key: String, dsl: () -> Any?) {
-        jsonObject[key] = dsl()
+        dsl()?.let { map[key] = it }
     }
 
     fun putJsonObj(key: String, dsl: JsonObjectDSLBuilder.() -> Unit) {
-        jsonObject[key] = JsonObjectDSLBuilder().apply(dsl).build()
+        map[key] = JsonObjectDSLBuilder().apply(dsl)
     }
 
     fun putJsonArr(key: String, dsl: JsonArrayDSLBuilder.() -> Unit) {
-        jsonObject[key] = JsonArrayDSLBuilder().apply(dsl).build()
+        map[key] = JsonArrayDSLBuilder().apply(dsl)
     }
 
-    fun build() = jsonObject
+    override fun toString() = map.entries.joinToString(",", "{", "}") { (key, value) ->
+        buildString {
+            append("\"$key\":")
+            append(
+                when (value) {
+                    is String -> "\"$value\""
+                    else -> value.toString()
+                }
+            )
+        }
+    }
 }
 
 class JsonArrayDSLBuilder {
-    private val jsonArray = JSONArray()
+    private val list = mutableListOf<Any>()
     fun add(value: Any?) {
-        jsonArray += value
+        value?.let { list += it }
     }
 
     fun add(dsl: () -> Any?) {
-        jsonArray += dsl()
-    }
-
-    fun addJsonObj(dsl: JsonObjectDSLBuilder.() -> Unit) {
-        jsonArray += JsonObjectDSLBuilder().apply(dsl).build()
+        dsl()?.let { list += it }
     }
 
     fun addJsonArr(dsl: JsonArrayDSLBuilder.() -> Unit) {
-        jsonArray.add(JsonArrayDSLBuilder().apply(dsl).build())
+        list += JsonArrayDSLBuilder().apply(dsl)
     }
 
-    fun build() = jsonArray
+    fun addJsonObj(dsl: JsonObjectDSLBuilder.() -> Unit) {
+        list += JsonObjectDSLBuilder().apply(dsl)
+    }
+
+    override fun toString() = list.joinToString(",", "[", "]") { value ->
+        buildString {
+            append(
+                when (value) {
+                    is String -> "\"$value\""
+                    else -> value.toString()
+                }
+            )
+        }
+    }
 }
 
 /**
  * 辅助类
  */
 object MessageUtil {
+    /**
+     * 转义字符串
+     * @return 转以后的字符串
+     */
+    @JvmStatic
+    fun String.encode() = replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+
     /**
      * 提取出 Satori 消息字符串中的纯文本消息元素
      * @param raw 字符串

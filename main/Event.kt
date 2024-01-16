@@ -12,7 +12,7 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori
 
-import com.alibaba.fastjson2.annotation.JSONField
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * 群组事件列表, 参考 https://satori.chat/zh-CN/resources/guild.html#%E4%BA%8B%E4%BB%B6
@@ -31,7 +31,7 @@ class GuildEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,
@@ -83,7 +83,7 @@ class GuildMemberEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,
@@ -134,7 +134,7 @@ class GuildRoleEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,
@@ -184,7 +184,7 @@ class InteractionButtonEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     override val button: Interaction.Button,
@@ -226,7 +226,7 @@ class InteractionCommandEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,
@@ -277,7 +277,7 @@ class LoginEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,
@@ -328,7 +328,7 @@ class MessageEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,
@@ -378,7 +378,7 @@ class ReactionEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,
@@ -427,7 +427,7 @@ class UserEvent @JvmOverloads constructor(
     id: Number,
     type: String,
     platform: String,
-    @JSONField(name = "self_id") selfId: String,
+    @JsonProperty("self_id") selfId: String,
     timestamp: Number,
     argv: Interaction.Argv? = null,
     button: Interaction.Button? = null,

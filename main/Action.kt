@@ -14,8 +14,8 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori
 
-import com.alibaba.fastjson2.parseArray
-import com.alibaba.fastjson2.parseObject
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.nyayurn.yutori.message.MessageDSLBuilder
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -77,14 +77,16 @@ class Bot private constructor(
 }
 
 class ChannelAction private constructor(private val satoriAction: SatoriAction) {
+    private val mapper = jacksonObjectMapper()
+
     /**
      * 获取群组频道
      * @param channelId 频道 ID
      */
     suspend fun get(channelId: String): Channel {
-        return satoriAction.send("get") {
+        return mapper.readValue(satoriAction.send("get") {
             put("channel_id", channelId)
-        }.parseObject<Channel>()
+        })
     }
 
     /**
@@ -93,11 +95,11 @@ class ChannelAction private constructor(private val satoriAction: SatoriAction) 
      * @param next 分页令牌
      */
     @JvmOverloads
-    suspend fun list(guildId: String, next: String? = null): MutableList<PaginatedData<Channel>> {
-        return satoriAction.send("list") {
+    suspend fun list(guildId: String, next: String? = null): List<PaginatedData<Channel>> {
+        return mapper.readValue(satoriAction.send("list") {
             put("guild_id", guildId)
             put("next", next)
-        }.parseArray<PaginatedData<Channel>>()
+        })
     }
 
     /**
@@ -106,10 +108,10 @@ class ChannelAction private constructor(private val satoriAction: SatoriAction) 
      * @param data 频道数据
      */
     suspend fun create(guildId: String, data: Channel): Channel {
-        return satoriAction.send("create") {
+        return mapper.readValue(satoriAction.send("create") {
             put("guild_id", guildId)
             put("data", data)
-        }.parseObject<Channel>()
+        })
     }
 
     /**
@@ -145,14 +147,16 @@ class GuildAction private constructor(
     @JvmField val role: RoleAction,
     private val satoriAction: SatoriAction
 ) {
+    private val mapper = jacksonObjectMapper()
+
     /**
      * 获取群组
      * @param guildId 群组 ID
      */
     suspend fun get(guildId: String): Guild {
-        return satoriAction.send("get") {
+        return mapper.readValue(satoriAction.send("get") {
             put("guild_id", guildId)
-        }.parseObject<Guild>()
+        })
     }
 
     /**
@@ -160,10 +164,10 @@ class GuildAction private constructor(
      * @param next 分页令牌
      */
     @JvmOverloads
-    suspend fun list(next: String? = null): MutableList<PaginatedData<Guild>> {
-        return satoriAction.send("list") {
+    suspend fun list(next: String? = null): List<PaginatedData<Guild>> {
+        return mapper.readValue(satoriAction.send("list") {
             put("next", next)
-        }.parseArray<PaginatedData<Guild>>()
+        })
     }
 
     /**
@@ -192,16 +196,18 @@ class GuildAction private constructor(
         @JvmField val role: RoleAction,
         private val satoriAction: SatoriAction
     ) {
+        private val mapper = jacksonObjectMapper()
+
         /**
          * 获取群组成员
          * @param guildId 群组 ID
          * @param userId 用户 ID
          */
         suspend fun get(guildId: String, userId: String): GuildMember {
-            return satoriAction.send("get") {
+            return mapper.readValue(satoriAction.send("get") {
                 put("guild_id", guildId)
                 put("user_id", userId)
-            }.parseObject<GuildMember>()
+            })
         }
 
         /**
@@ -210,11 +216,11 @@ class GuildAction private constructor(
          * @param next 分页令牌
          */
         @JvmOverloads
-        suspend fun list(guildId: String, next: String? = null): MutableList<PaginatedData<GuildMember>> {
-            return satoriAction.send("list") {
+        suspend fun list(guildId: String, next: String? = null): List<PaginatedData<GuildMember>> {
+            return mapper.readValue(satoriAction.send("list") {
                 put("guild_id", guildId)
                 put("next", next)
-            }.parseArray<PaginatedData<GuildMember>>()
+            })
         }
 
         /**
@@ -284,23 +290,26 @@ class GuildAction private constructor(
             }
 
             companion object {
-                fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = RoleAction(SatoriAction(platform, selfId, properties, "guild.member.role", logger))
+                fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+                    RoleAction(SatoriAction(platform, selfId, properties, "guild.member.role", logger))
             }
         }
     }
 
     class RoleAction private constructor(private val satoriAction: SatoriAction) {
+        private val mapper = jacksonObjectMapper()
+
         /**
          * 获取群组角色列表
          * @param guildId 群组 ID
          * @param next 分页令牌
          */
         @JvmOverloads
-        suspend fun list(guildId: String, next: String? = null): MutableList<PaginatedData<GuildRole>> {
-            return satoriAction.send("list") {
+        suspend fun list(guildId: String, next: String? = null): List<PaginatedData<GuildRole>> {
+            return mapper.readValue(satoriAction.send("list") {
                 put("guild_id", guildId)
                 put("next", next)
-            }.parseArray<PaginatedData<GuildRole>>()
+            })
         }
 
         /**
@@ -309,10 +318,10 @@ class GuildAction private constructor(
          * @param role 角色数据
          */
         suspend fun create(guildId: String, role: GuildRole): GuildRole {
-            return satoriAction.send("create") {
+            return mapper.readValue(satoriAction.send("create") {
                 put("guild_id", guildId)
                 put("role", role)
-            }.parseObject<GuildRole>()
+            })
         }
 
         /**
@@ -349,10 +358,12 @@ class GuildAction private constructor(
 }
 
 class LoginAction private constructor(private val satoriAction: SatoriAction) {
+    private val mapper = jacksonObjectMapper()
+
     /**
      * 获取登录信息
      */
-    suspend fun get(): Login = satoriAction.send("get").parseObject<Login>()
+    suspend fun get(): Login = mapper.readValue(satoriAction.send("get"))
 
     companion object {
         fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
@@ -361,16 +372,18 @@ class LoginAction private constructor(private val satoriAction: SatoriAction) {
 }
 
 class MessageAction private constructor(private val satoriAction: SatoriAction) {
+    private val mapper = jacksonObjectMapper()
+
     /**
      * 发送消息
      * @param channelId 频道 ID
      * @param content 消息内容
      */
-    suspend fun create(channelId: String, content: String): MutableList<Message> {
-        return satoriAction.send("create") {
+    suspend fun create(channelId: String, content: String): List<Message> {
+        return mapper.readValue(satoriAction.send("create") {
             put("channel_id", channelId)
-            put("content", content)
-        }.parseArray<Message>()
+            put("content", content.replace("\n", "\\n").replace("\"", "\\\""))
+        })
     }
 
     /**
@@ -387,10 +400,10 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
      * @param messageId 消息 ID
      */
     suspend fun get(channelId: String, messageId: String): Message {
-        return satoriAction.send("get") {
+        return mapper.readValue(satoriAction.send("get") {
             put("channel_id", channelId)
             put("message_id", messageId)
-        }.parseObject<Message>()
+        })
     }
 
     /**
@@ -415,7 +428,7 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
         satoriAction.send("update") {
             put("channel_id", channelId)
             put("message_id", messageId)
-            put("content", content)
+            put("content", content.replace("\n", "\\n").replace("\"", "\\\""))
         }
     }
 
@@ -434,11 +447,11 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
      * @param next 分页令牌
      */
     @JvmOverloads
-    suspend fun list(channelId: String, next: String? = null): MutableList<PaginatedData<Message>> {
-        return satoriAction.send("list") {
+    suspend fun list(channelId: String, next: String? = null): List<PaginatedData<Message>> {
+        return mapper.readValue(satoriAction.send("list") {
             put("channel_id", channelId)
             put("next", next)
-        }.parseArray<PaginatedData<Message>>()
+        })
     }
 
     companion object {
@@ -448,6 +461,8 @@ class MessageAction private constructor(private val satoriAction: SatoriAction) 
 }
 
 class ReactionAction private constructor(private val satoriAction: SatoriAction) {
+    private val mapper = jacksonObjectMapper()
+
     /**
      * 添加表态
      * @param channelId 频道 ID
@@ -507,13 +522,13 @@ class ReactionAction private constructor(private val satoriAction: SatoriAction)
         messageId: String,
         emoji: String,
         next: String? = null
-    ): MutableList<PaginatedData<User>> {
-        return satoriAction.send("list") {
+    ): List<PaginatedData<User>> {
+        return mapper.readValue(satoriAction.send("list") {
             put("channel_id", channelId)
             put("message_id", messageId)
             put("emoji", emoji)
             put("next", next)
-        }.parseArray<PaginatedData<User>>()
+        })
     }
 
     companion object {
@@ -526,14 +541,16 @@ class UserAction private constructor(
     @JvmField val channel: ChannelAction,
     private val satoriAction: SatoriAction
 ) {
+    private val mapper = jacksonObjectMapper()
+
     /**
      * 获取用户信息
      * @param userId 用户 ID
      */
     suspend fun get(userId: String): User {
-        return satoriAction.send("get") {
+        return mapper.readValue(satoriAction.send("get") {
             put("user_id", userId)
-        }.parseObject<User>()
+        })
     }
 
     companion object {
@@ -544,6 +561,8 @@ class UserAction private constructor(
     }
 
     class ChannelAction private constructor(private val satoriAction: SatoriAction) {
+        private val mapper = jacksonObjectMapper()
+
         /**
          * 创建私聊频道
          * @param userId 用户 ID
@@ -551,28 +570,31 @@ class UserAction private constructor(
          */
         @JvmOverloads
         suspend fun create(userId: String, guildId: String? = null): Channel {
-            return satoriAction.send("create") {
+            return mapper.readValue(satoriAction.send("create") {
                 put("user_id", userId)
                 put("guild_id", guildId)
-            }.parseObject<Channel>()
+            })
         }
 
         companion object {
-            fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) = ChannelAction(SatoriAction(platform, selfId, properties, "user.channel", logger))
+            fun of(platform: String, selfId: String, properties: SatoriProperties, logger: Logger) =
+                ChannelAction(SatoriAction(platform, selfId, properties, "user.channel", logger))
         }
     }
 }
 
 class FriendAction private constructor(private val satoriAction: SatoriAction) {
+    private val mapper = jacksonObjectMapper()
+
     /**
      * 获取好友列表
      * @param next 分页令牌
      */
     @JvmOverloads
-    suspend fun list(next: String? = null): MutableList<PaginatedData<User>> {
-        return satoriAction.send("list") {
+    suspend fun list(next: String? = null): List<PaginatedData<User>> {
+        return mapper.readValue(satoriAction.send("list") {
             put("next", next)
-        }.parseArray<PaginatedData<User>>()
+        })
     }
 
     /**
@@ -640,6 +662,5 @@ class SatoriAction @JvmOverloads constructor(
     }
 
     @JvmSynthetic
-    suspend inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) =
-        send(method, JsonObjectDSLBuilder().apply(dsl).build().toString())
+    suspend inline fun send(method: String, dsl: JsonObjectDSLBuilder.() -> Unit) = send(method, jsonObj(dsl))
 }

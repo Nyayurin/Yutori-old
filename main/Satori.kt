@@ -14,7 +14,6 @@ See the Mulan PSL v2 for more details.
 
 package io.github.nyayurn.yutori
 
-import com.alibaba.fastjson2.JSONObject
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
@@ -296,7 +295,10 @@ class SatoriWebSocketClient(
                 val signaling = Signaling.parse(frame.readText())
                 onEvent(signaling)
             } catch (e: Exception) {
-                logger.warn("[$name]: 处理事件时出错: ${e.localizedMessage}", this::class.java)
+                logger.warn(
+                    "[$name]: 处理事件时出错(${(frame as Frame.Text).readText()}): ${e.localizedMessage}",
+                    this::class.java
+                )
                 onEventException(e)
             }
         }
@@ -307,15 +309,14 @@ class SatoriWebSocketClient(
     }
 
     private suspend fun sendIdentity(session: DefaultClientWebSocketSession) {
-        val connection = Signaling(Signaling.IDENTIFY)
         val token = satori.properties.token
-        if (token != null || sequence != null) {
-            val body = Identify()
-            body.token = token
-            body.sequence = sequence
-            connection.body = body
+        val content = jsonObj {
+            put("op", Signaling.IDENTIFY)
+            if (token != null || sequence != null) putJsonObj("body") {
+                put("token", token)
+                put("sequence", sequence)
+            }
         }
-        val content = JSONObject.toJSONString(connection)
         logger.info("[$name]: 发送身份验证: $content", this::class.java)
         session.send(content)
     }
@@ -330,11 +331,11 @@ class SatoriWebSocketClient(
                     ) { "{platform: ${it.platform}, selfId: ${it.selfId}}" }
                 }", this::class.java)
                 // 心跳
-                val sendSignaling = Signaling(Signaling.PING)
                 launch {
+                    val content = jsonObj { put("op", Signaling.PING) }
                     while (true) {
                         delay(10000)
-                        send(JSONObject.toJSONString(sendSignaling))
+                        send(content)
                     }
                 }
             }
