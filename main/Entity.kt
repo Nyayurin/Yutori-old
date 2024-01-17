@@ -212,15 +212,7 @@ data class Signaling @JvmOverloads constructor(val op: Int, var body: Body? = nu
             val mapper = jacksonObjectMapper()
             val node = mapper.readTree(json)
             return when (val op = node["op"].asInt()) {
-                EVENT -> {
-                    val body = node["body"]
-                    if (!body["user"].isNull && body["user"]["id"].isNull) {
-                        throw NullPointerException("event.user.id is null")
-                    }
-                    val event = mapper.readValue<Event>(body.toString())
-                    Signaling(op, event)
-                }
-
+                EVENT -> Signaling(op, mapper.readValue<Event>(node["body"].toString()))
                 READY -> Signaling(op, Ready(mapper.readValue(node["body"]["logins"].toString())))
                 PONG -> Signaling(op)
                 else -> throw NoSuchElementException()
