@@ -18,4 +18,4 @@ Yutori 是一个基于 [Satori](https://satori.chat) 协议的多平台机器人
 框架本体使用 Kotlin 开发,
 提供 [Kotlin](https://kotlinlang.org), [Java](https://www.oracle.com/cn/java) 等 JVM 平台语言的开发支持
 
-## [文档](https://nyayurn.github.io/Yutori)
+## [文档](https://nyayurin.github.io/Yutori-old)
